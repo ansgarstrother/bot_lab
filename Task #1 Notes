@@ -7,5 +7,5 @@ Floats have less precision than a double, but have much less computational cost 
 
 Thus, in order to maximize our accuracy and time complexity, we chose to use a double for our angle theta and floats for our x and y coordinates
 
-See pos_t.lcm
+See lcm/pos_t.lcm
 
