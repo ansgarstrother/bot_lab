@@ -1,3 +1,5 @@
+package lcmtypes;
+
 struct pos_t
 {
   int64_t timestamp;
