@@ -3,7 +3,7 @@ Q1.1.
 For coordinate points, we use floats
 For angle, we use double
 
-Floats have less precision than a double, but have much less computational cost than floats. Coordinate points don't need the high level precision that we need with the angle, especially since gyros in our robot have a high error (2-5 degrees/minute).
+Floats have less precision than a double, but have much computational cost than doubles. Coordinate points don't need the high level precision that we need with the angle, especially since gyros in our robot have a high error (2-5 degrees/minute).
 
 Thus, in order to maximize our accuracy and time complexity, we chose to use a double for our angle theta and floats for our x and y coordinates
 
