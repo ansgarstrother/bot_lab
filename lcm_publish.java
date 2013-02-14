@@ -1,26 +1,22 @@
 import java.io.*;
 import lcm.lcm.*;
-import java.Math;
+import java.lang.Math;
 
 
-public class LCM_PUBLISH {
+public class lcm_publish {
     
     public static void main(String args[]) {
-        try {
+
             LCM lcm = LCM.getSingleton();
             
             // instantiate a new lcm position message
-            lcm.pos_t pos_msg = new lcm.pos_t();
+            lcmtypes.pos_t pos_msg = new lcmtypes.pos_t();
             pos_msg.timestamp = System.nanoTime();
-            pos_msg.x_pos = 1.0;    // dummy x coord
-            pos_msg.y_pos = 2.0;    // dummy y coord
-            pos_msg.theta = Math.toRadians(45); // dummy theta
+            pos_msg.x_pos = 1.0f;    // dummy x coord
+            pos_msg.y_pos = 2.0f;    // dummy y coord
+            pos_msg.theta = Math.toRadians(50); // dummy theta
             
             //publish
             lcm.publish("10_POSE", pos_msg);
-        }
-        catch (IOException e) {
-            System.err.println("Exception: " + e);
-        }
     }
 }
