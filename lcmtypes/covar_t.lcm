@@ -3,5 +3,8 @@ package lcmtypes;
 struct covar_t {
 
     int64_t timestamp;
-    float[] covar_vec;
+    float var_x;
+    float var_y;
+    float a;
+
 }
