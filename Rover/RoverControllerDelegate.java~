@@ -1,7 +1,0 @@
-package Rover;
-
-public interface RobotArmControllerDelegate {
-	
-	// Delegate Class Methods
-	
-}
