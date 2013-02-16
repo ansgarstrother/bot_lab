@@ -3,7 +3,7 @@ import lcm.lcm.*;
 import java.lang.Math;
 import lcmtypes.*;
 
-public class odometry implements LCMSubscriber {
+public class RoverOdometry implements LCMSubscriber {
 
     // LCM
     LCM lcm;
