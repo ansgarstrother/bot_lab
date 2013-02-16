@@ -10,9 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import april.util.ParameterGUI;
-import april.vis.VisCanvas;
-import april.vis.VisLayer;
-import april.vis.VisWorld;
+import april.vis.*;
 
 public class RoverFrame extends JFrame {
 	
@@ -43,6 +41,9 @@ public class RoverFrame extends JFrame {
 		resetViewButton = new JButton("Reset View");
 		topPanel.add(executeButton);
 		topPanel.add(resetViewButton);
+
+		// ADD GRID
+		VzGrid.addGrid(vw);
 	}
 	
 	
