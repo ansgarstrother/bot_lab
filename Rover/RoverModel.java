@@ -102,7 +102,6 @@ public class RoverModel
 		return chain;
 	}
 
-	// armAngles MUST be of length 4
 	public VisChain getRoverChain() {
 		VisChain rover = getChain();
 		return rover;

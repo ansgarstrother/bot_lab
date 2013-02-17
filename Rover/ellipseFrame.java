@@ -13,17 +13,17 @@ import javax.swing.JLabel;
 import april.util.ParameterGUI;
 import april.vis.*;
 
-public class RoverFrame extends JFrame {
+public class ellipseFrame extends JFrame {
 	
 	protected VisWorld vw;
 	protected VisLayer vl;
 	protected VisCanvas vc;
 	protected ParameterGUI pg;
-	protected JButton executeButton;
+	
 	protected JButton resetViewButton;
 
-	public RoverFrame() {
-		super("Rover: Speed Racer");
+	public ellipseFrame() {
+		super("Rover: Error Ellipse");
 		
 		vw = new VisWorld();
 		vl  = new VisLayer(vw);
@@ -32,20 +32,17 @@ public class RoverFrame extends JFrame {
 		
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(vc, BorderLayout.CENTER);
-		this.getContentPane().add(pg, BorderLayout.SOUTH);
-		
+		this.getContentPane().add(pg, BorderLayout.SOUTH);	
+
+		// ADD GRID
+		VzGrid.addGrid(vw);
+
 		// TOP PANEL GUI
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new FlowLayout());
 		this.getContentPane().add(topPanel, BorderLayout.NORTH);
-		executeButton = new JButton("Execute");
 		resetViewButton = new JButton("Reset View");
-		topPanel.add(executeButton);
 		topPanel.add(resetViewButton);
-		
-
-		// ADD GRID
-		VzGrid.addGrid(vw);
 	}
 	
 	

@@ -16,7 +16,8 @@ public class RoverGUI
 			@Override
 			public void run() {
 				RoverFrame mainWindow = new RoverFrame();
-				RoverApplicationController controller = new RoverApplicationController(mainWindow);
+				ellipseFrame secondWindow = new ellipseFrame();
+				RoverApplicationController controller = new RoverApplicationController(mainWindow, secondWindow);
 			}
 		});
 	}
