@@ -1,0 +1,22 @@
+;; run to cursor position
+(global-set-key [f10]
+                  (lambda ()
+                    (interactive nil)
+                    (gud-tbreak "%f:%l c")
+                    (gud-cont "%p")
+                    )
+                  )
+
+(global-set-key [f1] 'goto-line)
+
+(defun orc-c-mode ()
+  "ORC C mode"
+  (interactive)
+  (c++-mode)
+  (c-set-style "linux")
+  (setq tab-width 4)
+  (setq c-basic-offset 4)
+  (setq indent-tabs-mode nil)
+  (c-subword-mode)
+  (setq c-basic-offset 4))
+

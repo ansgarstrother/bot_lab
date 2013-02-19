@@ -1,0 +1,7 @@
+This software is governed under the terms of the GNU Public License,
+excepting that the luminary header files (lm3s8962.h) are in the
+public domain per their own license. Note that Luminary has not
+updated their header files per a discussion I had with them in which
+we agreed that header files will be in the public domain. (DriverLib
+remains under a restricted non-free license and thus must NOT be
+included in this distribution.)
