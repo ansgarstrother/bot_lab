@@ -8,8 +8,8 @@ import java.lang.*;
 
 public class RoverOrcGetValues {
 
-    Orc orc;
 
+    Orc orc;
     public double[] getMotorsCurrents () {
 
         double[] currents = new double[3];
