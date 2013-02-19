@@ -1,0 +1,37 @@
+Blue Tape Detection:
+
+General Method -
+1. Store initial image if in RGB
+    - More methods can be applied if we have color, otherwise we can't further improve results
+    
+2. Binarize a copy of the image with a threshold at 0.3 
+    - Parameter derived from experimentation
+    - More experimentation may be needed
+    
+3. Build a Gaussian filter and filter the image
+    - See matlab fspecial('gaussian', [5 5], 2);
+    - See matlab imfilter(I, G, 'same');
+
+4. Run an (Sobel) edge detection on image
+    - See matlab edge(I);
+
+5. Scan image on large patches to look for strong lines of best fit for edges
+    - See more details in section: Image Segmentation
+
+6. If we still have initial RGB image, we can confirm our line by testing RGB values of pixels above edge
+
+
+
+Image Segmentation -
+1. Scan first column and last column of an image for a white pixel
+    - The intuition is that the boundary rays we care about will always enter from the left or right hand side of an image, so it should naturally start at the edge of the camera
+2. Once a white pixel is found begin a traversal to determine its linearity
+    - Build a 70x70 patch with this point in the middle and on the far left/right
+    - segment the edge until we find a pixel with more than one neighbor, or until we are at the bounds of our patch
+    - After the segment is collected, run statistical analysis to determine its linearity
+    - Record linear fit
+    - Disallow lines going up/down (no more than 10 pixels in the up/down direction in a row)
+
+Notes:
+    - Start at the bottom and work up so we get the edge adjacent to the table first
+    - If we get a strong correlation, break and move on to the other edge of the camera
