@@ -1,0 +1,111 @@
+NK Design
+--------------
+Edwin Olson (eolson@mit.edu), 2007-04-28
+
+NK ("nano kernel") is a minimalist operating system designed for
+embedded systems. Its primary goals are to be as simple (and small) as
+possible while providing a lean but expressive set of primatives. It
+currently supports ARM7TDMI cores, but porting to other platforms
+should be straight-forward.
+
+There are a couple notable design decisions:
+
+* File-descriptors are eschewed in preference to peripheral-specific
+  APIs. Using standard file descriptors (as on Unix) is elegant and
+  uniform, however, it often entails additional overhead (often
+  including memcpys) whose performance cost becomes problematic on
+  resource-constrained devices.
+
+* A single "wait" system call is used to implement all blocking
+  operations, including sleeps. This "wait" system call is analagous
+  to the Unix "poll" system call. 
+
+An Architectural Overview
+-------------------------
+
+NK supports multiple threads ("tasks") that are pre-emptively
+scheduled according to a 5-level real-time priority system. Tasks at
+higher priority levels always pre-empt lower-priority tasks.
+
+Each task's state is stored in a nkern_task_t, which contains an
+architecture-specific state member (nkern_task_state_t). Runnable
+tasks are stored in per-priority-level linked list, and tasks that are
+waiting are stored in another linked list.
+
+Waiting Tasks
+-------------
+
+Tasks can wait on any number of wait records (nkern_wait_t), providing
+functionality similar to the Unix "poll" system call. Each wait record
+is a recorded in a linked list. Wait lists are typically maintained by
+device drivers, which can wake up the tasks whose wait records are in
+its wait list. User tasks allocate a number of wait records,
+initialize the wait records with a device driver, then call the wait()
+system call.
+
+As a special case, wait records can correspond to timeout events: the
+scheduler maintains a list of timeout wait records (in order of wakeup
+time) and will wake tasks when their timeout occurs. Only a single
+timeout-based event can be added to any wait() call.
+
+When an event occurs, all of the tasks wait records are removed from
+their wait lists and the task is returne
+
+Architectural Hooks
+-------------------
+
+Any specific architectural implementation must provide a few functions. 
+
+(write me)
+
+Device Drivers
+--------------
+
+NK supports a poll/select like mechanism, where user code can wait for
+one of a number of pre-specified events (or a timeout). These events
+can be any arbitrary event that the device driver is willing to
+support--- not just read and write.
+
+The user creates an array of wait records and initializes each entry
+via a driver-specific call. E.g. (the driver-specific methods are
+hypothetical):
+
+nkern_wait_t waits[3];
+
+serial_read_wait_init(&waits[0]);
+serial_write_wait_init(&waits[1]);
+tcp_listen_wait_init(tcpstate, &waits[2]);
+
+// wait on all three events for up to 50 ms.
+int evidx = nkern_wait_many_until(waits, 3, nkern_utime() + 50000);
+
+Upon return, evidx will contain the index of the event that caused the
+wakeup, or -1 if the timeout occurred.
+
+The device driver should call nkern_init_wait_event, which initializes
+the wait structure and adds the currently runing task to the wait
+list:
+
+	int nkern_init_wait_event(nkern_wait_t *wr, nkern_wait_list_t *wl);
+
+When the desired event occurs, the driver calls a variant of
+nkern_wake_*. nkern_wake_*, which will remove the task from the
+specified waitlist and will mark the task as having been "woken up".
+
+From an implementation standpoint, there is an interesting potential
+race condition that must be considered. Specifically, the event that
+the user is interested in might occur between the time when the user
+subscribes to the event (e.g., serial_read_wait_init) but before the
+task actually goes to sleep (nkern_wait_many_until).
+
+
+To-Do 
+----- 
+
+* Rewrite nkern_wait_list_t to be a doubly linked list, making the
+  remove operation O(1) instead of O(n).
+
+* Possibly rewrite the sleep queue to be a heap, making insertion
+  O(log n) instead of O(N). However, removal operations must also be
+  fast, and the constant may be a dominant factor for real-world work
+  loads.

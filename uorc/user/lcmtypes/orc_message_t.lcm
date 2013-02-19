@@ -1,0 +1,9 @@
+struct orc_message_t
+{
+    int32_t orc_id;
+    int32_t transaction_id;
+
+    int32_t command;
+    int32_t datalen;
+    byte    data[datalen];
+}

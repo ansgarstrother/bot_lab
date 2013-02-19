@@ -1,0 +1,30 @@
+struct orc_status_t
+{
+    int32_t orc_id;
+
+    int64_t utime;
+    int32_t status_flags;
+    int32_t debug_out_pos;
+
+    int32_t analog_input[13];
+    int32_t analog_input_filtered[13];
+    int32_t analog_input_filter_alpha[13];
+
+    int32_t simple_digital_values;
+    int32_t simple_digital_directions;
+    int32_t simple_digital_pullups;
+
+    int8_t  motor_enable[3];
+    int32_t motor_pwm_actual[3];
+    int32_t motor_pwm_goal[3];
+    int32_t motor_slew_rate[3];
+
+    int32_t qei_position[2];
+    int32_t qei_velocity[2];
+
+    int32_t smart_digital_mode[8];
+    int32_t smart_digital_config[8];
+
+    int64_t gyro_integrator[3];
+    int32_t gyro_integrator_count[3];
+}

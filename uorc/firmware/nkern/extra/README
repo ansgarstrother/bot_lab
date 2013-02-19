@@ -1,0 +1,3 @@
+Files in this directory are never required for operation of the
+kernel; they provide useful functionality in an "add-on" capacity.
+
