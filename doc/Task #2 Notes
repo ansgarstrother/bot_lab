@@ -35,3 +35,5 @@ Image Segmentation -
 Notes:
     - Start at the bottom and work up so we get the edge adjacent to the table first
     - If we get a strong correlation, break and move on to the other edge of the camera
+
+    - Real time data is taking forever. Reduce quality of image?
