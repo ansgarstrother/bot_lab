@@ -2,7 +2,7 @@
 ** Copyright 2005 Huxtable.com. All rights reserved.
 */
 
-package com.jhlabs.image;
+package Vision.util;
 
 import java.awt.*;
 import java.awt.image.*;

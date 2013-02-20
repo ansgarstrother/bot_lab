@@ -1,97 +1,75 @@
-import java.awt.*;
-import java.awt.image.*;
-import java.applet.*;
-import java.net.*;
-import java.io.*;
-import java.lang.Math;
-import java.util.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.JApplet;
-import javax.imageio.*;
-import javax.swing.event.*;
+package Vision.util;
+
+
+import java.awt.event.*;   
+import java.awt.image.BufferedImage;   
+import java.io.*;   
+   
+import javax.imageio.ImageIO;   
+import javax.swing.ImageIcon;   
+import javax.swing.JFrame;   
+import javax.swing.JLabel;
+
 
 public class sobel {
+	
+	// args
+	int width;
+	int height;
+	int[] pixels;
+	int[][] output;
+	double Gx[][], Gy[][], G[][];
+	
 
-		int[] input;
-		int[] output;
-		float[] template={-1,0,1,-2,0,2,-1,0,1};;
-		int progress;
-		int templateSize=3;
-		int width;
-		int height;
-		double[] direction;
-
-		public void sobel() {
-			progress=0;
-		}
-
-		public void init(int[] original, int widthIn, int heightIn) {
-			width=widthIn;
-			height=heightIn;
-			input = new int[width*height];
-			output = new int[width*height];
-			direction = new double[width*height];
-			input=original;
-		}
-		public int[] process() {
-			float[] GY = new float[width*height];
-			float[] GX = new float[width*height];
-			int[] total = new int[width*height];
-			progress=0;
-			int sum=0;
-			int max=0;
-
-			for(int x=(templateSize-1)/2; x<width-(templateSize+1)/2;x++) {
-				progress++;
-				for(int y=(templateSize-1)/2; y<height-(templateSize+1)/2;y++) {
-					sum=0;
-
-					for(int x1=0;x1<templateSize;x1++) {
-						for(int y1=0;y1<templateSize;y1++) {
-							int x2 = (x-(templateSize-1)/2+x1);
-							int y2 = (y-(templateSize-1)/2+y1);
-							float value = (input[y2*width+x2] & 0xff) * (template[y1*templateSize+x1]);
-							sum += value;
-						}
-					}
-					GY[y*width+x] = sum;
-					for(int x1=0;x1<templateSize;x1++) {
-						for(int y1=0;y1<templateSize;y1++) {
-							int x2 = (x-(templateSize-1)/2+x1);
-							int y2 = (y-(templateSize-1)/2+y1);
-							float value = (input[y2*width+x2] & 0xff) * (template[x1*templateSize+y1]);
-							sum += value;
-						}
-					}
-					GX[y*width+x] = sum;
-
-				}
+	public sobel(BufferedImage im) {
+		width = im.getWidth();
+		height = im.getHeight();
+		pixels = new int[width * height];
+		output = new int[width][height];
+		Gx = new double[width][height];
+		Gy = new double[width][height];
+		G = new double[width][height];
+		im.getRaster().getPixels(0,0,width,height,pixels);
+		int ct = 0;
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				output[i][j] = pixels[ct];
+				ct++;
 			}
-			for(int x=0; x<width;x++) {
-				for(int y=0; y<height;y++) {
-					total[y*width+x]=(int)Math.sqrt(GX[y*width+x]*GX[y*width+x]+GY[y*width+x]*GY[y*width+x]);
-					direction[y*width+x] = Math.atan2(GX[y*width+x],GY[y*width+x]);
-					if(max<total[y*width+x])
-						max=total[y*width+x];
-				}
-			}
-			float ratio=(float)max/255;
-			for(int x=0; x<width;x++) {
-				for(int y=0; y<height;y++) {
-					sum=(int)(total[y*width+x]/ratio);
-					output[y*width+x] = 0xff000000 | ((int)sum << 16 | (int)sum << 8 | (int)sum);
-				}
-			}
-			progress=width;
-			return output;
-		}
-
-		public double[] getDirection() {
-			return direction;
-		}
-		public int getProgress() {
-			return progress;
 		}
 
 	}
+
+	// OPERATION METHOD
+	public BufferedImage detectEdges() {
+		// Build Operator and Convolve
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				// image boundary
+				if (i == 0 || i == width - 1 || j == 0 || j == height - 1) {
+					Gx[i][j] = Gy[i][j] = G[i][j] = 0;
+				}
+				else {
+					Gx[i][j] = output[i+1][j-1] + 2*output[i+1][j] + output[i+1][j+1] -   
+          				output[i-1][j-1] - 2*output[i-1][j] - output[i-1][j+1];   
+          				Gy[i][j] = output[i-1][j+1] + 2*output[i][j+1] + output[i+1][j+1] -   
+          				output[i-1][j-1] - 2*output[i][j-1] - output[i+1][j-1];   
+          				G[i][j]  = Math.abs(Gx[i][j]) + Math.abs(Gy[i][j]);
+				}
+			}
+		}
+		int count = 0;
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				pixels[count] = (int) G[i][j];
+				count++;
+			}
+		}
+		
+		// Build buffered image
+		BufferedImage out = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+		out.getRaster().setPixels(0,0,width,height,pixels);
+		return out;
+	}
+}
+		

@@ -5,6 +5,7 @@
 package Vision.util;
 
 import java.awt.image.*;
+import java.lang.Math;
 
 /**
  * A filter which applies Gaussian blur to an image. This is a subclass of ConvolveFilter
@@ -121,7 +122,7 @@ public class GaussianFilter extends ConvolveFilter {
 		float[] matrix = new float[rows];
 		float sigma = radius/3;
 		float sigma22 = 2*sigma*sigma;
-		float sigmaPi2 = 2*ImageMath.PI*sigma;
+		float sigmaPi2 = 2*(float)Math.PI*sigma;
 		float sqrtSigmaPi2 = (float)Math.sqrt(sigmaPi2);
 		float radius2 = radius*radius;
 		float total = 0;

@@ -1,235 +1,98 @@
-import java.awt.*;
-import java.awt.image.*;
-import java.applet.*;
-import java.net.*;
-import java.io.*;
-import java.lang.Math;
-import java.util.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.JApplet;
-import javax.imageio.*;
-import javax.swing.event.*;
+/*  
+ **************************************************************************  
+ *  
+ *   Sobel operator  
+ *  
+ **************************************************************************  
+ */  
 
-
-
-public class sobelDemo extends JApplet {
-	
-	Image edgeImage, accImage, outputImage;
-	MediaTracker tracker = null;
-	PixelGrabber grabber = null;
-	int width = 0, height = 0;
-	String fileNames[] = {"lena.png", "microphone.png", "screw.png", "drawing.png", "film.png"};
-
-	javax.swing.Timer timer;
-	//slider constraints
-	static final int TH_MIN = 0;
-	static final int TH_MAX = 255;
-	static final int TH_INIT = 60;
-	int threshold=TH_INIT;
-	boolean thresholdActive=false;
-
-	int imageNumber=0;
-	static int progress=0;
-	public int orig[] = null;
-	
-	Image image[] = new Image[fileNames.length];
-	
-	JProgressBar progressBar;
-	JPanel controlPanel, imagePanel, progressPanel;
-	JLabel origLabel, outputLabel,comboLabel,sigmaLabel,thresholdLabel,processing;
-	JSlider thresholdSlider;
-	JButton thresholding;
-	JComboBox imSel;
-	static sobel edgedetector;
-	 
-	 
-	   	// Applet init function	
-	public void init() {
-		
-		tracker = new MediaTracker(this);
-		for(int i = 0; i < fileNames.length; i++) {
-			image[i] = getImage(this.getCodeBase(),fileNames[i]);
-			image[i] = image[i].getScaledInstance(256, 256, Image.SCALE_SMOOTH);
-			tracker.addImage(image[i], i);
-		}
-		try {
-			tracker.waitForAll();
-		}
-		catch(InterruptedException e) {
-			System.out.println("error: " + e);
-		}
-		
-		Container cont = getContentPane();
-		cont.removeAll();
-		cont.setBackground(Color.black);
-		cont.setLayout(new BorderLayout());
-		
-		controlPanel = new JPanel();
-		controlPanel.setLayout(new GridLayout(2,3,15,0));
-		controlPanel.setBackground(new Color(192,204,226));
-		imagePanel = new JPanel();
-		imagePanel.setBackground(new Color(192,204,226));
-		progressPanel = new JPanel();
-		progressPanel.setBackground(new Color(192,204,226));
-		progressPanel.setLayout(new GridLayout(2,1));
-
-		comboLabel = new JLabel("IMAGE");
-		comboLabel.setHorizontalAlignment(JLabel.CENTER);
-		controlPanel.add(comboLabel);
-		sigmaLabel = new JLabel("");
-		sigmaLabel.setHorizontalAlignment(JLabel.CENTER);
-		controlPanel.add(sigmaLabel);
-		thresholdLabel = new JLabel("Threshold Value = "+TH_INIT);
-		thresholdLabel.setHorizontalAlignment(JLabel.CENTER);
-		controlPanel.add(thresholdLabel);
-
-
-		processing = new JLabel("Processing...");
-		processing.setHorizontalAlignment(JLabel.LEFT);
-		progressBar = new JProgressBar(0,100);
-        progressBar.setValue(0);
-        progressBar.setStringPainted(true); //get space for the string
-        progressBar.setString("");          //but don't paint it
-		progressPanel.add(processing);
-		progressPanel.add(progressBar);
-		
-		width = image[imageNumber].getWidth(null);
-		height = image[imageNumber].getHeight(null);
-
-		imSel = new JComboBox(fileNames);
-		imageNumber = imSel.getSelectedIndex();
-		imSel.addActionListener( 
-			new ActionListener() {  
-				public void actionPerformed(ActionEvent e) {
-					imageNumber = imSel.getSelectedIndex();
-					origLabel.setIcon(new ImageIcon(image[imageNumber]));	
-					processImage();
-				}
-			}
-		);
-		controlPanel.add(imSel, BorderLayout.PAGE_START);
-
-        timer = new javax.swing.Timer(100, new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                progressBar.setValue(edgedetector.getProgress());
-            }
-        });
-
-		origLabel = new JLabel("Original Image", new ImageIcon(image[imageNumber]), JLabel.CENTER);
-		origLabel.setVerticalTextPosition(JLabel.BOTTOM);
-		origLabel.setHorizontalTextPosition(JLabel.CENTER);
-		origLabel.setForeground(Color.blue);
-		imagePanel.add(origLabel);
-		
-		outputLabel = new JLabel("Edge Detected", new ImageIcon(image[imageNumber]), JLabel.CENTER);
-		outputLabel.setVerticalTextPosition(JLabel.BOTTOM);
-		outputLabel.setHorizontalTextPosition(JLabel.CENTER);
-		outputLabel.setForeground(Color.blue);
-		imagePanel.add(outputLabel);
-	
-
-		thresholding = new JButton("Thresholding Off");
-		//thresholding.setVerticalTextPosition(AbstractButton.BOTTOM);
-    	//thresholding.setHorizontalTextPosition(AbstractButton.CENTER);
-		thresholding.setBackground(Color.RED);
-		thresholding.addActionListener( 
-			new ActionListener() {  
-				public void actionPerformed(ActionEvent e) {
-					if(thresholdActive==true){
-						thresholdActive=false;
-						thresholding.setBackground(Color.RED);
-						thresholding.setText("Thresholding Off");
-						thresholdSlider.setEnabled(false);
-					}
-					else{
-						thresholdActive=true;
-						thresholding.setBackground(Color.GREEN);
-						thresholding.setText("Thresholding ON");
-						thresholdSlider.setEnabled(true);
-					}
-					processImage();
-				}
-			}
-		);
-		controlPanel.add(thresholding);
-
-		thresholdSlider = new JSlider(JSlider.HORIZONTAL, TH_MIN, TH_MAX, TH_INIT);
-		thresholdSlider.addChangeListener(new thresholdListener());
-		thresholdSlider.setMajorTickSpacing(40);
-		thresholdSlider.setMinorTickSpacing(10);
-		thresholdSlider.setPaintTicks(true);
-		thresholdSlider.setPaintLabels(true);
-		thresholdSlider.setBackground(new Color(192,204,226));
-		controlPanel.add(thresholdSlider);
-
-
-
-		cont.add(controlPanel, BorderLayout.NORTH);
-		cont.add(imagePanel, BorderLayout.CENTER);
-		cont.add(progressPanel, BorderLayout.SOUTH);
-
-		processImage();
-
-	}
-  	class thresholdListener implements ChangeListener {
-	    public void stateChanged(ChangeEvent e) {
-	        JSlider source = (JSlider)e.getSource();
-	        if (!source.getValueIsAdjusting()) {
-				System.out.println("threshold="+source.getValue());
-				threshold=source.getValue();
-				thresholdLabel.setText("Threshold Value = "+source.getValue());
-				processImage();
-	        }    
-	    }
-	}
-	public int[] threshold(int[] original, int value) {
-		for(int x=0; x<original.length; x++) {
-			if((original[x] & 0xff)>=value)
-				original[x]=0xffffffff;
-			else
-				original[x]=0xff000000;
-		}
-		return original;
-	}
-	private void processImage(){
-		orig=new int[width*height];
-		PixelGrabber grabber = new PixelGrabber(image[imageNumber], 0, 0, width, height, orig, 0, width);
-		try {
-			grabber.grabPixels();
-		}
-		catch(InterruptedException e2) {
-			System.out.println("error: " + e2);
-		}
-		progressBar.setMaximum(width-4);
-
-		processing.setText("Processing...");
-		thresholdSlider.setEnabled(false);
-		thresholding.setEnabled(false);
-		imSel.setEnabled(false);
-		edgedetector = new sobel();
-		timer.start();
-
-		new Thread(){
-			public void run(){
-				edgedetector.init(orig,width,height);
-				int[] res = edgedetector.process();
-				if(thresholdActive==true)
-					res=threshold(res, threshold);
-				final Image output = createImage(new MemoryImageSource(width, height, res, 0, width));
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						outputLabel.setIcon(new ImageIcon(output));	
-						processing.setText("Done");
-						if(thresholdActive==true){
-							thresholdSlider.setEnabled(true);
-							}
-						thresholding.setEnabled(true);
-						imSel.setEnabled(true);
-					}
-				});
-			}
-		}.start();
-	}
-
-}
+package Vision.util;
+ 
+import java.awt.event.*;   
+import java.awt.image.BufferedImage;   
+import java.io.*;   
+   
+import javax.imageio.ImageIO;   
+import javax.swing.ImageIcon;   
+import javax.swing.JFrame;   
+import javax.swing.JLabel;   
+   
+public class sobelDemo {   
+   
+  public static void main(String[] args) throws IOException{   
+         
+      int     i, j;   
+      double  Gx[][], Gy[][], G[][];   
+      FileInputStream inFile = new FileInputStream("/home/hkuhn/Desktop/3.png");   
+        BufferedImage inImg = ImageIO.read(inFile);   
+        int width = inImg.getWidth();   
+        int height = inImg.getHeight();   
+        int[] pixels = new int[width * height];   
+        int[][] output = new int[width][height];   
+        inImg.getRaster().getPixels(0,0,width,height,pixels);   
+       
+        int counter = 0;   
+           
+        for(i = 0 ; i < width ; i++ )   
+        {   
+            for(j = 0 ; j < height ; j++ )   
+            {   
+                //System.out.println(counter);   
+                   
+                output[i][j] = pixels[counter];   
+                counter = counter + 1;   
+            }              
+        }   
+       
+      
+    Gx = new double[width][height];   
+    Gy = new double[width][height];   
+    G  = new double[width][height];   
+   
+    for (i=0; i<width; i++) {   
+      for (j=0; j<height; j++) {   
+        if (i==0 || i==width-1 || j==0 || j==height-1)   
+          Gx[i][j] = Gy[i][j] = G[i][j] = 0; // Image boundary cleared   
+        else{   
+          Gx[i][j] = output[i+1][j-1] + 2*output[i+1][j] + output[i+1][j+1] -   
+          output[i-1][j-1] - 2*output[i-1][j] - output[i-1][j+1];   
+          Gy[i][j] = output[i-1][j+1] + 2*output[i][j+1] + output[i+1][j+1] -   
+          output[i-1][j-1] - 2*output[i][j-1] - output[i+1][j-1];   
+          G[i][j]  = Math.abs(Gx[i][j]) + Math.abs(Gy[i][j]);   
+        }   
+      }   
+    }   
+    counter = 0;   
+    for(int ii = 0 ; ii < width ; ii++ )   
+    {   
+        for(int jj = 0 ; jj < height ; jj++ )   
+        {   
+            //System.out.println(counter);   
+               
+            pixels[counter] = (int) G[ii][jj];   
+            counter = counter + 1;   
+        }              
+    }   
+       
+    BufferedImage outImg = new BufferedImage(width,height,BufferedImage.TYPE_BYTE_GRAY);   
+    outImg.getRaster().setPixels(0,0,width,height,pixels);   
+    FileOutputStream outFile = new FileOutputStream("copyTop.bmp");   
+    ImageIO.write(outImg,"BMP",outFile);   
+       
+    JFrame TheFrame = new JFrame("¼v¹³¡G¼e " + width + " °ª " + height);   
+   
+    JLabel TheLabel = new JLabel(new ImageIcon(outImg));   
+    TheFrame.getContentPane().add(TheLabel);   
+     
+    
+      TheFrame.setSize(600, 600);   
+       
+      TheFrame.addWindowListener(new WindowAdapter() {   
+          public void windowClosing(WindowEvent e) {   
+            System.exit(0);                 
+          }   
+        });           
+      TheFrame.setVisible(true);   
+  }   
+   
+}  
