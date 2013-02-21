@@ -1,7 +1,6 @@
 package Vision.util;
 
 import java.awt.image.BufferedImage;
-import java.awt.Color;
 
 public class binarize {
 	// args
@@ -14,25 +13,23 @@ public class binarize {
 	public binarize(BufferedImage im, double thresh) {
 		in = im;
 		this.thresh = thresh;
-		//binarized = in;
-		binarized = new BufferedImage(im.getWidth(), im.getHeight(), im.getType());
+		binarized = in;
 		binarizeImage();
 	}
 
 	protected void binarizeImage() {
 		for (int i = 0; i < in.getWidth(); i++) {
-			for (int j = 0; j < in.getHeight(); j++) {
-				r = new Color(in.getRGB(i,j)).getRed();
-				int alpha = new Color(in.getRGB(i,j)).getAlpha();
+			for (int j = (in.getHeight()/2 - 100); j < in.getHeight(); j++) {
+				int r = in.getRGB(i,j) & 0xff;
 				if (r > thresh) {
-					newPixel = 16777215;	// 255 255 255
+					//int newPixel = 16777215;	// 255 255 255
+					//edited.setRGB(i,j, newPixel);
 				}
 				else {
-					newPixel = 0;	// 0 0 0
-					//System.out.println("hi");
+					int newPixel = 0;
+					binarized.setRGB(i,j,newPixel);
 				}
-
-				binarized.setRGB(i,j, newPixel);
+				
 			}
 		}
 	}

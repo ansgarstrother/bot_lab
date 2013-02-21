@@ -71,7 +71,7 @@ public class sobel2 {
 				}
 			}
 			for(int x=0; x<width;x++) {
-				for(int y=0; y<height;y++) {
+				for(int y=(height/2); y<height;y++) {
 					total[y*width+x]=(int)Math.sqrt(GX[y*width+x]*GX[y*width+x]+GY[y*width+x]*GY[y*width+x]);
 					direction[y*width+x] = Math.atan2(GX[y*width+x],GY[y*width+x]);
 					if(max<total[y*width+x])
@@ -80,7 +80,7 @@ public class sobel2 {
 			}
 			float ratio=(float)max/255;
 			for(int x=0; x<width;x++) {
-				for(int y=0; y<height;y++) {
+				for(int y=(height/2); y<height;y++) {
 					sum=(int)(total[y*width+x]/ratio);
 					output[y*width+x] = 0xff000000 | ((int)sum << 16 | (int)sum << 8 | (int)sum);
 				}

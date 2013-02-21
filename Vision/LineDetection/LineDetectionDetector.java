@@ -14,20 +14,16 @@ public class LineDetectionDetector {
 	// CONSTRUCTOR METHOD
 	public LineDetectionDetector(BufferedImage im, double thresh, float radius) {
 		in = im;
+		out = im;
 		grayscale g = new grayscale(im);
-		BufferedImage gray = g.getGrayScale();
-		binarize b = new binarize(gray, thresh);
-		BufferedImage binarized = b.getBinarizedImage();
-		//GaussianFilter gf = new GaussianFilter(radius);
-		//BufferedImage blurred = binarized;
-		//gf.filter(binarized, blurred);
+		out = g.getGrayScale();
+		binarize b = new binarize(out, thresh);
+		out = b.getBinarizedImage();
 		//sobel sb = new sobel(blurred);
 		//BufferedImage edges = sb.detectEdges();
 		//sobel2 sb = new sobel2();
-		//sb.init(blurred);
-		//BufferedImage edges = sb.process();
-
-		out = binarized;
+		//sb.init(out);
+		//out = sb.process();
 
 	}
 	
