@@ -37,7 +37,7 @@ public class LineDetectionController {
     private LineDetectionDetector   detector;
 
     final static double binaryThresh = 155;
-    final static float gaussRadius = 5f;
+    final static double lwPassThresh = 100;
     
     
     // CONSTRUCTOR
@@ -221,7 +221,7 @@ public class LineDetectionController {
 
     // Image Processing
     protected BufferedImage processImage(BufferedImage image) {
-	    	detector = new LineDetectionDetector(image, binaryThresh, gaussRadius);
+	    	detector = new LineDetectionDetector(image, binaryThresh, lwPassThresh);
 		return detector.getProcessedImage();
     }
 

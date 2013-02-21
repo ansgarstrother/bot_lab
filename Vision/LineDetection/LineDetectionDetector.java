@@ -12,18 +12,22 @@ public class LineDetectionDetector {
 
 
 	// CONSTRUCTOR METHOD
-	public LineDetectionDetector(BufferedImage im, double thresh, float radius) {
+	public LineDetectionDetector(BufferedImage im, double thresh, double lwpass) {
 		in = im;
 		out = im;
 		grayscale g = new grayscale(im);
 		out = g.getGrayScale();
 		binarize b = new binarize(out, thresh);
 		out = b.getBinarizedImage();
+		//colored_binarize cb = new colored_binarize(out, thresh, lwpass);
+		//out = cb.getBinarizedImage();
+
+
 		//sobel sb = new sobel(blurred);
 		//BufferedImage edges = sb.detectEdges();
-		//sobel2 sb = new sobel2();
-		//sb.init(out);
-		//out = sb.process();
+		sobel2 sb = new sobel2();
+		sb.init(out);
+		out = sb.process();
 
 	}
 	

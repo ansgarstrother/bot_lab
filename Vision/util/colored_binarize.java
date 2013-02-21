@@ -11,7 +11,7 @@ public class colored_binarize {
     
 	int b, newPixel;
     
-	public binarize(BufferedImage im, double thresh, double lwthresh) {
+	public colored_binarize(BufferedImage im, double thresh, double lwthresh) {
 		in = im;
 		this.thresh = thresh;   // blue threshold
         lowpass = lwthresh;     // red and green threshold (lower bounds)
@@ -22,10 +22,11 @@ public class colored_binarize {
 	protected void binarizeImage() {
 		for (int i = 0; i < in.getWidth(); i++) {
 			for (int j = (in.getHeight()/2 - 100); j < in.getHeight(); j++) {
-                int r = (in.getRGB(i,j) >> 16) & 0xff;
-                int g = (in.getRGB(i,j) >> 8) & 0xff;
+                		int r = (in.getRGB(i,j) >> 16) & 0xff;
+                		int g = (in.getRGB(i,j) >> 8) & 0xff;
 				int b = in.getRGB(i,j) & 0xff;
-				if (b > thresh && g < lowpass && r < lowpass) {
+				//System.out.println(r + " " + g + " " + b);
+				if (b > 50 && g < 160 && r < 160) {
 					binarized.setRGB(i,j, 0xff0000ff); //blue
 				}
 				else {
