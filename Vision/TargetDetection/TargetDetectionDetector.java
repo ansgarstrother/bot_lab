@@ -2,6 +2,7 @@ package Vision.TargetDetection;
 
 
 import java.awt.image.BufferedImage;
+import java.awt.Color;
 
 public class TargetDetectionDetector {
 
@@ -12,6 +13,8 @@ public class TargetDetectionDetector {
 	int height;
 	int delimiter;		// restricts height
 	double threshold;	// RGB threshold
+
+	
 
 	// CONSTRUCTOR METHOD
 	public TargetDetectionDetector(BufferedImage in, int delimiter, double thresh) {
@@ -42,28 +45,22 @@ public class TargetDetectionDetector {
 		//	a. Build a covariance matrix and use stats to determine shape of pixel blob
 		for (int j = 0; j < height - delimiter; j++) {
 			for (int i = 0; i < width - 1; i++) {
-				//float[] cHSV = Color.RGBtoHSV		// CONVERT TO HSV
 				int cRGB = im.getRGB(i,j);
 				int rRGB = im.getRGB(i+1,j);
 				int dRGB = im.getRGB(i,j+1);
-				boolean current_is_green = false;
-				int cR = cRGB >> 16 & 0xff;
-				int cG = cRGB >> 8 & 0xff;
-				int cB = cRGB & 0xff;
-				double total = cR + cG + cB;
-				if (cG < cR | cG < cB) {
+				// convert to HSV
+				float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
+				float[] rHSV = RGBtoHSV(rRGB >> 16 & 0xff, rRGB >> 8 & 0xff, rRGB & 0xff);
+				float[] dHSV = RGBtoHSV(dRGB >> 16 & 0xff, dRGB >> 8 & 0xff, dRGB & 0xff);
+				//System.out.println(cHSV[0]);
+				if (cHSV[0] > 0.2 && cHSV[0] < 0.6 && cHSV[1] > 0.7 && cHSV[2] > 0.2) {
+					im.setRGB(i,j,0xff00ff00);
+				}
+
 				
-				}
-				else if ((double)cR / total > threshold) {
-					// object has too much red
-				}
-				else if ((double)cB / total > threshold) {
-					// object has too much blue
-				}
-				else if ((double)cG / total > threshold && cG > cB && cG > cR) {
-					current_is_green = true;
-					im.setRGB(i,j,0xff00ff00);	// GREEN
-				}
+
+				boolean current_is_green = false;
+				
 			}
 		}
 				
@@ -72,6 +69,13 @@ public class TargetDetectionDetector {
 
 
 	
+	}
+
+	// HELPER FUNCTIONS
+	protected float[] RGBtoHSV(int r, int g, int b) {
+		float[] HSV = new float[3];
+		Color.RGBtoHSB(r,g,b,HSV);
+		return HSV;
 	}
 	
 
