@@ -43,7 +43,7 @@ public class TargetDetectionDetector {
 		//	a. For each pixel, find root node and update stats in hash map
 		// For all root nodes in hash map
 		//	a. Build a covariance matrix and use stats to determine shape of pixel blob
-		for (int j = 0; j < height - delimiter; j++) {
+		for (int j = (height/2); j < height - delimiter; j++) {
 			for (int i = 0; i < width - 1; i++) {
 				int cRGB = im.getRGB(i,j);
 				int rRGB = im.getRGB(i+1,j);
@@ -53,7 +53,7 @@ public class TargetDetectionDetector {
 				float[] rHSV = RGBtoHSV(rRGB >> 16 & 0xff, rRGB >> 8 & 0xff, rRGB & 0xff);
 				float[] dHSV = RGBtoHSV(dRGB >> 16 & 0xff, dRGB >> 8 & 0xff, dRGB & 0xff);
 				//System.out.println(cHSV[0]);
-				if (cHSV[0] > 0.2 && cHSV[0] < 0.6 && cHSV[1] > 0.7 && cHSV[2] > 0.2) {
+				if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 					im.setRGB(i,j,0xff00ff00);
 				}
 
