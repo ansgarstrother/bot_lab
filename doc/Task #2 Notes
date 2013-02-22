@@ -37,3 +37,25 @@ Notes:
     - If we get a strong correlation, break and move on to the other edge of the camera
 
     - Real time data is taking forever. Reduce quality of image?
+
+Revised Process:
+1. Work on One Image (saves computational complexity and space)
+2. Grayscale the image to magnify the blue tape darker than other objects in the image
+3. Run a binarization-like analysis on the bottom half of the image to make the blue tape black
+4. Scan up the image in search of black pixels
+	- Once a black pixel is found, record the pixel location
+	- color it and its previous neighbor white
+
+
+To get ground truth, manually click random points along the blue tape to assign
+	- Run tests on ten images and calculate error between selected points and computed points
+	- color1
+	- color2
+	- color3
+	- color4
+	- 1.png
+	- 2.png
+	- 3.png
+	- 4.png
+	- 5.png
+	- 6.png
