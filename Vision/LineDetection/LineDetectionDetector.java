@@ -33,6 +33,8 @@ public class LineDetectionDetector {
 		//sobel2 sb = new sobel2();
 		//sb.init(out);
 		//out = sb.process();
+        
+        boundaryMap = ed.getBoundaryMap();
 /*		
 		// save boundary map to txt file
 		boundaryMap = ed.getBoundaryMap();

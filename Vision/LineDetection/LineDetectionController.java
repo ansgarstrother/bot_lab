@@ -35,7 +35,12 @@ public class LineDetectionController {
     private Thread		    imageThread;
     private BufferedImage 	    selectedImage;
     private LineDetectionDetector   detector;
+    
+    // PIXEL COORDINATE LOCATIONS
+    private int[] boundaryMap;
+    private ArrayList<int[]> rectifiedMap;    // rectified boundary map
 
+    // constants
     final static double binaryThresh = 155;
     final static double lwPassThresh = 100;
     
@@ -221,8 +226,14 @@ public class LineDetectionController {
 
     // Image Processing
     protected BufferedImage processImage(BufferedImage image) {
-	    	detector = new LineDetectionDetector(image, binaryThresh, lwPassThresh);
-		return detector.getProcessedImage();
+        // detect and retrieve boundary map
+        detector = new LineDetectionDetector(image, binaryThresh, lwPassThresh);
+        boundaryMap = detector.getBoundaryMap();
+        // rectify
+        Rectification rectifier = new Rectification(boundaryMap, image.getWidth(), image.getHeight());
+		rectifiedMap = rectifier.getRectifiedPoints();
+        
+        return detector.getProcessedImage();
     }
 
     
@@ -230,6 +241,5 @@ public class LineDetectionController {
     public LineDetectionFrame getFrame() {
         return frame;
     }
-
     
 }
