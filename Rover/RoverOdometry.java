@@ -7,6 +7,9 @@ import lcmtypes.*;
 
 public class RoverOdometry {
 
+    // Measurements
+    static final double v2_wheel_diameter = .0762;	//meters
+
     // motor feedback
     int nmotors;
     int odom_encoders[];
@@ -56,11 +59,12 @@ public class RoverOdometry {
     private void calculatePose() {
         RoverOrcGetValues roverOrc = new RoverOrcGetValues();
 
+	// TALK TO THE ORC BOARD HERE
         odom_current = roverOrc.getMotorsCurrents();
         odom_integrator = roverOrc.getGyros();
 
-
-        // TALK TO ORC BOARD HERE
+	// USE INPUT TO CALCULATE POSE
+	
 
     }
 

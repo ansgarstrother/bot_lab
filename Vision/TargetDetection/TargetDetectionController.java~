@@ -1,6 +1,4 @@
-package Vision.LineDetection;
-
-import Vision.util.*;
+package Vision.TargetDetection;
 
 import java.io.*;
 
@@ -25,40 +23,38 @@ import april.jcam.ImageSource;
 import april.jcam.ImageConvert;
 import april.jcam.ImageSourceFormat;
 import april.jcam.ImageSourceFile;
+import april.util.ParameterGUI;
 
 
 
-public class LineDetectionController {
+public class TargetDetectionController {
 
     // args
     private ImageSource		    selectedImageSource;
-    private LineDetectionFrame      frame;
+    private TargetDetectionFrame      frame;
     private String		    selectedCameraURL;
     private Thread		    imageThread;
     private BufferedImage 	    selectedImage;
-    private LineDetectionDetector   detector;
-    
-    // PIXEL COORDINATE LOCATIONS
-    private int[] boundaryMap;
-    private ArrayList<int[]> rectifiedMap;    // rectified boundary map
+    private TargetDetectionDetector	detector;
+    private ParameterGUI		pg;
 
     // constants
-    final static double binaryThresh = 155;
-    final static double lwPassThresh = 100;
+    protected final static int delimiter = 150;		// reduces size of image for detection
     
     
     // CONSTRUCTOR
-    public LineDetectionController(LineDetectionFrame frame) {
+    public TargetDetectionController(TargetDetectionFrame frame) {
         this.frame = frame;
         frame.setSize(1024, 768);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+	pg = frame.getParameterGUI();
 
         // add action event listeners
         frame.getChooseCameraSourceButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				LineDetectionController.this.chooseCameraSourceAction();
+				TargetDetectionController.this.chooseCameraSourceAction();
 			}
 		});
          
@@ -70,7 +66,7 @@ public class LineDetectionController {
 			    FileNameExtensionFilter filter = new FileNameExtensionFilter(
                                                                              "Images", "jpg", "gif", "png");
 			    chooser.setFileFilter(filter);
-			    int returnVal = chooser.showOpenDialog(LineDetectionController.this.frame);
+			    int returnVal = chooser.showOpenDialog(TargetDetectionController.this.frame);
 			    if(returnVal == JFileChooser.APPROVE_OPTION) {
 			    	selectedImage = imageFromFile(chooser.getSelectedFile());
 			    	selectedImageSource = null;
@@ -85,7 +81,7 @@ public class LineDetectionController {
         // toggle line of best fit visibility by clicking image
         frame.getCenterImage().addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent me) {
-				LineDetectionController.this.didClickMouse(me);
+				TargetDetectionController.this.didClickMouse(me);
 			}
 		});
         
@@ -161,8 +157,8 @@ public class LineDetectionController {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						BufferedImage out = LineDetectionController.this.processImage(selectedImage);
-                            			LineDetectionController.this.getFrame().getCenterImage().setImage(out);
+						BufferedImage out = TargetDetectionController.this.processImage(selectedImage);
+                            			TargetDetectionController.this.getFrame().getCenterImage().setImage(out);
 					}
 				});
 			}
@@ -192,10 +188,10 @@ public class LineDetectionController {
 		this.imageThread = new Thread(new Runnable() {
 			@Override
             public void run() {
-                ImageSourceFormat fmt = LineDetectionController.this.selectedImageSource.getCurrentFormat();
+                ImageSourceFormat fmt = TargetDetectionController.this.selectedImageSource.getCurrentFormat();
                 while (true) {
                     // get buffer with image data from next frame
-                    byte buf[] = LineDetectionController.this.selectedImageSource.getFrame().data;
+                    byte buf[] = TargetDetectionController.this.selectedImageSource.getFrame().data;
                     
                     // if next frame is not ready, buffer will be null
                     // continue and keep trying
@@ -216,8 +212,8 @@ public class LineDetectionController {
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            BufferedImage out = LineDetectionController.this.processImage(im);
-                            LineDetectionController.this.getFrame().getCenterImage().setImage(out);
+                            BufferedImage out = TargetDetectionController.this.processImage(im);
+                            TargetDetectionController.this.getFrame().getCenterImage().setImage(out);
                         }
                     });
                 }
@@ -228,19 +224,16 @@ public class LineDetectionController {
 
     // Image Processing
     protected BufferedImage processImage(BufferedImage image) {
-        // detect and retrieve boundary map
-        detector = new LineDetectionDetector(image, binaryThresh, lwPassThresh);
-        boundaryMap = detector.getBoundaryMap();
-        // rectify
-        Rectification rectifier = new Rectification(boundaryMap, image.getWidth(), image.getHeight());
-	rectifiedMap = rectifier.getRectifiedPoints();
-        
-        return detector.getProcessedImage();
+        // process image
+	System.out.println(pg.gd("Threshold"));
+	detector = new TargetDetectionDetector(image, delimiter, pg.gd("Threshold"));
+	BufferedImage out = detector.getImage();
+        return out;
     }
 
     
     // PUBLIC CLASS METHODS
-    public LineDetectionFrame getFrame() {
+    public TargetDetectionFrame getFrame() {
         return frame;
     }
     
