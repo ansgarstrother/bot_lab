@@ -26,7 +26,10 @@ public class TargetDetectionFrame extends JFrame {
 
 	// add parameterGUI
 	pg = new ParameterGUI();
-	pg.addDoubleSlider("Threshold", "Green Threshold", 0, 1, 0.7);
+	pg.addDoubleSlider("HueLower", "Hue Lower Threshold", 0, 0.5, 0);
+	pg.addDoubleSlider("HueUpper", "Hue Upper Threshold", 0.5, 1, 0.5);
+	pg.addDoubleSlider("Saturation", "Saturation Threshold", 0, 1, 0);
+	pg.addDoubleSlider("Value", "Value Threshold", 0, 1, 0);
 	this.getContentPane().add(pg, BorderLayout.SOUTH);
         
         // add camera source button
