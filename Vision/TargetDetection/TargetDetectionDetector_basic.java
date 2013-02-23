@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 
-public class TargetDetectionDetector {
+public class TargetDetectionDetector_basic {
 
 	// args
 	BufferedImage im;
@@ -22,10 +22,10 @@ public class TargetDetectionDetector {
 	int mean_x;
 	int mean_y;
 
-	
+
 
 	// CONSTRUCTOR METHOD
-	public TargetDetectionDetector(BufferedImage in, int delimiter, double thresh) {
+	public TargetDetectionDetector_basic(BufferedImage in, int delimiter, double thresh) {
 		im = in;
 
 		width = in.getWidth();
@@ -41,7 +41,7 @@ public class TargetDetectionDetector {
 		runDetection();
 	}
 
-	
+
 	// PROTECTED METHODS
 	protected void runDetection() {
 		// Union Find searching for pixels of high green intensity
@@ -72,10 +72,10 @@ public class TargetDetectionDetector {
 					boolean blob = true;
 					for (int c = 1; c < 5; c++) {
 						int next_RGB = im.getRGB(i+c,j);
-						float[] next_HSV = RGBtoHSV(next_RGB >> 16 & 0xff, 
-										next_RGB >> 8 & 0xff, 
+						float[] next_HSV = RGBtoHSV(next_RGB >> 16 & 0xff,
+										next_RGB >> 8 & 0xff,
 										next_RGB & 0xff);
-						if (next_HSV[0] > 0.15 && next_HSV[0] < 0.7 && 
+						if (next_HSV[0] > 0.15 && next_HSV[0] < 0.7 &&
 							next_HSV[1] > 0.4 && next_HSV[2] > 0.3) {
 							blob = true;
 						}
@@ -92,13 +92,13 @@ public class TargetDetectionDetector {
 					}
 				}
 
-				
+
 
 				boolean current_is_green = false;
-				
+
 			}
 		}
-		/*	
+		/*
 		// Get mean, plot mean
 		mean_x = (int) sum_x / n;
 		mean_y = (int) sum_y / n;
@@ -110,7 +110,7 @@ public class TargetDetectionDetector {
 		*/
 
 
-	
+
 	}
 
 	// HELPER FUNCTIONS
@@ -119,15 +119,15 @@ public class TargetDetectionDetector {
 		Color.RGBtoHSB(r,g,b,HSV);
 		return HSV;
 	}
-	
+
 
 	// PUBLIC METHODS
 	public BufferedImage getImage() {
 		return im;
 	}
 
-	
-	
+
+
 
 
 
