@@ -33,6 +33,8 @@ public class Projection extends JFrame {
     private double objectDistance = -1;
     private double objectHeight;
 
+    private int count;		// used to keep track of which points we have clicked
+
 
 
 
@@ -69,9 +71,11 @@ public class Projection extends JFrame {
         this.BR = new Point (-1, -1);
 
         // set object distance and height for calculations
-        this.objectDistance = Double.parseDouble (args[0]);
-        this.objectHeight = Double.parseDouble (args[1]);
+        this.objectDistance = Double.parseDouble (args[0]);	// distance of object from camera
+        this.objectHeight = Double.parseDouble (args[1]);	// height of the camera from the ground
 
+	// initialize count
+	count = 0;
 
         getCamera();
         startCamera();
@@ -109,7 +113,7 @@ public class Projection extends JFrame {
                         byte[] buf = Projection.this.imageSource.getFrame().data;
 
                         if (buf == null)
-                            continue;
+                            continue;tream = new FileWr
 
                         BufferedImage im = ImageConvert.convertToImage (
                                                     fmt.format,
@@ -117,7 +121,36 @@ public class Projection extends JFrame {
                                                     fmt.height,
                                                     buf);
 
-                        jim.setImage (im);
+			// RECTIFY IMAGE
+			// Consistent with Rectification Process Vision/util/
+			BufferedImage im2 = new BufferedImage(fmt.width, fmt.height, BufferedImage.TYPE_INT_RGB);
+                	double cx = fmt.width / 2.0;
+                	double cy = fmt.height / 2.0;
+
+                	double B = -0.000910;
+                	double A = 1.527995;
+
+                	for (int y = 0; y < fmt.height; y++) {
+                    		for (int x = 0; x < fmt.width; x++) {
+
+                        		double dy = y - cy;
+                        		double dx = x - cx;
+
+                        		double theta = Math.atan2(dy, dx);
+                        		double r = Math.sqrt(dy*dy+dx*dx);
+
+                        		double rp = A*r + B*r*r;
+
+                        		int nx = (int) Math.round(cx + rp*Math.cos(theta));
+                        		int ny = (int) Math.round(cy + rp*Math.sin(theta));
+
+                        		if (nx >= 0 && nx < fmt.width && ny >= 0 && ny < fmt.height) {
+                            			im2.setRGB(x, y, im.getRGB((int) nx, (int) ny));
+                        		}
+
+                    		}
+                	}
+                        jim.setImage (im2);
 
                     }
                 }
@@ -136,12 +169,35 @@ public class Projection extends JFrame {
         this.c_x = this.MM.x - 1024/2;
         this.c_y = this.MM.y - 768/2;
 
+	System.out.println(this.f);
+	System.out.println(this.c_x);
+	System.out.println(this.c_y);
+
+	// matrix returned and printed to file
+	// matrix will then be imported and used in main controller
+	double[][] calibMatrix = returnMatrix();
+	try {
+		FileWriter fstream = new FileWriter("intrinsic.txt");
+		BufferedWriter out = new BufferedWriter(fstream);
+		for (int i = 0; i < calibMatrix.length; i++) {
+			out.write(calibMatrix[i][0] + " " + 
+					calibMatrix[i][1] + " " + 
+					calibMatrix[i][2] + " " + 
+					calibMatrix[i][3] + "\n"
+					);
+		}
+	}
+	catch (Exception e) {
+		System.err.println("Error: " + e.getMessage());
+	}
+
     }
 
     protected double[][] returnMatrix() {
         double[][] A = { {f, 0, c_x, 0},
                          {0, f,c_y, 0},
                          {0, 0, 1, 0} };
+
 
         return A;
 
@@ -168,57 +224,70 @@ public class Projection extends JFrame {
 
 
     public void mouseClickHandler (MouseEvent me) {
-        // first click must be MM, then clockwise from top left
+        // first click must be MM, then row from left to right
 
 
         Point input = me.getPoint();
-        System.out.println ("Mouse clicked at " + input.x + " " + input.y);
+	System.out.println("count = " + count);
+	if (count < 9) {
+        	System.out.println ("Mouse clicked at " + input.x + " " + input.y);
+	}
 
-        if (this.MM.x == -1 || this.MM.y == -1) {
+        if (count == 0) {
             this.MM = input;
+	    count++;
 
         }
 
-        else if (this.TL.x == -1 || this.TL.y == -1) {
+        else if (count == 1) {
             this.TL = input;
+	    count++;
         }
 
-        else if (this.TM.x == -1 || this.TM.y == -1) {
+        else if (count == 2) {
             this.TM = input;
+	    count++;
 
         }
 
-        else if (this.TR.x == -1 || this.TR.y == -1) {
+        else if (count == 3) {
             this.TR = input;
+	    count++;
 
         }
 
-        else if (this.ML.x == -1 || this.ML.y == -1) {
+        else if (count == 4) {
             this.ML = input;
+	    count++;
 
         }
 
-        else if (this.MR.x == -1 || this.MR.y == -1) {
+        else if (count == 5) {
             this.MR = input;
+	    count++;
 
         }
 
-        else if (this.BL.x == -1 || this.BL.y == -1) {
+        else if (count == 6) {
             this.BL = input;
+	    count++;
 
         }
 
-        else if (this.BM.x == -1 || this.BM.y == -1) {
+        else if (count == 7) {
             this.BM = input;
+	    count++;
 
         }
 
-        else if (this.BR.x == -1 || this.BR.y == -1) {
+        else if (count == 8) {
             this.BR = input;
+	    count++;
 
         }
 
         else { // done, go calculate
+	   System.out.println("calculating focal length");
            calculateFocalLength();
 
         }

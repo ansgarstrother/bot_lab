@@ -10,7 +10,7 @@ public class ProjectionMain {
         SwingUtilities.invokeLater (new Runnable() {
             public void run() {
 
-                if (args.length != 1) {
+                if (args.length != 2) {
                     System.out.println ("Specify object distance");
                     return;
                 }
