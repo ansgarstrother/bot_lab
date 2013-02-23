@@ -7,8 +7,10 @@ import java.util.Vector;
 
 public class TargetDetectionDetector {
 
-	// args
-    static final int BLOB_SIZE_CONSTANT = 100;
+	//Pixel area of triangle must be greater then this size to be counted
+    static final int BLOB_SIZE_CONSTANT = 150;
+    //Triangle must be within 100 pixels of half of its bounding box
+    static final int TRI_HALF_BOX_THRES_CONSTANT = 100;
 
 	BufferedImage im;
 	BufferedImage out;	// bounding box w/center at triangle
@@ -20,6 +22,8 @@ public class TargetDetectionDetector {
     int group = 1;
 
     class Stats{
+        int centerX;
+        int centerY;
         int count;
         int maxX;
         int maxY;
@@ -28,6 +32,7 @@ public class TargetDetectionDetector {
     }
 
     Vector<Stats> stats = new Vector<Stats>();
+    Vector<Stats> finalTriVec = new Vector<Stats>();
 
 	// CONSTRUCTOR METHOD
 	public TargetDetectionDetector(BufferedImage in, int delimiter, double thresh) {
@@ -165,16 +170,16 @@ public class TargetDetectionDetector {
             if (s.count > BLOB_SIZE_CONSTANT){
                 int [] bounds = {s.minY, s.minX, s.maxY, s.maxX};
                 mark(im, bounds, 0xffff0000);
-                System.out.print("MinY: ");
-                System.out.println(s.minY);
-                System.out.print("MinY: ");
-                System.out.println(s.minY);
-                System.out.print("MinX: ");
-                System.out.println(s.minX);
-                System.out.print("MaxY: ");
-                System.out.println(s.maxY);
-                System.out.print("MaxX: ");
-                System.out.println(s.maxX);
+                s.centerX = (s.maxX - s.minX) / 2;
+                s.centerY = (s.maxY - s.minY) / 2;
+
+                //Check if blob is approx half the box size to be added to finalTriVec
+                int approxTriangleSize = ((s.maxX - s.minX) * (s.maxY - s.minY)) / 2;
+                int minTriangleSize = approxTriangleSize - TRI_HALF_BOX_THRES_CONSTANT;
+                int maxTriangleSize = approxTriangleSize - TRI_HALF_BOX_THRES_CONSTANT;
+                if ((s.count < maxTriangleSize) && (s.count > minTriangleSize)){
+                    finalTriVec.add(s);
+                }
             }
         }
 
@@ -183,7 +188,7 @@ public class TargetDetectionDetector {
 
 	}
 	
-	public void mark(BufferedImage img, int[] bounds, int color){
+	protected void mark(BufferedImage img, int[] bounds, int color){
         // draw the horizontal lines
         for (int x = bounds[0]; x <=bounds[2]; x++) {
             img.setRGB(x,bounds[1], color); //Go Blue!
@@ -210,11 +215,9 @@ public class TargetDetectionDetector {
 		return im;
 	}
 
-
-
-
-
-
+    public Vector<Stats> GetTriangleLocations(){
+        return finalTriVec;
+    }
 
 
 }
