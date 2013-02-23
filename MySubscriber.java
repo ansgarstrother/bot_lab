@@ -59,10 +59,13 @@ public class MySubscriber implements LCMSubscriber
                     System.out.println("  alttemp     = [ " + msg.alttemp[i] + " ]");
                 }
             }
+	    Thread.sleep(1000);
             
         } catch (IOException ex) {
             System.out.println("Exception: " + ex);
-        }
+        } catch (InterruptedException e) {
+		System.err.println(e.getMessage());
+	}
     }
     
     public static void main(String args[])
