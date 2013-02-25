@@ -23,7 +23,7 @@ public class SegmentationTest {
                 i++;
             }
             in.close();
-            //LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
+            LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
         }
         catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
