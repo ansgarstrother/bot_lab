@@ -1,7 +1,5 @@
 package Vision.LineDetection;
-//import Vision.util.*;
 
-//import april.jcam.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -67,6 +65,7 @@ public class LineDetectionSegmentation {
         System.out.println("y = " + m + "x + " + b);
         System.out.println("init point: (" + init_point[0] + "," + init_point[1] + ")");
         System.out.println("final point: (" + final_point[0] + "," + final_point[1] + ")");
+        System.out.println("");
         
     }
 
