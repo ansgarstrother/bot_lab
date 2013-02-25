@@ -29,7 +29,7 @@ import april.jcam.ImageSourceFile;
 
 
 public class LineDetectionController {
-
+    
     // args
     private ImageSource		    selectedImageSource;
     private LineDetectionFrame      frame;
@@ -41,7 +41,7 @@ public class LineDetectionController {
     // PIXEL COORDINATE LOCATIONS
     private int[] boundaryMap;
     private ArrayList<int[]> rectifiedMap;    // rectified boundary map
-
+    
     // constants
     final static double binaryThresh = 155;
     final static double lwPassThresh = 100;
@@ -53,7 +53,7 @@ public class LineDetectionController {
         frame.setSize(1024, 768);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
-
+        
         // add action event listeners
         frame.getChooseCameraSourceButton().addActionListener(new ActionListener() {
 			@Override
@@ -61,7 +61,7 @@ public class LineDetectionController {
 				LineDetectionController.this.chooseCameraSourceAction();
 			}
 		});
-         
+        
         
         frame.getChooseImageButton().addActionListener(new ActionListener() {
 			@Override
@@ -111,7 +111,7 @@ public class LineDetectionController {
     
     protected void didClickMouse(MouseEvent me) {
         // toggle visibility of best fit lines
-
+        
 	}
     
 	protected void chooseCameraSourceAction() {
@@ -162,7 +162,7 @@ public class LineDetectionController {
 					@Override
 					public void run() {
 						BufferedImage out = LineDetectionController.this.processImage(selectedImage);
-                            			LineDetectionController.this.getFrame().getCenterImage().setImage(out);
+                        LineDetectionController.this.getFrame().getCenterImage().setImage(out);
 					}
 				});
 			}
@@ -225,7 +225,7 @@ public class LineDetectionController {
         });
         this.imageThread.start();
     }
-
+    
     // Image Processing
     protected BufferedImage processImage(BufferedImage image) {
         // detect and retrieve boundary map
@@ -233,11 +233,13 @@ public class LineDetectionController {
         boundaryMap = detector.getBoundaryMap();
         // rectify
         Rectification rectifier = new Rectification(boundaryMap, image.getWidth(), image.getHeight());
-	rectifiedMap = rectifier.getRectifiedPoints();
+        rectifiedMap = rectifier.getRectifiedPoints();
+        
+        
         
         return detector.getProcessedImage();
     }
-
+    
     
     // PUBLIC CLASS METHODS
     public LineDetectionFrame getFrame() {
