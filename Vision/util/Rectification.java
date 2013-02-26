@@ -8,8 +8,8 @@ import java.util.ArrayList;
 public class Rectification {
 
     // args
-    int[] inputMap;
-    ArrayList<int[]> outputMap;    // rectified points
+    ArrayList<int[][]> inputMap;
+    ArrayList<int[][]> outputMap;    // rectified points
     static int width;
     static int height;
     
@@ -19,15 +19,15 @@ public class Rectification {
     final static int CENTER_X = width/2;  // needs to be found
     final static int CENTER_Y = height/2;  // needs to be found
     
-    public Rectification(int[] input, int w, int h) {
-        outputMap = new ArrayList<int[]>();
+    public Rectification(ArrayList<int[][]> input, int w, int h) {
+        outputMap = new ArrayList<int[][]>();
         inputMap = input;
         width = w;
         height = h;
         rectify();
     }
     
-    public ArrayList<int[]> getRectifiedPoints() {
+    public ArrayList<int[][]> getRectifiedPoints() {
         return outputMap;
     }
 
@@ -37,13 +37,21 @@ public class Rectification {
         // find the radius from the center
         // use lookup table to get rectified radius
         // recompute (x,y) and store in new data structure
-        for (int i = 0; i < width; i++) {
-            int cur_x = i;
-            int cur_y = inputMap[i];
-            double cur_r = getRadius(cur_x, cur_y);
-            double cur_t = getAngle(cur_x, cur_y);
-            double rect_r = getRectifiedRadius(cur_r);
-            insertRectifiedPoint(rect_r, cur_t);
+        for (int i = 0; i < inputMap.size(); i++) {
+            int[][] cur_segment = inputMap.get(i);
+            int init_x = cur_segment[0][0];
+            int init_y = cur_segment[0][1];
+            int fin_x = cur_segment[1][0];
+            int fin_y = cur_segment[1][1];
+            double init_r = getRadius(init_x, init_y);
+            double init_t = getAngle(init_x, init_y);
+            double rect_init_r = getRectifiedRadius(init_r);
+            double fin_r = getRadius(fin_x, fin_y);
+            double fin_t = getAngle(fin_x, fin_y);
+            double rect_fin_r = getRectifiedRadius(fin_r);
+            double[] init_point = {rect_init_r, init_t};
+            double[] fin_point = {rect_fin_r, fin_t};
+            insertRectifiedPoint(init_point, fin_point);
         }
         
     }
@@ -62,11 +70,18 @@ public class Rectification {
     protected double getRectifiedRadius(double r) {
         return b*r + a*r*r;
     }
-    protected void insertRectifiedPoint(double rp, double theta) {
-        int nx = (int) Math.round(CENTER_X + rp*Math.cos(theta));
-        int ny = (int) Math.round(CENTER_Y + rp*Math.sin(theta));
-        if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-            int[] input = {nx, ny};
+    protected void insertRectifiedPoint(double[] ip, double[] fp) {
+        double init_rp = ip[0];
+        double init_theta = ip[1];
+        double fin_rp = ip[0];
+        double fin_theta = ip[1];
+        int init_nx = (int) Math.round(CENTER_X + init_rp*Math.cos(init_theta));
+        int init_ny = (int) Math.round(CENTER_Y + init_rp*Math.sin(init_theta));
+        int fin_nx = (int) Math.round(CENTER_X + fin_rp*Math.cos(fin_theta));
+        int fin_ny = (int) Math.round(CENTER_Y + fin_rp*Math.sin(fin_theta));
+        if (init_nx >= 0 && init_nx < width && init_ny >= 0 && init_ny < height &&
+            fin_nx >= 0 && fin_nx < width && fin_nx >= 0 && fin_ny < height) {
+            int[][] input = {{init_nx, init_ny}, {fin_nx, fin_ny}};
             outputMap.add(input);
         }
     }

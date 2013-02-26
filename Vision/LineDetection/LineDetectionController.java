@@ -1,6 +1,7 @@
 package Vision.LineDetection;
 
 import Vision.util.*;
+import Vision.calibration.*;
 
 import java.io.*;
 
@@ -25,6 +26,7 @@ import april.jcam.ImageSource;
 import april.jcam.ImageConvert;
 import april.jcam.ImageSourceFormat;
 import april.jcam.ImageSourceFile;
+import april.jmat.Matrix;
 
 
 
@@ -40,15 +42,18 @@ public class LineDetectionController {
     
     // PIXEL COORDINATE LOCATIONS
     private int[] boundaryMap;
-    private ArrayList<int[]> rectifiedMap;    // rectified boundary map
+    private ArrayList<int[][]> rectifiedMap;    // rectified boundary map
+    private ArrayList<int[][]> realWorldMap;    // in real world coordinates
     
     // constants
     final static double binaryThresh = 155;
     final static double lwPassThresh = 100;
+    private double[][] calibrationMatrix;
     
     
     // CONSTRUCTOR
-    public LineDetectionController(LineDetectionFrame frame) {
+    public LineDetectionController(LineDetectionFrame frame, double[][] cm) {
+        calibrationMatrix = cm; // calibration matrix
         this.frame = frame;
         frame.setSize(1024, 768);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -231,11 +236,23 @@ public class LineDetectionController {
         // detect and retrieve boundary map
         detector = new LineDetectionDetector(image, binaryThresh, lwPassThresh);
         boundaryMap = detector.getBoundaryMap();
+        
+        // segment points
+        LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
+        ArrayList<int[][]> segments = lds.getSegments();
+        
         // rectify
-        Rectification rectifier = new Rectification(boundaryMap, image.getWidth(), image.getHeight());
+        Rectification rectifier = new Rectification(segments, image.getWidth(), image.getHeight());
         rectifiedMap = rectifier.getRectifiedPoints();
         
-        
+        // transform to real world coordiantes
+        // from calibrationMatrix
+        // coordinates should now be in 3D
+        realWorldMap = new ArrayList<int[][]>();
+        Matrix calibMat = new Matrix(calibrationMatrix);
+        for (int i = 0; i < rectifiedMap.size(); i++) {
+            
+        }
         
         return detector.getProcessedImage();
     }
@@ -244,6 +261,9 @@ public class LineDetectionController {
     // PUBLIC CLASS METHODS
     public LineDetectionFrame getFrame() {
         return frame;
+    }
+    public ArrayList<int[][]> getSegments() {
+        return realWorldMap;
     }
     
 }
