@@ -43,7 +43,7 @@ public class LineDetectionController {
     // PIXEL COORDINATE LOCATIONS
     private int[] boundaryMap;
     private ArrayList<int[][]> rectifiedMap;    // rectified boundary map
-    private ArrayList<int[][]> realWorldMap;    // in real world coordinates
+    private ArrayList<double[][]> realWorldMap;    // in real world coordinates
     
     // constants
     final static double binaryThresh = 155;
@@ -248,10 +248,25 @@ public class LineDetectionController {
         // transform to real world coordiantes
         // from calibrationMatrix
         // coordinates should now be in 3D
-        realWorldMap = new ArrayList<int[][]>();
+        realWorldMap = new ArrayList<double[][]>();
         Matrix calibMat = new Matrix(calibrationMatrix);
         for (int i = 0; i < rectifiedMap.size(); i++) {
-            
+            int[][] segment = rectifiedMap.get(i);
+	    double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
+	    double[][] fin_point = {{segment[1][0]}, {segment[1][1]}, {1}};
+	    Matrix init_pixel_mat = new Matrix(init_point);
+	    Matrix fin_pixel_mat = new Matrix(fin_point);
+	    Matrix affine_vec = calibMat.transpose()
+					.times(calibMat)
+					.inverse()
+					.times(calibMat.transpose());
+	    Matrix init_vec = calibMat.times(init_pixel_mat);
+	    Matrix fin_vec = calibMat.times(fin_pixel_mat);
+
+	    // add real world coordinate
+	    double[][] real_segment = {{init_vec.get(0,0), init_vec.get(0,1), init_vec.get(0,2)},
+					{fin_vec.get(0,0), fin_vec.get(0,1), fin_vec.get(0,2)}};
+	    realWorldMap.add(real_segment);
         }
         
         return detector.getProcessedImage();
@@ -262,7 +277,7 @@ public class LineDetectionController {
     public LineDetectionFrame getFrame() {
         return frame;
     }
-    public ArrayList<int[][]> getSegments() {
+    public ArrayList<double[][]> getSegments() {
         return realWorldMap;
     }
     
