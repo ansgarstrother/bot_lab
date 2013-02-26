@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
 import java.awt.Point;
+import java.awt.geom.*;
 import javax.swing.*;
 
 import april.jcam.*;
@@ -14,27 +15,49 @@ import april.jmat.*;
 
 public class Projection extends JFrame {
 
+    private final double cameraHeight = .2032; // height of camera off the ground
+    private double z1 = 0.2; // 3 sets of distances away from camera
+    private double z2 = 0.3;
+    private double z3 = 0.4;
+    private double z4 = 0.5;
+    private double z5 = 0.6;
+    private double z6 = 0.7;
+    private double z7 = 0.8;
+    private double z8 = 0.9;
+    private double z9 = 1.0;
+
+
+    private double x1 = -0.3; // 3 sets of distances spanning from left to right
+    private double x2 = 0.1;
+    private double x3 = 0.4;
+
+    private double y = -cameraHeight;
 
     // click points for calibration
-    private Point MM;
-    private Point TL;
-    private Point TM;
-    private Point TR;
-    private Point ML;
-    private Point MR;
-    private Point BL;
-    private Point BM;
-    private Point BR;
+
+    private double lengths[];
 
     private double f;
     private double c_x;
     private double c_y;
     private double imageLength;
-    private double objectDistance = -1;
+    private double objectDistance;
     private double objectHeight;
 
     private int count;		// used to keep track of which points we have clicked
 
+    private double[][] testCoords = { {x1, y, z1},
+                                        {x2, y, z2},
+                                        {x3, y, z3},
+                                        {x1, y, z4},
+                                        {x2, y, z5},
+                                        {x3, y, z6},
+                                        {x1, y, z7},
+                                        {x2, y, z8},
+                                        {x3, y, z9} };
+
+
+    private Point[] testPixels;
 
 
 
@@ -44,8 +67,9 @@ public class Projection extends JFrame {
     private JFrame jf = new JFrame ("Projection");
     private JImage jim = new JImage();
 
+
     // constructor
-    public Projection(String args[]) {
+    public Projection() {
 
         jf.setLayout (new BorderLayout());
         jf.add (jim, BorderLayout.CENTER);
@@ -53,29 +77,25 @@ public class Projection extends JFrame {
         jf.setVisible (true);
         jf.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
 
+        testPixels = new Point[9];
+        lengths = new double[3];
+
+        // fill corresponding real world coordinates for points
+        // always strat from bottom left, bottom middle, bottom right, middle left, etc.
+
+
+        for (int i=0; i < testPixels.length; i++) {
+            testPixels[i] = new Point(-1, -1);
+        }
+
+	    // initialize count
+	    count = 0;
         jim.addMouseListener (new MouseAdapter() {
             public void mouseClicked (MouseEvent me) {
                 mouseClickHandler (me);
             }
         });
 
-        // set points to -1 initially
-        this.MM = new Point (-1, -1);
-        this.TL = new Point (-1, -1);
-        this.TM = new Point (-1, -1);
-        this.TR = new Point (-1, -1);
-        this.ML = new Point (-1, -1);
-        this.MR = new Point (-1, -1);
-        this.BL = new Point (-1, -1);
-        this.BM = new Point (-1, -1);
-        this.BR = new Point (-1, -1);
-
-        // set object distance and height for calculations
-        this.objectDistance = Double.parseDouble (args[0]);	// distance of object from camera
-        this.objectHeight = Double.parseDouble (args[1]);	// height of the camera from the ground
-
-	// initialize count
-	count = 0;
 
         getCamera();
         startCamera();
@@ -86,7 +106,7 @@ public class Projection extends JFrame {
     public void getCamera() {
         ArrayList<String> urls = ImageSource.getCameraURLs();
         if (urls.size() == 0) {
-            System.out.println ("No cameras found");
+            System.out.println("No cameras found");
             return;
         }
 
@@ -113,7 +133,7 @@ public class Projection extends JFrame {
                         byte[] buf = Projection.this.imageSource.getFrame().data;
 
                         if (buf == null)
-                            continue;tream = new FileWr
+                            continue;
 
                         BufferedImage im = ImageConvert.convertToImage (
                                                     fmt.format,
@@ -160,38 +180,70 @@ public class Projection extends JFrame {
 
     }
 
-    protected void calculateFocalLength() {
-        assert (this.objectDistance != -1);
+    // need to perform least squares regression
+    // outputs the predicted pixels, given the real world coordinates and estimated inputs
+    // inputs of the form [f, c_x, cy]
 
-        this.imageLength = averageImageLength();
-        this.f = (this.imageLength*this.objectDistance) / (this.objectHeight);
+    protected void calculateLengths() {
 
-        this.c_x = this.MM.x - 1024/2;
-        this.c_y = this.MM.y - 768/2;
 
-	System.out.println(this.f);
-	System.out.println(this.c_x);
-	System.out.println(this.c_y);
 
-	// matrix returned and printed to file
-	// matrix will then be imported and used in main controller
-	double[][] calibMatrix = returnMatrix();
-	try {
-		FileWriter fstream = new FileWriter("intrinsic.txt");
-		BufferedWriter out = new BufferedWriter(fstream);
-		for (int i = 0; i < calibMatrix.length; i++) {
-			out.write(calibMatrix[i][0] + " " + 
-					calibMatrix[i][1] + " " + 
-					calibMatrix[i][2] + " " + 
-					calibMatrix[i][3] + "\n"
-					);
-		}
-	}
-	catch (Exception e) {
-		System.err.println("Error: " + e.getMessage());
-	}
+        double [][] A = new double[2*testCoords.length][3];
+        double [][] pixelVec = new double[2*testCoords.length][1];
+        int j = 0;
+        for (int i=0; i < A.length; i+= 2) {
+            A[i][0] = testCoords[j][0] / testCoords[j][2];
+            A[i][1] = 1;
+            A[i][2] = 0;
+
+            pixelVec[i][0] = testPixels[j].getX();
+            A[i+1][0] = (testCoords[j][1] / testCoords[j][2]);
+            A[i+1][1] = 0;
+            A[i+1][2] = 1;
+
+            pixelVec[i+1][0] = testPixels[j].getY();
+            j++;
+
+        }
+
+
+
+        Matrix Amat = new Matrix (A);
+        Matrix pixelVecMat = new Matrix (pixelVec);
+
+
+        Matrix AmatSq = Amat.transpose().times (Amat);
+        Matrix result1 = AmatSq.inverse().times(Amat.transpose());
+        Matrix result = result1.times(pixelVecMat);
+
+        this.f = result.get(0,0);
+        this.c_x = result.get(1,0);
+        this.c_y = result.get(2,0);
+
+        System.out.println(this.f);
+        System.out.println(this.c_x);
+        System.out.println(this.c_y);
+
+        // matrix returned and printed to file
+        // matrix will then be imported and used in main controller
+        double[][] calibMatrix = returnMatrix();
+        try {
+            FileWriter fstream = new FileWriter("intrinsic.txt");
+            BufferedWriter out = new BufferedWriter(fstream);
+            for (int i = 0; i < calibMatrix.length; i++) {
+                out.write(calibMatrix[i][0] + " " +
+                        calibMatrix[i][1] + " " +
+                        calibMatrix[i][2] + " " +
+                        calibMatrix[i][3] + "\n"
+                        );
+            }
+        }
+        catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
 
     }
+
 
     protected double[][] returnMatrix() {
         double[][] A = { {f, 0, c_x, 0},
@@ -204,93 +256,27 @@ public class Projection extends JFrame {
     }
 
 
-    protected double averageImageLength() {
-        int d1 = Math.abs (this.TM.x - this.TL.x);
-        int d2 = Math.abs (this.TR.x - this.TM.x);
-        int d3 = Math.abs (this.MM.x - this.ML.x);
-        int d4 = Math.abs (this.MR.x - this.MM.x);
-        int d5 = Math.abs (this.BM.x - this.BL.x);
-        int d6 = Math.abs (this.BR.x - this.BM.x);
-        int d7 = Math.abs (this.ML.y - this.TL.y);
-        int d8 = Math.abs (this.MM.y - this.TM.y);
-        int d9 = Math.abs (this.MR.y - this.TR.y);
-
-        double average = (d1 + d2 + d3 + d4 + d5 + d6 + d7 + d8 + d9)/9;
-        return average;
-
-
-
-    }
-
-
     public void mouseClickHandler (MouseEvent me) {
+
+        // must click from left to right, closest to furthest
         // first click must be MM, then row from left to right
 
+        if (count < 9) {
 
-        Point input = me.getPoint();
-	System.out.println("count = " + count);
-	if (count < 9) {
-        	System.out.println ("Mouse clicked at " + input.x + " " + input.y);
-	}
+            Point input = me.getPoint();
+            System.out.println ("Clicked at " + input.x + " " + input.y);
+	        System.out.println("count = " + count);
+            testPixels[count] = input;
 
-        if (count == 0) {
-            this.MM = input;
-	    count++;
-
-        }
-
-        else if (count == 1) {
-            this.TL = input;
-	    count++;
-        }
-
-        else if (count == 2) {
-            this.TM = input;
-	    count++;
-
-        }
-
-        else if (count == 3) {
-            this.TR = input;
-	    count++;
-
-        }
-
-        else if (count == 4) {
-            this.ML = input;
-	    count++;
-
-        }
-
-        else if (count == 5) {
-            this.MR = input;
-	    count++;
-
-        }
-
-        else if (count == 6) {
-            this.BL = input;
-	    count++;
-
-        }
-
-        else if (count == 7) {
-            this.BM = input;
-	    count++;
-
-        }
-
-        else if (count == 8) {
-            this.BR = input;
-	    count++;
-
+            count++;
         }
 
         else { // done, go calculate
 	   System.out.println("calculating focal length");
-           calculateFocalLength();
+           calculateLengths();
 
         }
+
     }
 
 
