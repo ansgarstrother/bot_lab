@@ -1,19 +1,19 @@
-package Rover;
+package Panda;
 
 import lcmtypes.*;
 import lcm.lcm.*;
 import april.util.TimeUtil;
-import Rover.sensors.MotorSubscriber;
+import sensors.*;
 
-public class RoverDrive
+public class PandaDrive
 {
     static final boolean DEBUG = true;
 
-    static final float KP = 0.1;
-    static final float STOP = 0.0;
-    static final float MAX_SPEED = 0.5;
-    static final float MIN_SPEED = -0.5;
-    static final float REG_SPEED = 0.4;
+    static final float KP = 0.1F;
+    static final float STOP = 0.0F;
+    static final float MAX_SPEED = 0.5F;
+    static final float MIN_SPEED = -0.5F;
+    static final float REG_SPEED = 0.4F;
     
     LCM lcm;
     MotorSubscriber ms;
@@ -23,11 +23,12 @@ public class RoverDrive
     float leftSpeed;
     float rightSpeed;
     
-    public RoverDrive(){
-        ms = new MotorSubscriber();
+    public PandaDrive(){
         
         try{
 			System.out.println("Hello World!");
+			
+            ms = new MotorSubscriber();
 
 			// Get an LCM Object
             lcm = LCM.getSingleton();
@@ -65,6 +66,7 @@ public class RoverDrive
         float KError = KP*(ms.getREncoder() - ms.getLEncoder());
         leftSpeed = speedCheck(leftSpeed + KError);
         rightSpeed = speedCheck(rightSpeed + KError);
+        
 
         // Add Timestamp (lcm really cares about this)
         msg.utime = TimeUtil.utime();
@@ -72,6 +74,13 @@ public class RoverDrive
         msg.right = rightSpeed;
 
         lcm.publish("DIFF_DRIVE", msg);
+        
+        if (DEBUG){
+            System.out.print("Left wheel speed: ");
+            System.out.print(leftSpeed);
+            System.out.print("   Right wheel speed: ");
+            System.out.println(rightSpeed);
+        }
     }
     
     private float speedCheck(float speed){

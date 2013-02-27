@@ -1,4 +1,4 @@
-package Rover;
+package sensors;
 
 import java.io.*;
 
@@ -49,27 +49,27 @@ public class MotorSubscriber implements LCMSubscriber
     	}
     }
 
-    float getLEncoder(){
+    public float getLEncoder(){
         return LEncoder;
     }
 
-    float getREncoder(){
+    public float getREncoder(){
         return REncoder;
     }
 
-    float getLMotorCurrent(){
+    public float getLMotorCurrent(){
         return LMotorCurrent;
     }
 
-    float getRMotorCurrent(){
+    public float getRMotorCurrent(){
         return RMotorCurrent;
     }
 
-    float getLMotorAppliedVoltage(){
+    public float getLMotorAppliedVoltage(){
         return LMotorAppliedVoltage;
     }
 
-    float getRMotorAppliedVoltage(){
+    public float getRMotorAppliedVoltage(){
         return RMotorAppliedVoltage;
     }
 
