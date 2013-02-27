@@ -66,6 +66,7 @@ public class PandaDrive
         float KError = KP*(ms.getREncoder() - ms.getLEncoder());
         leftSpeed = speedCheck(leftSpeed + KError);
         rightSpeed = speedCheck(rightSpeed + KError);
+        
 
         // Add Timestamp (lcm really cares about this)
         msg.utime = TimeUtil.utime();
@@ -73,6 +74,13 @@ public class PandaDrive
         msg.right = rightSpeed;
 
         lcm.publish("DIFF_DRIVE", msg);
+        
+        if (DEBUG){
+            System.out.print("Left wheel speed: ");
+            System.out.print(leftSpeed);
+            System.out.print("   Right wheel speed: ");
+            System.out.println(rightSpeed);
+        }
     }
     
     private float speedCheck(float speed){
