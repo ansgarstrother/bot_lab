@@ -99,6 +99,8 @@ public class Map{
 		}
 		return true;
 	}
+
+	//TODO add barrier time out if we will have to see how bad the map gets
 }
 
 
