@@ -7,6 +7,8 @@ import java.util.*;
 import april.vis.*;
 import april.jmat.*;
 
+import lcmtypes.*;
+
 public class RoverModel
 {
 	// MEASUREMENTS (cm)
@@ -25,6 +27,11 @@ public class RoverModel
 	static final double v2_vehicle_height_A = 5.08;
 	static final double v2_vehicle_height_B = 6.50875;
 	static final double v2_theta = 0.08011; 	// radians
+
+	// LCM type information
+	private static float x_pos;
+	private static float y_pos;
+	private static double theta;
 
 	public RoverModel()
 	{
@@ -102,7 +109,11 @@ public class RoverModel
 		return chain;
 	}
 
-	public VisChain getRoverChain() {
+	public VisChain getRoverChain(pos_t msg) {
+		this.x_pos = msg.x_pos;
+		this.y_pos = msg.y_pos;
+		this.theta = msg.theta;
+
 		VisChain rover = getChain();
 		return rover;
 	}

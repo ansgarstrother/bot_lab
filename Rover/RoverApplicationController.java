@@ -29,22 +29,24 @@ public class RoverApplicationController implements RoverControllerDelegate {
 	protected ellipseFrame errorFrame;
 	protected RoverModel roverModel;
 	protected RoverSubscriber subscriber;
+	protected RoverPath roverPath;
 
 	protected boolean finished;
 	protected pos_t prev_msg;
+	protected VisChain green_path;
 
 
 	public RoverApplicationController(RoverFrame frame, ellipseFrame errorFrame) {
 		finished = true;
+		prev_msg = new pos_t();
+		green_path = new VisChain();
 
 		this.frame = frame;
 		this.errorFrame = errorFrame;
 		roverModel = new RoverModel();
-		try {
-			this.subscriber = new RoverSubscriber();
-		} catch (Exception e) {
-			System.err.println("Error initializing Subscriber: " + e.getMessage());
-		}
+		roverPath = new RoverPath();
+		try { this.subscriber = new RoverSubscriber(); }
+		catch (Exception e) { System.err.println("Error initializing Subscriber: " + e.getMessage()); }
 
 		// GUI
 		this.frame.pg.addString("roverStatus", "Speed Racer, What is Your Status?", "Idle");
@@ -73,6 +75,8 @@ public class RoverApplicationController implements RoverControllerDelegate {
 						update(msg, init);
 					}
 					prev_msg = msg;
+					// test finished bool
+					if (msg.finished) {finished = true;}
 				}
 				
 			}
@@ -111,9 +115,16 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		// covar_vec = [var_x, var_y, a] -> straight from LCM
 		// build rover chain
 		VisChain rover = new VisChain();
-		rover.add(roverModel.getRoverChain());
+		rover.add(roverModel.getRoverChain(msg));
 		VisWorld.Buffer vb = this.frame.vw.getBuffer("rover");
-		vb.addBack(rover);
+		
+		// update green path tracking
+		green_path.add(roverPath.getRoverPath(prev_msg, msg));
+
+		// build world chain & swap
+		VisChain world = new VisChain();
+		world.add(green_path, rover);
+		vb.addBack(world);
 		vb.swap();
 
 		// BUILD ROVER ERROR ELLIPSE
