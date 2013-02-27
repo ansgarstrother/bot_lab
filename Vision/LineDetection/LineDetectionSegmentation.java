@@ -66,9 +66,6 @@ public class LineDetectionSegmentation {
                         x = x + slope;
                         n++;
                     }
-                    else {
-                        break;  //eof
-                    }
                     break;
                     
                 case SAME:  // same direction i.e. similar slope
@@ -106,10 +103,9 @@ public class LineDetectionSegmentation {
                     x = boundaryMap.length;
                     break;
             }
-            
             x++;    // increment to continue
         }
-        
+
         if (n > MIN_LENGTH) {
             int y = boundaryMap[boundaryMap.length-1];
             final_point[0] = boundaryMap.length-1; final_point[1] = y;

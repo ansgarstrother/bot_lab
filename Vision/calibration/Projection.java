@@ -16,19 +16,19 @@ import april.jmat.*;
 public class Projection extends JFrame {
 
     private final double cameraHeight = .2032; // height of camera off the ground
-    private double z1 = 0.2; // 3 sets of distances away from camera
-    private double z2 = 0.3;
-    private double z3 = 0.4;
-    private double z4 = 0.5;
-    private double z5 = 0.6;
-    private double z6 = 0.7;
-    private double z7 = 0.8;
-    private double z8 = 0.9;
-    private double z9 = 1.0;
+    private double z1 = 0.38735; // 3 sets of distances away from camera
+    private double z2 = 0.43815;
+    private double z3 = 0.48895;
+    private double z4 = 0.53975;
+    private double z5 = 0.59055;
+    private double z6 = 0.64135;
+    private double z7 = 0.69215;
+    private double z8 = 0.74295;
+    private double z9 = 0.79375;
 
 
-    private double x1 = -0.3; // 3 sets of distances spanning from left to right
-    private double x2 = 0.1;
+    private double x1 = -0.36195; // 3 sets of distances spanning from left to right
+    private double x2 = -0.1397;
     private double x3 = 0.4;
 
     private double y = -cameraHeight;
@@ -47,14 +47,14 @@ public class Projection extends JFrame {
     private int count;		// used to keep track of which points we have clicked
 
     private double[][] testCoords = { {x1, y, z1},
-                                        {x2, y, z2},
-                                        {x3, y, z3},
+                                        {x1, y, z2},
+                                        {x1, y, z3},
                                         {x1, y, z4},
-                                        {x2, y, z5},
-                                        {x3, y, z6},
-                                        {x1, y, z7},
+                                        {x1, y, z5},
+                                        {x2, y, z6},
+                                        {x2, y, z7},
                                         {x2, y, z8},
-                                        {x3, y, z9} };
+                                        {x2, y, z9} };
 
 
     private Point[] testPixels;
@@ -245,7 +245,7 @@ public class Projection extends JFrame {
     }
 
 
-    protected double[][] returnMatrix() {
+    public double[][] returnMatrix() {
         double[][] A = { {f, 0, c_x, 0},
                          {0, f,c_y, 0},
                          {0, 0, 1, 0} };

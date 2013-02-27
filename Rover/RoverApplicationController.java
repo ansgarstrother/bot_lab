@@ -1,5 +1,7 @@
 package Rover;
 
+import Vision.LineDetection.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentListener;
@@ -27,10 +29,12 @@ public class RoverApplicationController implements RoverControllerDelegate {
 	protected RoverFrame frame;
 	protected ellipseFrame errorFrame;
 	protected RoverModel roverModel;
+	protected LineDetectionController ldc;
 
-	public RoverApplicationController(RoverFrame frame, ellipseFrame errorFrame) {
+	public RoverApplicationController(RoverFrame frame, ellipseFrame errorFrame, LineDetectionController ldc) {
 		this.frame = frame;
 		this.errorFrame = errorFrame;
+		this.ldc = ldc;
 		roverModel = new RoverModel();
 
 		// GUI

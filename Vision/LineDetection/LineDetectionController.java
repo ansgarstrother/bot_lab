@@ -244,7 +244,7 @@ public class LineDetectionController {
         // rectify
         Rectification rectifier = new Rectification(segments, image.getWidth(), image.getHeight());
         rectifiedMap = rectifier.getRectifiedPoints();
-        
+  /*      
         // transform to real world coordiantes
         // from calibrationMatrix
         // coordinates should now be in 3D
@@ -254,6 +254,7 @@ public class LineDetectionController {
             int[][] segment = rectifiedMap.get(i);
 	    double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
 	    double[][] fin_point = {{segment[1][0]}, {segment[1][1]}, {1}};
+	
 	    Matrix init_pixel_mat = new Matrix(init_point);
 	    Matrix fin_pixel_mat = new Matrix(fin_point);
 	    Matrix affine_vec = calibMat.transpose()
@@ -262,13 +263,15 @@ public class LineDetectionController {
 					.times(calibMat.transpose());
 	    Matrix init_vec = calibMat.times(init_pixel_mat);
 	    Matrix fin_vec = calibMat.times(fin_pixel_mat);
+	
 
 	    // add real world coordinate
 	    double[][] real_segment = {{init_vec.get(0,0), init_vec.get(0,1), init_vec.get(0,2)},
 					{fin_vec.get(0,0), fin_vec.get(0,1), fin_vec.get(0,2)}};
 	    realWorldMap.add(real_segment);
+	
         }
-        
+  */      
         return detector.getProcessedImage();
     }
     
