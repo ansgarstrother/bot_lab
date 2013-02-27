@@ -2,7 +2,9 @@ package lcmtypes;
 
 struct pos_t
 {
-  int64_t timestamp;
+    boolean triangles_found;
+
+    int64_t timestamp;
 	float x_pos;
 	float y_pos;
 	double theta;

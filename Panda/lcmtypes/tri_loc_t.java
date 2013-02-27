@@ -9,20 +9,19 @@ import java.io.*;
 import java.util.*;
 import lcm.lcm.*;
  
-public final class pos_t implements lcm.lcm.LCMEncodable
+public final class tri_loc_t implements lcm.lcm.LCMEncodable
 {
-    public boolean triangles_found;
-    public long timestamp;
+    public boolean found;
     public float x_pos;
     public float y_pos;
     public double theta;
  
-    public pos_t()
+    public tri_loc_t()
     {
     }
  
     public static final long LCM_FINGERPRINT;
-    public static final long LCM_FINGERPRINT_BASE = 0xb168d9bf1c9b2d78L;
+    public static final long LCM_FINGERPRINT_BASE = 0x58a5be8ecc8baaceL;
  
     static {
         LCM_FINGERPRINT = _hashRecursive(new ArrayList<Class<?>>());
@@ -30,10 +29,10 @@ public final class pos_t implements lcm.lcm.LCMEncodable
  
     public static long _hashRecursive(ArrayList<Class<?>> classes)
     {
-        if (classes.contains(lcmtypes.pos_t.class))
+        if (classes.contains(lcmtypes.tri_loc_t.class))
             return 0L;
  
-        classes.add(lcmtypes.pos_t.class);
+        classes.add(lcmtypes.tri_loc_t.class);
         long hash = LCM_FINGERPRINT_BASE
             ;
         classes.remove(classes.size() - 1);
@@ -48,9 +47,7 @@ public final class pos_t implements lcm.lcm.LCMEncodable
  
     public void _encodeRecursive(DataOutput outs) throws IOException
     {
-        outs.writeByte( this.triangles_found ? 1 : 0); 
- 
-        outs.writeLong(this.timestamp); 
+        outs.writeByte( this.found ? 1 : 0); 
  
         outs.writeFloat(this.x_pos); 
  
@@ -60,12 +57,12 @@ public final class pos_t implements lcm.lcm.LCMEncodable
  
     }
  
-    public pos_t(byte[] data) throws IOException
+    public tri_loc_t(byte[] data) throws IOException
     {
         this(new LCMDataInputStream(data));
     }
  
-    public pos_t(DataInput ins) throws IOException
+    public tri_loc_t(DataInput ins) throws IOException
     {
         if (ins.readLong() != LCM_FINGERPRINT)
             throw new IOException("LCM Decode error: bad fingerprint");
@@ -73,18 +70,16 @@ public final class pos_t implements lcm.lcm.LCMEncodable
         _decodeRecursive(ins);
     }
  
-    public static lcmtypes.pos_t _decodeRecursiveFactory(DataInput ins) throws IOException
+    public static lcmtypes.tri_loc_t _decodeRecursiveFactory(DataInput ins) throws IOException
     {
-        lcmtypes.pos_t o = new lcmtypes.pos_t();
+        lcmtypes.tri_loc_t o = new lcmtypes.tri_loc_t();
         o._decodeRecursive(ins);
         return o;
     }
  
     public void _decodeRecursive(DataInput ins) throws IOException
     {
-        this.triangles_found = ins.readByte()!=0;
- 
-        this.timestamp = ins.readLong();
+        this.found = ins.readByte()!=0;
  
         this.x_pos = ins.readFloat();
  
@@ -94,12 +89,10 @@ public final class pos_t implements lcm.lcm.LCMEncodable
  
     }
  
-    public lcmtypes.pos_t copy()
+    public lcmtypes.tri_loc_t copy()
     {
-        lcmtypes.pos_t outobj = new lcmtypes.pos_t();
-        outobj.triangles_found = this.triangles_found;
- 
-        outobj.timestamp = this.timestamp;
+        lcmtypes.tri_loc_t outobj = new lcmtypes.tri_loc_t();
+        outobj.found = this.found;
  
         outobj.x_pos = this.x_pos;
  
