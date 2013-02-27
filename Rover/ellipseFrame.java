@@ -29,6 +29,14 @@ public class ellipseFrame extends JFrame {
 		vl  = new VisLayer(vw);
 		vc = new VisCanvas(vl);
 		pg = new ParameterGUI();
+
+		// GUI
+		pg.addDouble("var_x", "Variance in X: ", 0);
+		pg.setEnabled("var_x", false);
+		pg.addDouble("var_y", "Variance in Y: ", 0);
+		pg.setEnabled("var_y", false);
+		pg.addDouble("covar", "Covariance: ", 0);
+		pg.setEnabled("covar", false);
 		
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(vc, BorderLayout.CENTER);

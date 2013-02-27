@@ -29,6 +29,9 @@ public class RoverFrame extends JFrame {
 		vl  = new VisLayer(vw);
 		vc = new VisCanvas(vl);
 		pg = new ParameterGUI();
+
+		pg.addString("roverStatus", "Speed Racer, What is Your Status?", "Idle");
+		pg.setEnabled("roverStatus", false);
 		
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(vc, BorderLayout.CENTER);
@@ -46,6 +49,13 @@ public class RoverFrame extends JFrame {
 
 		// ADD GRID
 		VzGrid.addGrid(vw);
+	}
+
+	public ParameterGUI getParameterGUI() {
+		return pg;
+	}
+	public JButton getExecuteButton() {
+		return executeButton;
 	}
 	
 	

@@ -37,7 +37,6 @@ public class RoverApplicationController implements RoverControllerDelegate {
 
 
 	public RoverApplicationController(RoverFrame frame, ellipseFrame errorFrame) {
-		finished = true;
 		prev_msg = new pos_t();
 		green_path = new VisChain();
 
@@ -48,15 +47,6 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		try { this.subscriber = new RoverSubscriber(); }
 		catch (Exception e) { System.err.println("Error initializing Subscriber: " + e.getMessage()); }
 
-		// GUI
-		this.frame.pg.addString("roverStatus", "Speed Racer, What is Your Status?", "Idle");
-		this.frame.pg.setEnabled("roverStatus", false);
-		this.errorFrame.pg.addDouble("var_x", "Variance in X: ", 0);
-		this.errorFrame.pg.setEnabled("var_x", false);
-		this.errorFrame.pg.addDouble("var_y", "Variance in Y: ", 0);
-		this.errorFrame.pg.setEnabled("var_y", false);
-		this.errorFrame.pg.addDouble("covar", "Covariance: ", 0);
-		this.errorFrame.pg.setEnabled("covar", false);
 
 		// callbacks
 		// BUTTON ACTION LISTENERS
@@ -64,21 +54,11 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.frame.executeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// begin listening for updates from lcm
-				// if there is a change in position, mark it in GUI
-				// if a triangle has been shot, mark it in GUI
-				finished = false;
-				while (!finished) {
-					pos_t msg = subscriber.getPose();
-					if (msg != prev_msg) {
-						double[] init = {0, 0, 0};
-						update(msg, init);
-					}
-					prev_msg = msg;
-					// test finished bool
-					if (msg.finished) {finished = true;}
-				}
-				
+				// Change status to Running
+				// Disable Execute button
+				RoverApplicationController.this.frame.pg.ss("roverStatus", "Running");
+				RoverApplicationController.this.frame.pg.notifyListeners("roverStatus");
+				RoverApplicationController.this.frame.executeButton.setEnabled(false);			
 			}
 		});
 		// Reset View Button
@@ -108,6 +88,32 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		// initial covar = 0
 		double[] init = {0, 0, 0};
 		update(prev_msg, init);
+
+		// sequential updates
+		this.frame.pg.addListener(new ParameterListener() {
+		@Override
+		public void parameterChanged(ParameterGUI pg, String name) {
+			if (name.equals("roverStatus")) {
+				if (pg.gs(name) == "Running") {
+					// begin listening for updates from lcm
+					// if there is a change in position, mark it in GUI
+					// if a triangle has been shot, mark it in GUI
+					// if all triangles have been shot, restore execute button and change status
+					pos_t new_msg = RoverApplicationController.this.subscriber.getPose();
+
+					if (!new_msg.finished) {
+						double[] init = {0,0,0};	// CALCULATE COVAR VEC
+						update(new_msg, init);
+					}
+					else {
+						pg.ss(name, "Idle");
+						RoverApplicationController.this.frame.executeButton.setEnabled(true);
+					}
+				}
+				
+			}
+		}
+	});
 
 	}
 
