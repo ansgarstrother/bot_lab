@@ -1,7 +1,5 @@
 package Rover;
 
-import Vision.LineDetection.*;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentListener;
@@ -16,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import lcm.lcm.*;
+import lcmtypes.*;
 
 import april.jmat.MathUtil;
 import april.jmat.Matrix;
@@ -29,13 +28,23 @@ public class RoverApplicationController implements RoverControllerDelegate {
 	protected RoverFrame frame;
 	protected ellipseFrame errorFrame;
 	protected RoverModel roverModel;
-	protected LineDetectionController ldc;
+	protected RoverSubscriber subscriber;
 
-	public RoverApplicationController(RoverFrame frame, ellipseFrame errorFrame, LineDetectionController ldc) {
+	protected boolean finished;
+	protected pos_t prev_msg;
+
+
+	public RoverApplicationController(RoverFrame frame, ellipseFrame errorFrame) {
+		finished = true;
+
 		this.frame = frame;
 		this.errorFrame = errorFrame;
-		this.ldc = ldc;
 		roverModel = new RoverModel();
+		try {
+			this.subscriber = new RoverSubscriber();
+		} catch (Exception e) {
+			System.err.println("Error initializing Subscriber: " + e.getMessage());
+		}
 
 		// GUI
 		this.frame.pg.addString("roverStatus", "Speed Racer, What is Your Status?", "Idle");
@@ -53,7 +62,19 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.frame.executeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// perform something on execute
+				// begin listening for updates from lcm
+				// if there is a change in position, mark it in GUI
+				// if a triangle has been shot, mark it in GUI
+				finished = false;
+				while (!finished) {
+					pos_t msg = subscriber.getPose();
+					if (msg != prev_msg) {
+						double[] init = {0, 0, 0};
+						update(msg, init);
+					}
+					prev_msg = msg;
+				}
+				
 			}
 		});
 		// Reset View Button
@@ -82,11 +103,11 @@ public class RoverApplicationController implements RoverControllerDelegate {
 
 		// initial covar = 0
 		double[] init = {0, 0, 0};
-		update(init);
+		update(prev_msg, init);
 
 	}
 
-	public void update(double[] covar_vec) {
+	public void update(pos_t msg, double[] covar_vec) {
 		// covar_vec = [var_x, var_y, a] -> straight from LCM
 		// build rover chain
 		VisChain rover = new VisChain();

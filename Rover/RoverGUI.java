@@ -1,7 +1,5 @@
 package Rover;
 
-import Vision.LineDetection.*;
-import Vision.calibration.*;
 
 import javax.swing.SwingUtilities;
 
@@ -26,10 +24,8 @@ public class RoverGUI
 				// init java frames
 				RoverFrame mainWindow = new RoverFrame();
 				ellipseFrame secondWindow = new ellipseFrame();
-				LineDetectionFrame frame = new LineDetectionFrame();
-				// init controllers
-				LineDetectionController ldc = new LineDetectionController(frame, calibMatrix);
-				RoverApplicationController controller = new RoverApplicationController(mainWindow, secondWindow, ldc);
+				// init controller
+				RoverApplicationController controller = new RoverApplicationController(mainWindow, secondWindow);
 			}
 		});
 	}
