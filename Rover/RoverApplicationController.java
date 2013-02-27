@@ -25,28 +25,28 @@ import april.vis.*;
 
 public class RoverApplicationController implements RoverControllerDelegate {
 
+	// args
+	protected Thread roverControllerThread;
+
 	protected RoverFrame frame;
 	protected ellipseFrame errorFrame;
+	protected RoverController roverController;
+
 	protected RoverModel roverModel;
-	protected RoverSubscriber subscriber;
 	protected RoverPath roverPath;
-
-	protected boolean finished;
-	protected pos_t prev_msg;
 	protected VisChain green_path;
+	protected pos_t init_msg;
 
 
+	// CONSTRUCTOR METHOD
 	public RoverApplicationController(RoverFrame frame, ellipseFrame errorFrame) {
-		prev_msg = new pos_t();
-		green_path = new VisChain();
 
 		this.frame = frame;
 		this.errorFrame = errorFrame;
-		roverModel = new RoverModel();
-		roverPath = new RoverPath();
-		try { this.subscriber = new RoverSubscriber(); }
-		catch (Exception e) { System.err.println("Error initializing Subscriber: " + e.getMessage()); }
-
+		this.roverModel = new RoverModel();
+		this.roverPath = new RoverPath();
+		this.green_path = new VisChain();
+		this.init_msg = new pos_t();
 
 		// callbacks
 		// BUTTON ACTION LISTENERS
@@ -56,9 +56,12 @@ public class RoverApplicationController implements RoverControllerDelegate {
 			public void actionPerformed(ActionEvent arg0) {
 				// Change status to Running
 				// Disable Execute button
+				startRoverController();
+				/*
 				RoverApplicationController.this.frame.pg.ss("roverStatus", "Running");
 				RoverApplicationController.this.frame.pg.notifyListeners("roverStatus");
-				RoverApplicationController.this.frame.executeButton.setEnabled(false);			
+				RoverApplicationController.this.frame.executeButton.setEnabled(false);	
+				*/		
 			}
 		});
 		// Reset View Button
@@ -75,7 +78,7 @@ public class RoverApplicationController implements RoverControllerDelegate {
 			}
 		});
 		
-		// initial update -> pass in dummy as t1
+		// initial update
 		resetCameraView();
 
 		this.frame.setSize(800, 800);
@@ -85,10 +88,10 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.errorFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.errorFrame.setVisible(true);
 
-		// initial covar = 0
 		double[] init = {0, 0, 0};
-		update(prev_msg, init);
-
+		update(init_msg, init_msg, init);
+		
+		/*
 		// sequential updates
 		this.frame.pg.addListener(new ParameterListener() {
 		@Override
@@ -113,19 +116,28 @@ public class RoverApplicationController implements RoverControllerDelegate {
 				
 			}
 		}
-	});
+		});
+		*/
 
 	}
 
-	public void update(pos_t msg, double[] covar_vec) {
+	protected void startRoverController() {
+		if (this.roverControllerThread != null) { return; }
+		this.roverController = new RoverController(this);
+		this.roverControllerThread = new Thread(this.roverController);
+		this.roverControllerThread.start();
+	}
+
+	@Override
+	public void update(pos_t prev_msg, pos_t new_msg, double[] covar_vec) {
 		// covar_vec = [var_x, var_y, a] -> straight from LCM
 		// build rover chain
 		VisChain rover = new VisChain();
-		rover.add(roverModel.getRoverChain(msg));
+		rover.add(roverModel.getRoverChain(new_msg));
 		VisWorld.Buffer vb = this.frame.vw.getBuffer("rover");
 		
 		// update green path tracking
-		green_path.add(roverPath.getRoverPath(prev_msg, msg));
+		green_path.add(roverPath.getRoverPath(prev_msg, new_msg));
 
 		// build world chain & swap
 		VisChain world = new VisChain();
