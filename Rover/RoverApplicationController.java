@@ -89,36 +89,9 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.errorFrame.setVisible(true);
 
 		double[] init = {0, 0, 0};
-		double[] initLocation = {0,0};
+		double[] initLocation = {0,0,0};
 		update(initLocation, initLocation, init_msg, init);
 		
-		/*
-		// sequential updates
-		this.frame.pg.addListener(new ParameterListener() {
-		@Override
-		public void parameterChanged(ParameterGUI pg, String name) {
-			if (name.equals("roverStatus")) {
-				if (pg.gs(name) == "Running") {
-					// begin listening for updates from lcm
-					// if there is a change in position, mark it in GUI
-					// if a triangle has been shot, mark it in GUI
-					// if all triangles have been shot, restore execute button and change status
-					pos_t new_msg = RoverApplicationController.this.subscriber.getPose();
-
-					if (!new_msg.finished) {
-						double[] init = {0,0,0};	// CALCULATE COVAR VEC
-						update(new_msg, init);
-					}
-					else {
-						pg.ss(name, "Idle");
-						RoverApplicationController.this.frame.executeButton.setEnabled(true);
-					}
-				}
-				
-			}
-		}
-		});
-		*/
 
 	}
 
@@ -141,7 +114,7 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.errorFrame.vl.cameraManager.uiDefault();
 	}
     
-    	@Override
+    @Override
 	public void update(double[] prev_pos, double[] new_pos, pos_t new_msg, double[] covar_vec) {
 		// covar_vec = [var_x, var_y, a] -> straight from LCM
 		// build rover chain

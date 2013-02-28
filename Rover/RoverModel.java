@@ -32,6 +32,7 @@ public class RoverModel
 	private static double x_pos;
 	private static double y_pos;
 	private static double theta;
+	private static double delta_x;
 
 	public RoverModel()
 	{
@@ -102,6 +103,10 @@ public class RoverModel
 
 	protected static VisChain getChain() {
 		VisChain chain = new VisChain();
+		// (x,y) offset
+		chain.add(LinAlg.translate(x_pos,y_pos,0),
+					LinAlg.rotateZ(theta));
+		// build rover
 		createBody(chain);
 		createHousing(chain);
 		createWheel(chain, v1_vehicle_width / 2 + 3*v1_wheel_spacing);
@@ -110,8 +115,10 @@ public class RoverModel
 	}
 
 	public VisChain getRoverChain(double[] pos) {
-		this.x_pos = pos[0];
-		this.y_pos = pos[1];
+		this.x_pos = pos[0]*100;	//meters to cm & invert
+		this.y_pos = pos[1]*100;	//meters to cm & invert
+		this.theta = pos[2];
+		this.delta_x = Math.sqrt(Math.pow(x_pos,2) + Math.pow(y_pos,2));
 
 		VisChain rover = getChain();
 		return rover;

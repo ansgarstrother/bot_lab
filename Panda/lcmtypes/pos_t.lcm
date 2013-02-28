@@ -6,7 +6,6 @@ struct pos_t
     boolean finished;
 
     int64_t timestamp;
-	float x_pos;
-	float y_pos;
+	float delta_x;
 	double theta;
 }

@@ -2,6 +2,7 @@ package Rover;
 
 import java.awt.Color;
 import java.util.*;
+import java.lang.Math;
 
 import april.vis.*;
 import april.jmat.*;
@@ -34,6 +35,7 @@ public class RoverPath {
 	private static double y_pos_new;
 	private static double x_pos_old;
 	private static double y_pos_old;
+	private static double theta;
 
 	private static double length;
 
@@ -52,7 +54,7 @@ public class RoverPath {
 				greenStripe);
 	}
 	protected static void createWaypoint(VisChain chain) {
-		VzCircle purpleWaypoint = new VzCircle( 5.0, new VzMesh.Style(Color.magenta));
+		VzCircle purpleWaypoint = new VzCircle( 10.0, new VzMesh.Style(Color.magenta));
 		if (triangle) {
 			chain.add(LinAlg.translate(length/2,0,0),
 					purpleWaypoint);
@@ -61,6 +63,8 @@ public class RoverPath {
 	
 	protected static VisChain getChain() {
 		VisChain chain = new VisChain();
+		chain.add(LinAlg.translate(x_pos_old,y_pos_old,0),
+					LinAlg.rotateZ(theta));
 		createPath(chain);
 		createWaypoint(chain);
 		return chain;
@@ -74,11 +78,16 @@ public class RoverPath {
 	// RETURN FUNCTION
 	public VisChain getRoverPath(double[] prev_pos, double[] new_pos, pos_t new_msg) {
 		// retrieve lcm type information
-		triangle = new_msg.triangle_found;
-		x_pos_new = new_pos[0];
-		y_pos_new = new_pos[1];
-		x_pos_old = prev_pos[0];
-		y_pos_old = prev_pos[1];
+		this.triangle = new_msg.triangle_found;
+		this.x_pos_new = new_pos[0]*100;	//convert to cm & invert
+		this.y_pos_new = new_pos[1]*100;	//convert to cm & invert
+		this.x_pos_old = prev_pos[0]*100;	//convert to cm & invert
+		this.y_pos_old = prev_pos[1]*100;	//convert to cm & invert
+		this.theta = new_pos[2];
+		//System.out.println("(" + this.x_pos_new + ", " + this.y_pos_new + ")");
+		//System.out.println("Angle: " + this.theta);
+
+		this.length = new_msg.delta_x*100;
 
 		VisChain segment = getChain();	
 

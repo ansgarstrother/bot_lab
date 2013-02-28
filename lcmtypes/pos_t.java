@@ -14,8 +14,7 @@ public final class pos_t implements lcm.lcm.LCMEncodable
     public boolean triangle_found;
     public boolean finished;
     public long timestamp;
-    public float x_pos;
-    public float y_pos;
+    public float delta_x;
     public double theta;
  
     public pos_t()
@@ -23,7 +22,7 @@ public final class pos_t implements lcm.lcm.LCMEncodable
     }
  
     public static final long LCM_FINGERPRINT;
-    public static final long LCM_FINGERPRINT_BASE = 0x11f5a21cea021770L;
+    public static final long LCM_FINGERPRINT_BASE = 0x9b1754f7ff8a2f1bL;
  
     static {
         LCM_FINGERPRINT = _hashRecursive(new ArrayList<Class<?>>());
@@ -55,9 +54,7 @@ public final class pos_t implements lcm.lcm.LCMEncodable
  
         outs.writeLong(this.timestamp); 
  
-        outs.writeFloat(this.x_pos); 
- 
-        outs.writeFloat(this.y_pos); 
+        outs.writeFloat(this.delta_x); 
  
         outs.writeDouble(this.theta); 
  
@@ -91,9 +88,7 @@ public final class pos_t implements lcm.lcm.LCMEncodable
  
         this.timestamp = ins.readLong();
  
-        this.x_pos = ins.readFloat();
- 
-        this.y_pos = ins.readFloat();
+        this.delta_x = ins.readFloat();
  
         this.theta = ins.readDouble();
  
@@ -108,9 +103,7 @@ public final class pos_t implements lcm.lcm.LCMEncodable
  
         outobj.timestamp = this.timestamp;
  
-        outobj.x_pos = this.x_pos;
- 
-        outobj.y_pos = this.y_pos;
+        outobj.delta_x = this.delta_x;
  
         outobj.theta = this.theta;
  

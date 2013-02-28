@@ -12,11 +12,10 @@ public class lcm_publish {
             // instantiate a new lcm position message
             lcmtypes.pos_t pos_msg = new lcmtypes.pos_t();
             pos_msg.timestamp = System.nanoTime();
-            pos_msg.x_pos = 6.0f;    // dummy x coord
-            pos_msg.y_pos = 0.0f;    // dummy y coord
-            pos_msg.theta = Math.toRadians(0); // dummy theta
+            pos_msg.delta_x = (float)(Math.sqrt(2));    // dummy x coord
+            pos_msg.theta = Math.toRadians(45); // dummy theta
 	    	pos_msg.finished = false;
-	    	pos_msg.triangle_found = false;
+	    	pos_msg.triangle_found = true;
             
             //publish
             lcm.publish("10_POSE", pos_msg);
