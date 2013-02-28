@@ -2,7 +2,7 @@
 ** Copyright 2005 Huxtable.com. All rights reserved.
 */
 
-package Vision.util;
+package Panda.util;
 
 import java.util.*;
 import java.awt.Color;

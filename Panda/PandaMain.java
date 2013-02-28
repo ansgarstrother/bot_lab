@@ -1,8 +1,8 @@
 import lcm.lcm.*;
 import java.util.Vector;
 
-//import Vision.calibration.*;
-import Panda.PandaVisionMapping.*;
+
+import Panda.VisionMapping.*;
 
 import java.io.*;
 import java.util.*;
@@ -40,7 +40,7 @@ public class PandaMain{
             return;
         }
 
-		ImageSource is;
+		ImageSource is = null;
 		try{is = ImageSource.make(url);}
 		catch(Exception e){}
 		
@@ -50,32 +50,27 @@ public class PandaMain{
 		Projection projection = new Projection();
 
 		while(run){
+
+			//Get a new image
 			is.start();
-            // read a frame
-           	byte buf[] = is.getFrame().data;
+           		byte buf[] = is.getFrame().data;
            		if (buf == null)
         	      		continue;
-		BufferedImage im = ImageConvert.convertToImage(fmt.format, fmt.width, fmt.height, buf);
+			BufferedImage im = ImageConvert.convertToImage(fmt.format, fmt.width, fmt.height, buf);
 			is.stop();
 
-			//get a new image
-
 			//find and add barriers to the maps
-			PandaLineSegmentation lineSeg = new PandaLineSegmentation(im, 100, 155);
-			lineSeg.traverse();
+			//TODO Needs to add segments it finds to the map via Map Class
+			LineDetector lineSeg = new LineDetector(im, 100, 155);
 
-			/*
 			//Detect any triangles and then fire on them
-			PandaTargetDetector Tdetector = new PandaTargetDetector(im);
-			Tdetector.runDetection();
-			Targets = Tdetector.GetTriangleLocation();
-			
-			while( ! Target.isEmpty()){
-				//align();
-				//fireLaser();
-			}*/
+			//TODO if a target is found turn and fire on the target then return to 
+			//orginal position
+			TargetDetector Tdetector = new TargetDetector(im);
 
 			//plan path and move robot
+			// TODO create a class to idenify where we are going next check path 
+			// via map class then order robot ot move.
 			//Move();
 		}
 	}

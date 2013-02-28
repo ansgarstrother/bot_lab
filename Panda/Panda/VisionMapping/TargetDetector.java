@@ -1,10 +1,10 @@
-package Vision.Target;
+package Panda.VisionMapping;
 
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.util.Vector;
 
-public class PandaTargetDetector {
+public class TargetDetector {
 
 	//Pixel area of triangle must be greater then this size to be counted
     static final int BLOB_SIZE_CONSTANT = 150;
@@ -40,7 +40,7 @@ public class PandaTargetDetector {
     Vector<Stats> finalTriVec = new Vector<Stats>();
 
 	// CONSTRUCTOR METHOD
-	public PandaTargetDetector(BufferedImage in) {
+	public TargetDetector(BufferedImage in) {
 		im = in;
 		width = in.getWidth();
 		height = in.getHeight();
@@ -197,14 +197,4 @@ public class PandaTargetDetector {
 		}
 		return true;
 	}
-
-    public Vector<Stats> GetTriangleLocations(){
-	Stats stat = new Stats();
-	stat = finalTriVec.get(0);
-	finalTriVec.remove(0);
-	int[] temp = { stat.centerX, stat.centerY};
-        return temp;
-    }
-
-
 }

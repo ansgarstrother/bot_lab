@@ -1,5 +1,6 @@
-package Vision.Line;
+package Panda.VisionMapping;
 
+import Panda.util.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import april.jcam.*;
 
 
 
-public class PandaLineSegmentation {
+public class LineDetector {
     
     // const
     private final static int MIN_LENGTH = 40;
@@ -26,7 +27,7 @@ public class PandaLineSegmentation {
 	BufferedImage in;
 	BufferedImage out;
     
-    public PandaLineSegmentation(BufferedImage im, double thresh, double lwpass) {
+    public LineDetector(BufferedImage im, double thresh, double lwpass) {
 
 	in = im;
 	out = im;
