@@ -128,7 +128,19 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.roverControllerThread.start();
 	}
 
-	@Override
+	protected void resetCameraView() {
+		/* Point vis camera the right way */
+		this.frame.vl.cameraManager.uiLookAt(
+				new double[] {-22.7870*4, -63.5237*4, 60.5098*4 },
+				new double[] { 0,  0, 0.00000 },
+				new double[] { 0.13802*4,  0.40084*4, 0.90569*4 }, true);
+	}
+    
+	protected void resetErrorView() {
+		this.errorFrame.vl.cameraManager.uiDefault();
+	}
+    
+    @Override
 	public void update(pos_t prev_msg, pos_t new_msg, double[] covar_vec) {
 		// covar_vec = [var_x, var_y, a] -> straight from LCM
 		// build rover chain
@@ -138,36 +150,34 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		
 		// update green path tracking
 		green_path.add(roverPath.getRoverPath(prev_msg, new_msg));
-
+        
 		// build world chain & swap
 		VisChain world = new VisChain();
 		world.add(green_path, rover);
 		vb.addBack(world);
 		vb.swap();
-
+        
 		// BUILD ROVER ERROR ELLIPSE
 		VisWorld.Buffer vbe = this.errorFrame.vw.getBuffer("error");
 		VzEllipse ellipse = errorEllipse.getEllipse(covar_vec);
 		vbe.addBack(ellipse);
 		vbe.swap();
-
+        
 		// Update Parameter GUI
 		this.errorFrame.pg.sd("var_x", covar_vec[0]);
 		this.errorFrame.pg.sd("var_y", covar_vec[1]);
 		this.errorFrame.pg.sd("covar", covar_vec[2]);
 	}
-
-	protected void resetCameraView()
-	{
-		/* Point vis camera the right way */
-		this.frame.vl.cameraManager.uiLookAt(
-				new double[] {-22.7870*4, -63.5237*4, 60.5098*4 },
-				new double[] { 0,  0, 0.00000 },
-				new double[] { 0.13802*4,  0.40084*4, 0.90569*4 }, true);
-	}
-	protected void resetErrorView()
-	{
-		this.errorFrame.vl.cameraManager.uiDefault();
-	}
+    
+    @Override
+    public void finished(long duration) {
+        double seconds = (duration * 1.0 / 1000.0);
+        JOptionPane.showMessageDialog(
+                                      this.frame,
+                                      "Finished in " + seconds + " seconds.",
+                                      "Mission Complete",
+                                      JOptionPane.INFORMATION_MESSAGE);
+        
+    }
 
 }
