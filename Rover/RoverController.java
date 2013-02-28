@@ -78,13 +78,44 @@ public class RoverController implements Runnable {
 
 		}
 		
-		// Retrieve current coordinates of rover
-		// Calculate covariance vector
-		// Test for triangle location/finished booleans
-		// Update GUI
-		this.new_msg = subscriber.getPose();
-		// CALCULATE COVARIANCE
-
+        // init
+        delegate.frame.getParameterGUI().ss("roverStatus", "Running");
+        boolean finished = false;
+        final long startTime = System.currentTimeMillis();
+        
+        // run
+        while (!finished) {
+            // Retrieve current coordinates of rover
+            // Calculate covariance vector
+            // Test for triangle location/finished booleans
+            // Update GUI
+            this.prev_msg = new_msg;
+            this.new_msg = subscriber.getPose();
+            // CALCULATE COVARIANCE
+            
+            
+            if (!new_msg.finished) {
+                update();
+            }
+            else {
+                finished = true;
+                delegate.frame.getParameterGUI().ss("roverStatus", "Idle");
+            }
+        }
+        
+        // finish
+        final long endTime = System.currentTimeMillis();
+        System.out.println("Mission Complete!");
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                delegate.finished(endTime - startTIme);
+            }
+        });
+        
+        synchronized (this) {
+            this.isExecuting = false;
+        }
 		
 	}
 
