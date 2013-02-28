@@ -1,4 +1,4 @@
-package Panda;
+package Vision.Target;
 
 import java.awt.image.BufferedImage;
 import java.awt.Color;
@@ -191,8 +191,19 @@ public class PandaTargetDetector {
 		return im;
 	}
 
+	public boolean found(){
+		if(finalTriVec.isEmpty()){
+			return false;
+		}
+		return true;
+	}
+
     public Vector<Stats> GetTriangleLocations(){
-        return finalTriVec;
+	Stats stat = new Stats();
+	stat = finalTriVec.get(0);
+	finalTriVec.remove(0);
+	int[] temp = { stat.centerX, stat.centerY};
+        return temp;
     }
 
 

@@ -1,4 +1,4 @@
-package Vision.LineDetection;
+package Vision.Map;
 import javax.swing.*;
 import java.awt.*;
 import java.math.*;

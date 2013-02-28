@@ -1,12 +1,13 @@
-package Vision.LineDetection;
+package Vision.Line;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
+import april.jcam.*;
 
 
 
-public class LineDetectionSegmentation {
+public class PandaLineSegmentation {
     
     // const
     private final static int MIN_LENGTH = 40;
@@ -21,10 +22,25 @@ public class LineDetectionSegmentation {
     private int[] boundaryMap;
     private Direction dir;
     private ArrayList<int[][]> segment_list;
+
+	BufferedImage in;
+	BufferedImage out;
     
-    public LineDetectionSegmentation(int[] bm) {
-        // init
-        boundaryMap = bm;
+    public PandaLineSegmentation(BufferedImage im, double thresh, double lwpass) {
+
+	in = im;
+	out = im;
+
+	grayscale g = new grayscale(im);
+	out = g.getGrayScale();
+	binarize b = new binarize(out, thresh);
+	out = b.getBinarizedImage();
+	
+	edgeDetection ed = new edgeDetection(out);
+	out = ed.getImage();
+
+        boundaryMap = ed.getBoundaryMap();
+
         dir = Direction.NONE;
         segment_list = new ArrayList<int[][]>();
         
@@ -119,8 +135,7 @@ public class LineDetectionSegmentation {
     
     public ArrayList<int[][]> getSegments() {
         return segment_list;
-    }
-    
+    }    
 }
 
 
