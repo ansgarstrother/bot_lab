@@ -3,6 +3,7 @@ import java.util.Vector;
 
 
 import Panda.VisionMapping.*;
+import Panda.Odometry.*;
 
 import java.io.*;
 import java.util.*;
@@ -43,11 +44,13 @@ public class PandaMain{
 		ImageSource is = null;
 		try{is = ImageSource.make(url);}
 		catch(Exception e){}
-		
+
 		ImageSourceFormat fmt = is.getCurrentFormat();
 
 		//Read in Calibration of Panda Bot
 		Projection projection = new Projection();
+
+        PandaDrive pDrive = new PandaDrive();
 
 		while(run){
 
@@ -64,14 +67,14 @@ public class PandaMain{
 			LineDetector lineSeg = new LineDetector(im, 100, 155);
 
 			//Detect any triangles and then fire on them
-			//TODO if a target is found turn and fire on the target then return to 
+			//TODO if a target is found turn and fire on the target then return to
 			//orginal position
 			TargetDetector Tdetector = new TargetDetector(im);
 
 			//plan path and move robot
-			// TODO create a class to idenify where we are going next check path 
+			// TODO create a class to idenify where we are going next check path
 			// via map class then order robot ot move.
-			//Move();
+            pDrive.driveForward();
 		}
 	}
 }

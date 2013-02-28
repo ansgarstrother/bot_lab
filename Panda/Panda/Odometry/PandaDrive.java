@@ -1,4 +1,4 @@
-package Panda;
+package Panda.Odometry;
 
 import lcmtypes.*;
 import lcm.lcm.*;
@@ -80,6 +80,14 @@ public class PandaDrive
             System.out.print(leftSpeed);
             System.out.print("   Right wheel speed: ");
             System.out.println(rightSpeed);
+        }
+    }
+    
+    public void turnDegrees(int degrees){
+        if (DEBUG){
+            System.out.print("Turning ");
+            System.out.print(degrees);
+            System.out.print(" degrees");
         }
     }
     
