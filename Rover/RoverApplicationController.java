@@ -89,7 +89,8 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.errorFrame.setVisible(true);
 
 		double[] init = {0, 0, 0};
-		update(init_msg, init_msg, init);
+		double[] initLocation = {0,0};
+		update(initLocation, initLocation, init_msg, init);
 		
 		/*
 		// sequential updates
@@ -140,16 +141,16 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.errorFrame.vl.cameraManager.uiDefault();
 	}
     
-    @Override
-	public void update(pos_t prev_msg, pos_t new_msg, double[] covar_vec) {
+    	@Override
+	public void update(double[] prev_pos, double[] new_pos, pos_t new_msg, double[] covar_vec) {
 		// covar_vec = [var_x, var_y, a] -> straight from LCM
 		// build rover chain
 		VisChain rover = new VisChain();
-		rover.add(roverModel.getRoverChain(new_msg));
+		rover.add(roverModel.getRoverChain(new_pos));
 		VisWorld.Buffer vb = this.frame.vw.getBuffer("rover");
 		
 		// update green path tracking
-		green_path.add(roverPath.getRoverPath(prev_msg, new_msg));
+		green_path.add(roverPath.getRoverPath(prev_pos, new_pos, new_msg));
         
 		// build world chain & swap
 		VisChain world = new VisChain();
@@ -178,6 +179,11 @@ public class RoverApplicationController implements RoverControllerDelegate {
                                       "Mission Complete",
                                       JOptionPane.INFORMATION_MESSAGE);
         
+    }
+
+    @Override
+    public RoverFrame getFrame() {
+		return frame;
     }
 
 }

@@ -29,8 +29,8 @@ public class RoverModel
 	static final double v2_theta = 0.08011; 	// radians
 
 	// LCM type information
-	private static float x_pos;
-	private static float y_pos;
+	private static double x_pos;
+	private static double y_pos;
 	private static double theta;
 
 	public RoverModel()
@@ -109,10 +109,9 @@ public class RoverModel
 		return chain;
 	}
 
-	public VisChain getRoverChain(pos_t msg) {
-		this.x_pos = msg.x_pos;
-		this.y_pos = msg.y_pos;
-		this.theta = msg.theta;
+	public VisChain getRoverChain(double[] pos) {
+		this.x_pos = pos[0];
+		this.y_pos = pos[1];
 
 		VisChain rover = getChain();
 		return rover;

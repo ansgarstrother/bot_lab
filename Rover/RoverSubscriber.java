@@ -26,7 +26,7 @@ public class RoverSubscriber implements LCMSubscriber
     
     public void messageReceived(LCM lcm, String channel, LCMDataInputStream ins)
     {   
-	System.out.println("Received message on channel " + channel);
+	//System.out.println("Received message on channel " + channel);
 
         try {
             if (channel.equals("10_POSE")) {

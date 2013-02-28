@@ -32,9 +32,12 @@ public class RoverController implements Runnable {
 	protected boolean isExecuting;
 
 	protected RoverSubscriber subscriber;
+	protected RoverPositioning roverPositioning;
 	
 	protected volatile pos_t new_msg;
 	protected pos_t prev_msg;
+	protected volatile double[] new_pos;
+	protected double[] prev_pos;
 	protected double[] covar_vec;
 
 
@@ -46,7 +49,13 @@ public class RoverController implements Runnable {
 		this.isExecuting = false;
 		this.prev_msg = new pos_t();
 		this.new_msg = new pos_t();
+		this.prev_pos = new double[2];
+		this.new_pos = new double[2];
+		this.prev_pos[0] = 0; this.prev_pos[1] = 0;
+		this.new_pos[0] = 0; this.new_pos[1] = 0;
 		this.covar_vec = new double[3];
+
+		this.roverPositioning = new RoverPositioning();
 
 		try { this.subscriber = new RoverSubscriber(); }
 		catch (Exception e) { System.err.println("Error initializing Subscriber: " + e.getMessage()); }
@@ -54,20 +63,7 @@ public class RoverController implements Runnable {
 	}
 
 	// CLASS METHODS
-/*
-	// Retrieve new position
-	public pos_t getNewPosition() {
-		pos_t msg = null;
-		synchronized(this) {
-			msg = new_msg;
-			new_msg = null;
-		}
-		return msg;
-	}
-	public synchronized void setNewPosition(pos_t newMessage) {
-		this.new_msg = newMessage;
-	}
-*/
+	// NULL
 
 
 	// Execution Method
@@ -79,7 +75,7 @@ public class RoverController implements Runnable {
 		}
 		
         // init
-        delegate.frame.getParameterGUI().ss("roverStatus", "Running");
+        this.delegate.getFrame().getParameterGUI().ss("roverStatus", "Running");
         boolean finished = false;
         final long startTime = System.currentTimeMillis();
         
@@ -92,24 +88,29 @@ public class RoverController implements Runnable {
             this.prev_msg = new_msg;
             this.new_msg = subscriber.getPose();
             // CALCULATE COVARIANCE
-            
+          	
             
             if (!new_msg.finished) {
-                update();
+				if (prev_msg != new_msg) {
+					this.prev_pos = roverPositioning.getPrevPosition();
+					this.new_pos = roverPositioning.getNewPosition(new_msg);
+                	update();
+				}
             }
             else {
                 finished = true;
-                delegate.frame.getParameterGUI().ss("roverStatus", "Idle");
             }
         }
+		
         
         // finish
         final long endTime = System.currentTimeMillis();
+		this.delegate.getFrame().getParameterGUI().ss("roverStatus", "Idle");
         System.out.println("Mission Complete!");
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                delegate.finished(endTime - startTIme);
+                delegate.finished(endTime - startTime);
             }
         });
         
@@ -125,7 +126,8 @@ public class RoverController implements Runnable {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				delegate.update(prev_msg, new_msg, covar_vec);
+				System.out.println("New Position Update Received");
+				delegate.update(prev_pos, new_pos, new_msg, covar_vec);
 			}
 		});
 	}

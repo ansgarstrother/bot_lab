@@ -30,13 +30,10 @@ public class RoverPath {
 
 	// LCM type variables
 	private static boolean triangle;
-	private static float x_pos_new;
-	private static float y_pos_new;
-	private static double theta_new;
-
-	private static float x_pos_old;
-	private static float y_pos_old;
-	private static double theta_old;
+	private static double x_pos_new;
+	private static double y_pos_new;
+	private static double x_pos_old;
+	private static double y_pos_old;
 
 	private static double length;
 
@@ -75,15 +72,13 @@ public class RoverPath {
 
 
 	// RETURN FUNCTION
-	public VisChain getRoverPath(pos_t old_msg, pos_t new_msg) {
+	public VisChain getRoverPath(double[] prev_pos, double[] new_pos, pos_t new_msg) {
 		// retrieve lcm type information
 		triangle = new_msg.triangle_found;
-		x_pos_new = new_msg.x_pos;
-		y_pos_new = new_msg.y_pos;
-		theta_new = new_msg.theta;
-		x_pos_old = old_msg.x_pos;
-		y_pos_old = old_msg.y_pos;
-		theta_old = old_msg.theta;
+		x_pos_new = new_pos[0];
+		y_pos_new = new_pos[1];
+		x_pos_old = prev_pos[0];
+		y_pos_old = prev_pos[1];
 
 		VisChain segment = getChain();	
 
