@@ -1,9 +1,9 @@
-package Panda;
+package Panda.Odometry;
 
 import lcmtypes.*;
 import lcm.lcm.*;
 import april.util.TimeUtil;
-import sensors.*;
+import Panda.sensors.*;
 
 public class PandaDrive
 {

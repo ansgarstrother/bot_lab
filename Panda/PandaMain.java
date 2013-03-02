@@ -50,7 +50,7 @@ public class PandaMain{
 		//Read in Calibration of Panda Bot
 		Projection projection = new Projection();
 
-        PandaDrive pDrive = new PandaDrive();
+        	PandaDrive pDrive = new PandaDrive();
 
 		while(run){
 
@@ -74,7 +74,8 @@ public class PandaMain{
 			//plan path and move robot
 			// TODO create a class to idenify where we are going next check path
 			// via map class then order robot ot move.
-            pDrive.driveForward();
+            
+			pDrive.driveForward(1);
 		}
 	}
 }

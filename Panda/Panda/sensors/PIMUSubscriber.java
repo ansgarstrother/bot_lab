@@ -1,4 +1,4 @@
-package sensors;
+package Panda.sensors;
 
 import java.io.*;
 import lcm.lcm.*;
