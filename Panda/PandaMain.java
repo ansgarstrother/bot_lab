@@ -18,6 +18,8 @@ import april.jmat.*;
 public class PandaMain{
 
 	static boolean run = true;
+    static double sampleRate = 200;    //microseconds
+    
 //=================================================================//
 // main of the panda bot                                           //
 //                                                                 //
@@ -54,6 +56,9 @@ public class PandaMain{
 
 		while(run){
 
+            // Implement Sampling Rate
+            //Thread.sleep(sampleRate);?
+            
 			//Get a new image
 			is.start();
            		byte buf[] = is.getFrame().data;

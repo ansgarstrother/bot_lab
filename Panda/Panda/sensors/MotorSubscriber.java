@@ -39,8 +39,8 @@ public class MotorSubscriber implements LCMSubscriber
                 LMotorAppliedVoltage = msg.applied_voltage[0];
                 RMotorAppliedVoltage = msg.applied_voltage[1];
             }
-            //Sleep 20ms
-	        Thread.sleep(20);
+            // note forcing thread to sleep in this method will lag our feedback from LCM
+            // instead, we need to come up with a different way to implement sampling rate
 
         } catch (IOException ex) {
             System.out.println("Exception: " + ex);
