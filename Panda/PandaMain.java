@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import Panda.VisionMapping.*;
 import Panda.Odometry.*;
+import Panda.util.*;
 
 import java.io.*;
 import java.util.*;
@@ -70,6 +71,41 @@ public class PandaMain{
 			//find and add barriers to the maps
 			//TODO Needs to add segments it finds to the map via Map Class
 			LineDetector lineSeg = new LineDetector(im, 100, 155);
+            ArrayList<int[]> boundaryMap = lineSeg.getSegments();
+            LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
+            ArrayList<int[][]> segments = lds.getSegments();
+            // rectify
+            Rectification rectifier = new Rectification(segments, image.getWidth(), image.getHeight());
+            ArrayList<int[][]> rectifiedMap = rectifier.getRectifiedPoints();
+            /*
+             // transform to real world coordiantes
+             // from calibrationMatrix
+             // coordinates should now be in 3D
+             realWorldMap = new ArrayList<double[][]>();
+             Matrix calibMat = new Matrix(calibrationMatrix);
+             for (int i = 0; i < rectifiedMap.size(); i++) {
+             int[][] segment = rectifiedMap.get(i);
+             double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
+             double[][] fin_point = {{segment[1][0]}, {segment[1][1]}, {1}};
+             
+             Matrix init_pixel_mat = new Matrix(init_point);
+             Matrix fin_pixel_mat = new Matrix(fin_point);
+             Matrix affine_vec = calibMat.transpose()
+             .times(calibMat)
+             .inverse()
+             .times(calibMat.transpose());
+             Matrix init_vec = calibMat.times(init_pixel_mat);
+             Matrix fin_vec = calibMat.times(fin_pixel_mat);
+             
+             
+             // add real world coordinate
+             double[][] real_segment = {{init_vec.get(0,0), init_vec.get(0,1), init_vec.get(0,2)},
+             {fin_vec.get(0,0), fin_vec.get(0,1), fin_vec.get(0,2)}};
+             realWorldMap.add(real_segment);
+             
+             }
+             */      
+
 
 			//Detect any triangles and then fire on them
 			//TODO if a target is found turn and fire on the target then return to
