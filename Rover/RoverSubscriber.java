@@ -19,9 +19,9 @@ public class RoverSubscriber implements LCMSubscriber
     {
         this.lcm = new LCM();
         this.lcm.subscribe("10_POSE", this);
-        this.lcm.subscribe("10_MOTOR_FEEDBACK", this);
-        this.lcm.subscribe("10_PIMU", this);
-	this.msg = new pos_t();
+        //this.lcm.subscribe("10_MOTOR_FEEDBACK", this);
+        //this.lcm.subscribe("10_PIMU", this);
+		this.msg = new pos_t();
     }
     
     public void messageReceived(LCM lcm, String channel, LCMDataInputStream ins)
