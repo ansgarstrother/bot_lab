@@ -1,7 +1,8 @@
 import lcm.lcm.*;
 import java.util.Vector;
 
-
+import lcmtypes.*;
+import Panda.sensors.*;
 import Panda.VisionMapping.*;
 import Panda.Odometry.*;
 import Panda.util.*;
@@ -27,9 +28,13 @@ public class OdometryMain {
 
 	public static void main(String[] args) {
 		// init sensors
-		MotorSubscriber ms = new MotorSubscriber();
-		PIMUSubscriber ps = new PIMUSubscriber();
-		PandaOdometry po = new PandaOdometry(ms, ps);		
+		try {
+			MotorSubscriber ms = new MotorSubscriber();
+			PIMUSubscriber ps = new PIMUSubscriber();
+			PandaOdometry po = new PandaOdometry(ms, ps);
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+		}		
 
 
 		return;

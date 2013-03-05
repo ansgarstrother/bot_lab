@@ -1,7 +1,7 @@
 import lcm.lcm.*;
 import java.util.Vector;
 
-
+import Panda.sensors.*;
 import Panda.VisionMapping.*;
 import Panda.Odometry.*;
 import Panda.util.*;
