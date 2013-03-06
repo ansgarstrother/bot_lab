@@ -73,25 +73,27 @@ public class PandaOdometry {
 			// sample messages
 			cur_mf_msg = ms.getMessage();
 			cur_pimu_msg = ps.getMessage();
-			if (!initialized) {
+			if (!initialized && cur_mf_msg.utime != 0 && cur_pimu_msg.utime != 0) {
 				prev_mf_msg = cur_mf_msg;
 				prev_pimu_msg = cur_pimu_msg;
+				System.out.println(cur_mf_msg.utime);
+				//System.out.println(prev_mf_msg.encoders[0]);
 				initialized = true;
 			}
 			// test motor feedback
-			if (prev_mf_msg != cur_mf_msg) {
+			if (prev_mf_msg != cur_mf_msg && initialized) {
 				//System.out.println("Different Motor Messages");
 				mf_flag = true;
 			}
 			// test pimu msg
-			if (prev_pimu_msg != cur_pimu_msg) {
+			if (prev_pimu_msg != cur_pimu_msg && initialized) {
 				//System.out.println("Different PIMU Messages");
 				pimu_flag = true;
 			}
 			// attempt to push message over lcm
 			if (pimu_flag && mf_flag) {
 				// CALCULATE POSE
-				calculatePose(cur_mf_msg, cur_pimu_msg, prev_pimu_msg);
+				calculatePose(cur_mf_msg, cur_pimu_msg, prev_pimu_msg, prev_mf_msg);
 				// PUBLISH TO GUI
 				sendPose();	
 				// bump cur msg to prev msg
@@ -106,7 +108,7 @@ public class PandaOdometry {
 
 
 	// PROTECTED METHODS
-	protected void calculatePose(motor_feedback_t mf, pimu_t pimu, pimu_t prev_pimu) {
+	private void calculatePose(motor_feedback_t mf, pimu_t pimu, pimu_t prev_pimu, motor_feedback_t prev_mf) {
 		// RETRIEVE ALL DATA FROM LCM MESSAGES
 		// PIMU
 		//	- gyro derivative data (integrator[4] & integrator[5] & utime_pimu)
@@ -124,8 +126,8 @@ public class PandaOdometry {
 		double gyro2 = (pimu.integrator[5] - pimu.integrator[5]) / 
 							(pimu.utime_pimu - prev_pimu.utime_pimu);
 
-		double encoL = (mf.encoders[0] - mf.encoders[0]);
-		double encoR = (mf.encoders[1] - mf.encoders[1]);
+		double encoL = (mf.encoders[0] - prev_mf.encoders[0]);
+		double encoR = (mf.encoders[1] - prev_mf.encoders[1]);
 		double dL = encoL / left_ticks_per_meter;
 		double dR = encoR / right_ticks_per_meter;
 
@@ -143,7 +145,9 @@ public class PandaOdometry {
 		LCM lcm = LCM.getSingleton();
                         
 		//publish
-		lcm.publish("10_POSE", cur_pos_msg);
+		if (cur_pos_msg.delta_x != 0 && cur_pos_msg.theta != 0) {
+			lcm.publish("10_POSE", cur_pos_msg);
+		}
 
 		// send cur_pos to prev_pos
 		prev_pos_msg = cur_pos_msg;
