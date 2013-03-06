@@ -18,14 +18,15 @@ public class PIMUSubscriber implements LCMSubscriber
         this.lcm = new LCM();
         //this.lcm.subscribe("10_POSE", this);
         //this.lcm.subscribe("10_MOTOR_FEEDBACK", this);
-        this.lcm.subscribe("10_PIMU", this);
+        this.lcm.subscribe("PIMU", this);
 		this.msg = new pimu_t();
     }
 
     public void messageReceived(LCM lcm, String channel, LCMDataInputStream ins)
     {
+		//System.out.println("Received message on channel " + channel);
 		try {
-			if (channel.equals ("10_PIMU")) {
+			if (channel.equals ("PIMU")) {
                 this.msg = new pimu_t(ins);
             }
             

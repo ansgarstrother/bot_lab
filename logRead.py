@@ -1,6 +1,7 @@
 import struct
 import sys
 import lcm
+import time
 
 f = file(sys.argv[1])
 l = lcm.LCM()
@@ -12,4 +13,5 @@ while True:
   chan = f.read(clen)
   data = f.read(dlen)
   l.publish(chan, data)
+  time.sleep(0.002)
 f.close()

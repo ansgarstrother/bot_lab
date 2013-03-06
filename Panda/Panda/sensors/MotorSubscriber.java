@@ -17,15 +17,16 @@ public class MotorSubscriber implements LCMSubscriber
     {
         this.lcm = new LCM();
         //this.lcm.subscribe("10_POSE", this);
-        this.lcm.subscribe("10_MOTOR_FEEDBACK", this);
+        this.lcm.subscribe("MOTOR_FEEDBACK", this);
         //this.lcm.subscribe("10_PIMU", this);
 		this.msg = new motor_feedback_t();
     }
 
     public void messageReceived(LCM lcm, String channel, LCMDataInputStream ins)
     {
+		//System.out.println("Received message on channel " + channel);
 		try {
-			if (channel.equals ("10_MOTOR_FEEDBACK")) {
+			if (channel.equals ("MOTOR_FEEDBACK")) {
                 this.msg = new motor_feedback_t(ins);
             }
             

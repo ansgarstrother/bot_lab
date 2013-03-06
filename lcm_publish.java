@@ -20,7 +20,8 @@ public class lcm_publish {
             //publish
             lcm.publish("10_POSE", pos_msg);
 			*/
-			// instantiate a new lcm position message
+			
+			// instantiate a new lcm motor message
             lcmtypes.motor_feedback_t msg = new lcmtypes.motor_feedback_t();
     		msg.utime = System.nanoTime();
     		msg.estop = false;
@@ -38,5 +39,24 @@ public class lcm_publish {
             
             //publish
             lcm.publish("10_MOTOR_FEEDBACK", msg);
+			
+			/*
+			//instantiate a new lcm pimu message
+			lcmtypes.pimu_t msg = new lcmtypes.pimu_t();
+			msg.utime = System.nanoTime();
+			msg.utime_pimu = System.nanoTime();
+			msg.integrator = new int[8];
+			msg.integrator[0] = msg.integrator[1] = msg.integrator[2] = msg.integrator[3] = msg.integrator[4] = msg.integrator[5] =
+					msg.integrator[6] = msg.integrator[7] = 0;
+    		msg.accel = new int[3];
+			msg.accel[0] = msg.accel[1] = msg.accel[2] = 0;
+    		msg.mag = new int[3];
+			msg.mag[0] = msg.mag[1] = msg.mag[2] = 0;
+    		msg.alttemp = new int[2];
+			msg.alttemp[0] = msg.alttemp[1] = 0;
+
+			//publish
+			lcm.publish("10_PIMU", msg);
+			*/
     }
 }
