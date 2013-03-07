@@ -13,5 +13,5 @@ while True:
   chan = f.read(clen)
   data = f.read(dlen)
   l.publish(chan, data)
-  time.sleep(0.002)
+  time.sleep(0.02)
 f.close()

@@ -85,21 +85,26 @@ public class RoverController implements Runnable {
             // Calculate covariance vector
             // Test for triangle location/finished booleans
             // Update GUI
-            this.prev_msg = new_msg;
-            this.new_msg = subscriber.getPose();
-            // CALCULATE COVARIANCE
+			try {
+            	this.prev_msg = new_msg;
+            	this.new_msg = subscriber.getPose();
+            	// CALCULATE COVARIANCE
           	
             
-            if (!new_msg.finished) {
-				if (prev_msg != new_msg) {
-					this.new_pos = roverPositioning.getNewPosition(new_msg);
-					this.prev_pos = roverPositioning.getPrevPosition();
-                	update();
-				}
-            }
-            else {
-                finished = true;
-            }
+            	if (!new_msg.finished) {
+					if (prev_msg != new_msg) {
+						this.new_pos = roverPositioning.getNewPosition(new_msg);
+						this.prev_pos = roverPositioning.getPrevPosition();
+                		update();
+					}
+            	}
+            	else {
+                	finished = true;
+            	}
+			} catch (Exception e) {
+				System.out.println("System Stalling: " + e.getMessage());
+				continue;
+			}
         }
 		
         

@@ -20,7 +20,7 @@ public class lcm_publish {
             //publish
             lcm.publish("10_POSE", pos_msg);
 			*/
-			
+			/*
 			// instantiate a new lcm motor message
             lcmtypes.motor_feedback_t msg = new lcmtypes.motor_feedback_t();
     		msg.utime = System.nanoTime();
@@ -39,8 +39,8 @@ public class lcm_publish {
             
             //publish
             lcm.publish("10_MOTOR_FEEDBACK", msg);
+			*/
 			
-			/*
 			//instantiate a new lcm pimu message
 			lcmtypes.pimu_t msg = new lcmtypes.pimu_t();
 			msg.utime = System.nanoTime();
@@ -57,6 +57,6 @@ public class lcm_publish {
 
 			//publish
 			lcm.publish("10_PIMU", msg);
-			*/
+			
     }
 }
