@@ -57,7 +57,7 @@ public class RoverPositioning {
 		double[] current_pos = new double[3];
 		current_pos[0] = cur_mat.get(0,0);
 		current_pos[1] = cur_mat.get(1,0);
-		current_pos[2] = cur_t + msg.theta % (2*Math.PI);
+		current_pos[2] = (cur_t + msg.theta) % (2*Math.PI);
 		prev_x = cur_x;
 		prev_y = cur_y;
 		prev_t = cur_t;

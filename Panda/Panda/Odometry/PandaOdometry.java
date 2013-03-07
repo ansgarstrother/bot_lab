@@ -26,6 +26,7 @@ public class PandaOdometry {
 	private static final double right_ticks_per_meter = 4904;	// right wheel ticks per meter
 	private static final double wheel_radius = 0.0381;		// wheel radius (meters)
 	private static final double base_distance = 0.168335;	//distance between wheels (meters)
+	private static final int interval = 0;
 
 	//args
 	private MotorSubscriber ms;
@@ -42,6 +43,8 @@ public class PandaOdometry {
 	
 	private volatile pos_t prev_pos_msg;
 	private volatile pos_t cur_pos_msg;
+
+	private long previousTimeMillis;
 
 
 	// CONSTRUCTOR METHOD
@@ -61,6 +64,9 @@ public class PandaOdometry {
 		mf_flag = false;
 		pimu_flag = false;
 		initialized = false;
+
+		// initialize time
+		previousTimeMillis = System.currentTimeMillis();
 
 
 		// RUN ROBOT
@@ -91,7 +97,7 @@ public class PandaOdometry {
 				pimu_flag = true;
 			}
 			// attempt to push message over lcm
-			if (pimu_flag && mf_flag) {
+			if (pimu_flag && mf_flag && (previousTimeMillis + interval <= System.currentTimeMillis())) {
 				// CALCULATE POSE
 				calculatePose(cur_mf_msg, cur_pimu_msg, prev_pimu_msg, prev_mf_msg);
 				// PUBLISH TO GUI
@@ -101,6 +107,8 @@ public class PandaOdometry {
 				prev_pimu_msg = cur_pimu_msg;
 				// reset flags
 				pimu_flag = mf_flag = false;
+				// reset time
+				previousTimeMillis = System.currentTimeMillis();
 			}
 			
 		}

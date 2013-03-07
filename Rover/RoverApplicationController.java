@@ -34,7 +34,7 @@ public class RoverApplicationController implements RoverControllerDelegate {
 
 	protected RoverModel roverModel;
 	protected RoverPath roverPath;
-	protected VisChain green_path;
+	//protected VisChain green_path;
 	protected pos_t init_msg;
 
 
@@ -45,7 +45,7 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.errorFrame = errorFrame;
 		this.roverModel = new RoverModel();
 		this.roverPath = new RoverPath();
-		this.green_path = new VisChain();
+		//this.green_path = new VisChain();
 		this.init_msg = new pos_t();
 
 		// callbacks
@@ -116,6 +116,7 @@ public class RoverApplicationController implements RoverControllerDelegate {
     
     @Override
 	public void update(double[] prev_pos, double[] new_pos, pos_t new_msg, double[] covar_vec) {
+
 		// covar_vec = [var_x, var_y, a] -> straight from LCM
 		// build rover chain
 		VisChain rover = new VisChain();
@@ -123,12 +124,13 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		VisWorld.Buffer vb = this.frame.vw.getBuffer("rover");
 		
 		// update green path tracking
-		green_path.add(roverPath.getRoverPath(prev_pos, new_pos, new_msg));
+		//VisChain green_path = new VisChain();
+		//green_path.add(roverPath.getRoverPath(prev_pos, new_pos, new_msg));
         
 		// build world chain & swap
-		VisChain world = new VisChain();
-		world.add(green_path, rover);
-		vb.addBack(world);
+		//VisChain world = new VisChain();
+		//world.add(green_path, rover);
+		vb.addBack(rover);
 		vb.swap();
         
 		// BUILD ROVER ERROR ELLIPSE
