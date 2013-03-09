@@ -9,6 +9,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.awt.Color;
+
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -35,6 +38,7 @@ public class RoverApplicationController implements RoverControllerDelegate {
 	protected RoverModel roverModel;
 	protected RoverPath roverPath;
 	//protected VisChain green_path;
+	protected ArrayList<Point2D.Float> green_path;
 	protected pos_t init_msg;
 
 
@@ -46,6 +50,7 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.roverModel = new RoverModel();
 		this.roverPath = new RoverPath();
 		//this.green_path = new VisChain();
+		this.green_path = new ArrayList<Point2D.Float>();
 		this.init_msg = new pos_t();
 
 		// callbacks
@@ -126,10 +131,17 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		// update green path tracking
 		//VisChain green_path = new VisChain();
 		//green_path.add(roverPath.getRoverPath(prev_pos, new_pos, new_msg));
+		Point2D.Float cur_point = new Point2D.Float((float)new_pos[0], (float)new_pos[1]);
+		green_path.add(cur_point);
+		//VisData path_data = new VisData(green_path, new VisDataPointStyle(Color.green, 3));
+		//VisChain path_chain = new VisChain();
+		//path_chain.add(path_data);
+		
         
 		// build world chain & swap
 		//VisChain world = new VisChain();
-		//world.add(green_path, rover);
+		//world.add(path_data, rover);
+		//vb.addBack(world);
 		vb.addBack(rover);
 		vb.swap();
         

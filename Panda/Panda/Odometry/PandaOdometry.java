@@ -136,8 +136,8 @@ public class PandaOdometry {
 
 		double encoL = (mf.encoders[0] - prev_mf.encoders[0]);
 		double encoR = (mf.encoders[1] - prev_mf.encoders[1]);
-		double dL = encoL / left_ticks_per_meter;
-		double dR = encoR / right_ticks_per_meter;
+		double dL = encoL * left_ticks_per_meter;
+		double dR = encoR * right_ticks_per_meter;
 
 		// setup pos msg
 		// TODO: TRIANGLE FOUND AND FINISHED FLAGS MUST BE PASSED IN
