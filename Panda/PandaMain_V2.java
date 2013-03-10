@@ -55,8 +55,9 @@ public class PandaMain{
 
 		//Panda Driver
     	Drive drive = new Drive();
-
 		Path path = new Path();
+        Map map = new Map();    // init random int
+        
 
 		while(run){
 
@@ -78,7 +79,7 @@ public class PandaMain{
 
 			//Line Detector finds barriers and adds them to the map
 			BarrierMap barrierMap = new BarrierMap(im);
-			barrierMap.add();
+			map.addBarrier(barrierMap);
 
 			//Plans path 
 			path.plan();
