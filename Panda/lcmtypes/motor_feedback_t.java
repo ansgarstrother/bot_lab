@@ -12,17 +12,18 @@ import lcm.lcm.*;
 public final class motor_feedback_t implements lcm.lcm.LCMEncodable
 {
     public long utime;
+    public boolean estop;
     public short nmotors;
     public int encoders[];
-    public double current[];
-    public double applied_voltage[];
+    public float current[];
+    public float applied_voltage[];
  
     public motor_feedback_t()
     {
     }
  
     public static final long LCM_FINGERPRINT;
-    public static final long LCM_FINGERPRINT_BASE = 0xb61a6bdaec885e34L;
+    public static final long LCM_FINGERPRINT_BASE = 0x1a793f72a7a09d71L;
  
     static {
         LCM_FINGERPRINT = _hashRecursive(new ArrayList<Class<?>>());
@@ -50,6 +51,8 @@ public final class motor_feedback_t implements lcm.lcm.LCMEncodable
     {
         outs.writeLong(this.utime); 
  
+        outs.writeByte( this.estop ? 1 : 0); 
+ 
         outs.writeShort(this.nmotors); 
  
         for (int a = 0; a < this.nmotors; a++) {
@@ -57,11 +60,11 @@ public final class motor_feedback_t implements lcm.lcm.LCMEncodable
         }
  
         for (int a = 0; a < this.nmotors; a++) {
-            outs.writeDouble(this.current[a]); 
+            outs.writeFloat(this.current[a]); 
         }
  
         for (int a = 0; a < this.nmotors; a++) {
-            outs.writeDouble(this.applied_voltage[a]); 
+            outs.writeFloat(this.applied_voltage[a]); 
         }
  
     }
@@ -74,7 +77,7 @@ public final class motor_feedback_t implements lcm.lcm.LCMEncodable
     public motor_feedback_t(DataInput ins) throws IOException
     {
         if (ins.readLong() != LCM_FINGERPRINT)
-            throw new IOException("LCM Decode error: bad fingerprint Motor Feedback");
+            throw new IOException("LCM Decode error: bad fingerprint");
  
         _decodeRecursive(ins);
     }
@@ -90,6 +93,8 @@ public final class motor_feedback_t implements lcm.lcm.LCMEncodable
     {
         this.utime = ins.readLong();
  
+        this.estop = ins.readByte()!=0;
+ 
         this.nmotors = ins.readShort();
  
         this.encoders = new int[(int) nmotors];
@@ -97,14 +102,14 @@ public final class motor_feedback_t implements lcm.lcm.LCMEncodable
             this.encoders[a] = ins.readInt();
         }
  
-        this.current = new double[(int) nmotors];
+        this.current = new float[(int) nmotors];
         for (int a = 0; a < this.nmotors; a++) {
-            this.current[a] = ins.readDouble();
+            this.current[a] = ins.readFloat();
         }
  
-        this.applied_voltage = new double[(int) nmotors];
+        this.applied_voltage = new float[(int) nmotors];
         for (int a = 0; a < this.nmotors; a++) {
-            this.applied_voltage[a] = ins.readDouble();
+            this.applied_voltage[a] = ins.readFloat();
         }
  
     }
@@ -114,15 +119,17 @@ public final class motor_feedback_t implements lcm.lcm.LCMEncodable
         lcmtypes.motor_feedback_t outobj = new lcmtypes.motor_feedback_t();
         outobj.utime = this.utime;
  
+        outobj.estop = this.estop;
+ 
         outobj.nmotors = this.nmotors;
  
         outobj.encoders = new int[(int) nmotors];
         if (this.nmotors > 0)
             System.arraycopy(this.encoders, 0, outobj.encoders, 0, this.nmotors); 
-        outobj.current = new double[(int) nmotors];
+        outobj.current = new float[(int) nmotors];
         if (this.nmotors > 0)
             System.arraycopy(this.current, 0, outobj.current, 0, this.nmotors); 
-        outobj.applied_voltage = new double[(int) nmotors];
+        outobj.applied_voltage = new float[(int) nmotors];
         if (this.nmotors > 0)
             System.arraycopy(this.applied_voltage, 0, outobj.applied_voltage, 0, this.nmotors); 
         return outobj;
