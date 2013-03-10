@@ -48,7 +48,10 @@ public class LineDetectionController {
     // constants
     final static double binaryThresh = 155;
     final static double lwPassThresh = 100;
-    private double[][] calibrationMatrix;
+    private double[][] calibrationMatrix =
+		{ 	{139.63452, 472.76047, 0, 0},
+			{0, 139.63452, 617.7583, 0},
+			{0, 0, 1, 0}	};
     
     
     // CONSTRUCTOR
@@ -244,7 +247,7 @@ public class LineDetectionController {
         // rectify
         Rectification rectifier = new Rectification(segments, image.getWidth(), image.getHeight());
         rectifiedMap = rectifier.getRectifiedPoints();
-  /*      
+        
         // transform to real world coordiantes
         // from calibrationMatrix
         // coordinates should now be in 3D
@@ -269,9 +272,13 @@ public class LineDetectionController {
 	    double[][] real_segment = {{init_vec.get(0,0), init_vec.get(0,1), init_vec.get(0,2)},
 					{fin_vec.get(0,0), fin_vec.get(0,1), fin_vec.get(0,2)}};
 	    realWorldMap.add(real_segment);
+
+		System.out.println("Boundary Line:");
+		System.out.println("initial: (" + real_segment[0][0] + ", " + real_segment[0][1] + ")");
+		System.out.println("final: (" + real_segment[1][0] + ", " + real_segment[1][1] + ")");
 	
         }
-  */      
+      
         return detector.getProcessedImage();
     }
     
