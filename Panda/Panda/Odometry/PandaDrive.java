@@ -18,29 +18,29 @@ public class PandaDrive
     static final float TPM_LEFT = 494904.3733F;
 
 
-    
+
     LCM lcm;
     MotorSubscriber ms;
 	PIMUSubscriber ps;
 
     diff_drive_t msg;
-    
+
     float leftSpeed;
     float rightSpeed;
-    
+
     public PandaDrive(){
-        
+
         try{
 			System.out.println("Hello World!");
-			
+
             ms = new MotorSubscriber();
 			ps = new PIMUSubscriber();
 			// Get an LCM Object
             lcm = LCM.getSingleton();
-            
+
 			// Create a diff_drive message
 			msg = new diff_drive_t();
-			
+
 			// Set motors enabled
 			// False means Enabled (lcm weirdness)
 			msg.left_enabled = false;
@@ -63,21 +63,21 @@ public class PandaDrive
         msg.right = STOP;
         lcm.publish("DIFF_DRIVE", msg);
     }
-    
-    
+
+
 	public void turn(double angle) {
 		// gyro derivatives are positive
-		
+
 		double angle_turned = 0;
 
 		while (angle_turned < angle) {
 				msg.utime = TimeUtil.utime();
 
 				// right turn if angle is negative
-				if (angle <=0 ) { 
+				if (angle <=0 ) {
 					msg.left = 0.25F;
 					msg.right = -0.25F;
-					
+
 				}
 				// left turn
 				else {
@@ -88,14 +88,14 @@ public class PandaDrive
 
 				lcm.publish ("10_DIFF_DRIVE", msg);
 
-				
-		}	
+
+		}
 
 	}
 
 	public void turnRight() {
 		// gyro derivatives are negative
-		
+
 		msg.utime = TimeUtil.utime();
 		msg.left = 0.25F;
 		msg.right = -0.25F;
@@ -109,7 +109,10 @@ public class PandaDrive
         //Needs to be called in a loop
         //Left encoder: 128.27 ticks/inch
         //Right encoder: 124.571 ticks/inch
-        float KError = KP*(ms.getREncoder() - ms.getLEncoder());
+        motor_feedback_t motorFeedback = ms.getMessage();
+        int leftEncoderVal = motorFeedback.encoders[0];
+        int rightEncoderVal = motorFeedback.encoders[1];
+        float KError = KP*(rightEncoderVal - leftEncoderVal);
         leftSpeed = speedCheck(leftSpeed + KError);
         rightSpeed = speedCheck(rightSpeed + KError);
         double distanceTraveled = 0;
@@ -120,18 +123,19 @@ public class PandaDrive
 		double[] pimuDerivs = new double[2];
 
         // Add Timestamp (lcm really cares about this)
-		lastLeftEncoder = ms.getLEncoder ();
-		lastRightEncoder = ms.getREncoder ();
+		lastLeftEncoder = leftEncoderVal;
+		lastRightEncoder = rightEncoderVal;
 		System.out.println ("last encoders " + lastLeftEncoder + " " + lastRightEncoder);
 
 
 		while (distanceTraveled < distance) {
-		
-			pimuDerivs = ps.getPIMUDerivs ();
-			System.out.printf ("gyro derivs " + pimuDerivs[0] + " "  + pimuDerivs[1]);
+
+            //TODO: Fix below
+			//pimuDerivs = ps.getMessage();
+			//System.out.printf ("gyro derivs " + pimuDerivs[0] + " "  + pimuDerivs[1]);
 			/*
 			if (pimuDerivs[0] > 3) {
-				
+
 			}
 			*/
 
@@ -142,13 +146,13 @@ public class PandaDrive
 			lcm.publish("10_DIFF_DRIVE", msg);
 
 
-			curLeftEncoder = ms.getLEncoder ();
-			curRightEncoder = ms.getREncoder ();
+			curLeftEncoder = leftEncoderVal;
+			curRightEncoder = rightEncoderVal;
 			System.out.println ("current encoders " + curLeftEncoder + " " + curRightEncoder);
-			
-			
 
-			// if encoder values are too low, disregard change in distance 
+
+
+			// if encoder values are too low, disregard change in distance
 			if (lastLeftEncoder < 5 || lastRightEncoder < 5) {
 				lastLeftEncoder = curLeftEncoder;
 				lastRightEncoder = curRightEncoder;
@@ -158,7 +162,7 @@ public class PandaDrive
 			leftDistance = (curLeftEncoder - lastLeftEncoder) / TPM_LEFT;
 			rightDistance = (curRightEncoder - lastRightEncoder) / TPM_RIGHT;
 			distanceTraveled += (leftDistance + rightDistance) / 2;
-			
+
 			lastLeftEncoder = curLeftEncoder;
 			lastRightEncoder = curRightEncoder;
 
@@ -175,12 +179,12 @@ public class PandaDrive
 /*
 		msg.utime = TimeUtil.utime();
 		msg.left = STOP;
-		msg.right = STOP; 
+		msg.right = STOP;
 		lcm.publish("10_DIFF_DRIVE", msg);
 */
 
     }
-    
+
     private float speedCheck (float speed){
         //If speed is greater then max
         if (speed > MAX_SPEED)
@@ -189,5 +193,5 @@ public class PandaDrive
             return MIN_SPEED;
         return speed;
     }
-    
+
 }

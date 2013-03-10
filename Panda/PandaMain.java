@@ -20,7 +20,7 @@ public class PandaMain{
 
 	static boolean run = true;
     static double sampleRate = 200;    //microseconds
-    
+
 //=================================================================//
 // main of the panda bot                                           //
 //                                                                 //
@@ -59,7 +59,7 @@ public class PandaMain{
 
             // Implement Sampling Rate
             //Thread.sleep(sampleRate);?
-            
+
 			//Get a new image
 			is.start();
            		byte buf[] = is.getFrame().data;
@@ -71,12 +71,12 @@ public class PandaMain{
 			//find and add barriers to the maps
 			//TODO Needs to add segments it finds to the map via Map Class
 			LineDetector lineSeg = new LineDetector(im, 100, 155);
-            ArrayList<int[]> boundaryMap = lineSeg.getSegments();
-            LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
-            ArrayList<int[][]> segments = lds.getSegments();
+            ArrayList<int[][]> boundaryMap = lineSeg.getSegments();
+            //LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
+            //ArrayList<int[][]> segments = lds.getSegments();
             // rectify
-            Rectification rectifier = new Rectification(segments, image.getWidth(), image.getHeight());
-            ArrayList<int[][]> rectifiedMap = rectifier.getRectifiedPoints();
+            //Rectification rectifier = new Rectification(segments, im.getWidth(), im.getHeight());
+            //ArrayList<int[][]> rectifiedMap = rectifier.getRectifiedPoints();
             /*
              // transform to real world coordiantes
              // from calibrationMatrix
@@ -87,7 +87,7 @@ public class PandaMain{
              int[][] segment = rectifiedMap.get(i);
              double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
              double[][] fin_point = {{segment[1][0]}, {segment[1][1]}, {1}};
-             
+
              Matrix init_pixel_mat = new Matrix(init_point);
              Matrix fin_pixel_mat = new Matrix(fin_point);
              Matrix affine_vec = calibMat.transpose()
@@ -96,15 +96,15 @@ public class PandaMain{
              .times(calibMat.transpose());
              Matrix init_vec = calibMat.times(init_pixel_mat);
              Matrix fin_vec = calibMat.times(fin_pixel_mat);
-             
-             
+
+
              // add real world coordinate
              double[][] real_segment = {{init_vec.get(0,0), init_vec.get(0,1), init_vec.get(0,2)},
              {fin_vec.get(0,0), fin_vec.get(0,1), fin_vec.get(0,2)}};
              realWorldMap.add(real_segment);
-             
+
              }
-             */      
+             */
 
 
 			//Detect any triangles and then fire on them
@@ -115,7 +115,7 @@ public class PandaMain{
 			//plan path and move robot
 			// TODO create a class to idenify where we are going next check path
 			// via map class then order robot ot move.
-            
+
 			pDrive.driveForward(1);
 		}
 	}
