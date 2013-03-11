@@ -48,10 +48,11 @@ public class LineDetectionController {
     // constants
     final static double binaryThresh = 155;
     final static double lwPassThresh = 100;
+	private final static double f = -269.30751168;
+	private final static double c_x = 560.081029;
+	private final static double c_y = 280.264223576;
     private double[][] calibrationMatrix =
-		{ 	{139.63452, 472.76047, 0, 0},
-			{0, 139.63452, 617.7583, 0},
-			{0, 0, 1, 0}	};
+		{ 	{f, 0, c_x, 0}, {0, f, c_y, 0}, {0, 0, 1, 0}	};
     
     
     // CONSTRUCTOR
