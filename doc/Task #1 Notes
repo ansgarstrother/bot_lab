@@ -9,3 +9,26 @@ Thus, in order to maximize our accuracy and time complexity, we chose to use a d
 
 See lcm/pos_t.lcm
 
+Q1.2.
+
+< INSERT CODE HERE >
+
+
+Q1.3.
+
+Gyro Calibration:
+Odometry Calibration:
+	To calibrate our odometry, we ran a simple test to track the change in the number of ticks against a set distance. The following table displays our results:
+	
+	Trial #1: 28.25in							Total Ticks		Ticks/Inch
+		Left Encoder:	170023 to 173623		3600			127.434
+		Right Encoder:	180336 to 183872		3536			125.168
+	Trial #2: 29.75in
+		Left Encoder:	173623 to 177458		3835			128.908
+		Right Encoder:	183872 to 187588		3716			124.908
+	Trial #3: 19.25in
+		Left Encoder:	177458 to 179931		2473			128.468
+		Right Encoder:	187588 to 189968		2380			123.636
+	Average:
+		Left Encoder: 	128.27 ticks/in			5050 ticks/meter
+		Right Encoder:	124.571 ticks/in		4904 ticks/meter
