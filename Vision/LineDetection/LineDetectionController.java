@@ -170,7 +170,7 @@ public class LineDetectionController {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						BufferedImage out = LineDetectionController.this.processImage(selectedImage);
+						BufferedImage out = LineDetectionController.this.processImage(selectedImage, true);
                         LineDetectionController.this.getFrame().getCenterImage().setImage(out);
 					}
 				});
@@ -225,7 +225,7 @@ public class LineDetectionController {
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            BufferedImage out = LineDetectionController.this.processImage(im);
+                            BufferedImage out = LineDetectionController.this.processImage(im, false);
                             LineDetectionController.this.getFrame().getCenterImage().setImage(out);
                         }
                     });
@@ -236,50 +236,93 @@ public class LineDetectionController {
     }
     
     // Image Processing
-    protected BufferedImage processImage(BufferedImage image) {
+    protected BufferedImage processImage(BufferedImage image, boolean flag) {
+			// RECTIFICATION
+			BufferedImage im2 = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+			if (flag) {
+                double cx = image.getWidth() / 2.0;
+                double cy = image.getHeight() / 2.0;
+
+                double B = -0.000910;
+                double A = 1.527995;
+
+                for (int y = 0; y < image.getHeight(); y++) {
+                    	for (int x = 0; x < image.getWidth(); x++) {
+
+                        	double dy = y - cy;
+                        	double dx = x - cx;
+
+                        	double theta = Math.atan2(dy, dx);
+                        	double r = Math.sqrt(dy*dy+dx*dx);
+
+                        	double rp = A*r + B*r*r;
+
+                        	int nx = (int) Math.round(cx + rp*Math.cos(theta));
+                        	int ny = (int) Math.round(cy + rp*Math.sin(theta));
+
+                        	if (nx >= 0 && nx < image.getWidth() && ny >= 0 && ny < image.getHeight()) {
+                            		im2.setRGB(x, y, image.getRGB((int) nx, (int) ny));
+                        	}
+							else {
+									im2.setRGB(x, y, 0xffffffff);
+							}
+                    	}
+                }
+			}
+			else {
+				im2 = image;
+			}
+
+
+
         // detect and retrieve boundary map
-        detector = new LineDetectionDetector(image, binaryThresh, lwPassThresh);
+        detector = new LineDetectionDetector(im2, binaryThresh, lwPassThresh);
         boundaryMap = detector.getBoundaryMap();
         
         // segment points
         LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
         ArrayList<int[][]> segments = lds.getSegments();
         
-        // rectify
-        Rectification rectifier = new Rectification(segments, image.getWidth(), image.getHeight());
-        rectifiedMap = rectifier.getRectifiedPoints();
-        
         // transform to real world coordiantes
         // from calibrationMatrix
         // coordinates should now be in 3D
         realWorldMap = new ArrayList<double[][]>();
         Matrix calibMat = new Matrix(calibrationMatrix);
-        for (int i = 0; i < rectifiedMap.size(); i++) {
-            int[][] segment = rectifiedMap.get(i);
-	    double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
-	    double[][] fin_point = {{segment[1][0]}, {segment[1][1]}, {1}};
-	
-	    Matrix init_pixel_mat = new Matrix(init_point);
-	    Matrix fin_pixel_mat = new Matrix(fin_point);
-	    Matrix affine_vec = calibMat.transpose()
-					.times(calibMat)
-					.inverse()
-					.times(calibMat.transpose());
-	    Matrix init_vec = calibMat.times(init_pixel_mat);
-	    Matrix fin_vec = calibMat.times(fin_pixel_mat);
-	
+        for (int i = 0; i < segments.size(); i++) {
+            int[][] segment = segments.get(i);
+	    	double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
+	    	double[][] fin_point = {{segment[1][0]}, {segment[1][1]}, {1}};
 
-	    // add real world coordinate
-	    double[][] real_segment = {{init_vec.get(0,0), init_vec.get(0,1), init_vec.get(0,2)},
-					{fin_vec.get(0,0), fin_vec.get(0,1), fin_vec.get(0,2)}};
-	    realWorldMap.add(real_segment);
+			System.out.println("initial: (" + segment[0][0] + ", " + segment[0][1] + ", " + 1 + ")");
+			System.out.println("final: (" + segment[1][0] + ", " + segment[1][1] + ", " + 1 + ")");
 
-		System.out.println("Boundary Line:");
-		System.out.println("initial: (" + real_segment[0][0] + ", " + real_segment[0][1] + ")");
-		System.out.println("final: (" + real_segment[1][0] + ", " + real_segment[1][1] + ")");
 	
+	    	Matrix init_pixel_mat = new Matrix(init_point);
+	    	Matrix fin_pixel_mat = new Matrix(fin_point);
+			/*
+			System.out.println(calibMat);
+	    	Matrix affine_vec = calibMat.transpose()
+								.times(calibMat)
+								.inverse()
+								.times(calibMat.transpose());
+			System.out.println(affine_vec);
+			*/
+	    	Matrix init_vec = calibMat.inverse().times(init_pixel_mat);
+	    	Matrix fin_vec = calibMat.inverse().times(fin_pixel_mat);
+
+	    	// add real world coordinate
+	    	double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},
+						{fin_vec.get(0,0), fin_vec.get(1,0), fin_vec.get(2,0)}};
+	    	realWorldMap.add(real_segment);
+
+			System.out.println("Boundary Line:");
+			System.out.println("initial: (" + real_segment[0][0] + ", " + real_segment[0][1] + ", " + real_segment[0][2] + ")");
+			System.out.println("final: (" + real_segment[1][0] + ", " + real_segment[1][1] + ", " + real_segment[1][2] + ")");
+			System.out.println(init_vec);
+			System.out.println(fin_vec);
         }
-      
+
+
         return detector.getProcessedImage();
     }
     

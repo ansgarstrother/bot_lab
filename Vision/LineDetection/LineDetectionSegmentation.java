@@ -20,7 +20,7 @@ public class LineDetectionSegmentation {
     // args
     private int[] boundaryMap;
     private Direction dir;
-    private ArrayList<int[][]> segment_list;
+    protected ArrayList<int[][]> segment_list;
     
     public LineDetectionSegmentation(int[] bm) {
         // init
@@ -30,7 +30,7 @@ public class LineDetectionSegmentation {
         
         // traverse and find segments
         traverse();
-        System.out.println(segment_list.size());
+        //System.out.println(segment_list.size());
         
     }
     
@@ -47,7 +47,7 @@ public class LineDetectionSegmentation {
         
         while (x < boundaryMap.length) {
             int y = boundaryMap[x];
-            System.out.println(x + ", " + dir);
+            //System.out.println(x + ", " + dir);
             switch (dir) {
                 case NONE:  // initialize direction
                     if (x+slope < boundaryMap.length) {
@@ -86,8 +86,10 @@ public class LineDetectionSegmentation {
                                 final_point[0] = x; final_point[1] = y;
                                 System.out.println(init_point[0] + " " + init_point[1]);
                                 System.out.println(final_point[0] + " " + final_point[1]);
-                                int[][] object = {init_point, final_point};
-                                segment_list.add(object);
+            					int[][] object = new int[2][2];
+								object[0][0] = init_point[0]; object[0][1] = init_point[1];
+								object[1][0] = final_point[0]; object[1][1] = final_point[1];
+            					segment_list.add(object);
                             }
                             // reset all vars
                             dir = Direction.NONE;
@@ -111,7 +113,9 @@ public class LineDetectionSegmentation {
             final_point[0] = boundaryMap.length-1; final_point[1] = y;
             System.out.println(init_point[0] + " " + init_point[1]);
             System.out.println(final_point[0] + " " + final_point[1]);
-            int[][] object = {init_point, final_point};
+            int[][] object = new int[2][2];
+			object[0][0] = init_point[0]; object[0][1] = init_point[1];
+			object[1][0] = final_point[0]; object[1][1] = final_point[1];
             segment_list.add(object);
         }
 
