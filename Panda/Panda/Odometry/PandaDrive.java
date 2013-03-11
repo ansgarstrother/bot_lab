@@ -20,6 +20,8 @@ public class PandaDrive
         //Left encoder: 128.27 ticks/inch
         //Right encoder: 124.571 ticks/inch
 	static final float CORRECTION = 1.0F;
+
+    static final float CALIBRATION_TIME = 1000; //Approx 1 sec
     
 	LCM lcm;
 
@@ -30,6 +32,8 @@ public class PandaDrive
 
     float leftSpeed;
     float rightSpeed;
+    
+    private double gyroOffset;
 
     public PandaDrive(){
 
@@ -56,6 +60,29 @@ public class PandaDrive
 		catch(Throwable t) {
 			System.out.println("Error: Exception thrown");
 		}
+    }
+
+    private void initGyro(){
+        System.out.println("Calibrating Gyro..");
+        int counter = 0;
+        ArrayList<double> data = new ArrayList<double>();
+
+        //This loop will take 1000 gyro data points
+        while(counter < CALIBRATION_TIME){
+            pimu_t pimuData = ps.getMessage();
+            //TODO: Add gyro integrator value to data ArrayList here
+
+            Thread.sleep(1);
+            counter++;
+        }
+
+        double temp = 0;
+        for(double dataPoint : data){
+            temp += dataPoint; 
+        }
+
+        gyroOffset = temp / CALIBRATION_TIME;
+        System.out.println("Finished Gyro Calibration");
     }
 
     public void Stop(){
