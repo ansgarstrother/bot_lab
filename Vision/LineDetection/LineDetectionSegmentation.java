@@ -84,14 +84,12 @@ public class LineDetectionSegmentation {
                         else {
                             if (n > MIN_LENGTH) {
                                 final_point[0] = x; final_point[1] = y;
-                                //System.out.println(init_point[0] + " " + init_point[1]);
-                                //System.out.println(final_point[0] + " " + final_point[1]);
-								int[] init_insert = new int[2]; int[] final_insert = new int[2];
-								init_insert = init_point; final_insert = final_point;
-                                int[][] object = new int[2][2];
-								object[0][0] = init_insert[0]; object[0][1] = init_insert[1];
-								object[1][0] = final_insert[0]; object[1][0] = final_insert[1];
-                                segment_list.add(object);
+                                System.out.println(init_point[0] + " " + init_point[1]);
+                                System.out.println(final_point[0] + " " + final_point[1]);
+            					int[][] object = new int[2][2];
+								object[0][0] = init_point[0]; object[0][1] = init_point[1];
+								object[1][0] = final_point[0]; object[1][1] = final_point[1];
+            					segment_list.add(object);
                             }
                             // reset all vars
                             dir = Direction.NONE;
@@ -113,14 +111,11 @@ public class LineDetectionSegmentation {
         if (n > MIN_LENGTH) {
             int y = boundaryMap[boundaryMap.length-1];
             final_point[0] = boundaryMap.length-1; final_point[1] = y;
-            //System.out.println(init_point[0] + " " + init_point[1]);
-            //System.out.println(final_point[0] + " " + final_point[1]);
-			int[] init_insert = new int[2]; int[] final_insert = new int[2];
-			init_insert = init_point; final_insert = final_point;
+            System.out.println(init_point[0] + " " + init_point[1]);
+            System.out.println(final_point[0] + " " + final_point[1]);
             int[][] object = new int[2][2];
-			object[0][0] = init_insert[0]; object[0][1] = init_insert[1];
-			object[1][0] = final_insert[0]; object[1][0] = final_insert[1];
-            segment_list.add(object);
+			object[0][0] = init_point[0]; object[0][1] = init_point[1];
+			object[1][0] = final_point[0]; object[1][1] = final_point[1];
             segment_list.add(object);
         }
 
