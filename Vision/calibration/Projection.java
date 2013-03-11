@@ -16,7 +16,7 @@ import april.jmat.*;
 public class Projection extends JFrame {
 
     private final double cameraHeight = .2032; // height of camera off the ground
-    private double z1 = 0.4064; // 3 sets of distances away from camera
+    private double z1 = 0.3429; // 3 sets of distances away from camera
     private double z2 = z1 + 0.0254;
     private double z3 = z1 + 0.0254 * 2;
     private double z4 = z1 + 0.0254 * 3;

@@ -5,9 +5,9 @@ import javax.swing.*;
 
 public class LineDetectionMain {
 
-	private final static double f = -269.30751168;
-	private final static double c_x = 560.081029;
-	private final static double c_y = 280.264223576;
+	private final static double f = 431.91903976039714;
+	private final static double c_x = 637.0650924397855;
+	private final static double c_y = 875.0942250076687;
     private static double[][] calibrationMatrix =
 		{ 	{f, 0, c_x}, {0, f, c_y}, {0, 0, 1}	};
 
