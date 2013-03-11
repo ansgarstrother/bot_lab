@@ -170,7 +170,7 @@ public class LineDetectionController {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						BufferedImage out = LineDetectionController.this.processImage(selectedImage);
+						BufferedImage out = LineDetectionController.this.processImage(selectedImage, true);
                         LineDetectionController.this.getFrame().getCenterImage().setImage(out);
 					}
 				});
@@ -225,7 +225,7 @@ public class LineDetectionController {
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            BufferedImage out = LineDetectionController.this.processImage(im);
+                            BufferedImage out = LineDetectionController.this.processImage(im, false);
                             LineDetectionController.this.getFrame().getCenterImage().setImage(out);
                         }
                     });
@@ -236,15 +236,53 @@ public class LineDetectionController {
     }
     
     // Image Processing
-    protected BufferedImage processImage(BufferedImage image) {
+    protected BufferedImage processImage(BufferedImage image, boolean flag) {
+			// RECTIFICATION
+			BufferedImage im2 = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+			if (flag) {
+                double cx = image.getWidth() / 2.0;
+                double cy = image.getHeight() / 2.0;
+
+                double B = -0.000910;
+                double A = 1.527995;
+
+                for (int y = 0; y < image.getHeight(); y++) {
+                    	for (int x = 0; x < image.getWidth(); x++) {
+
+                        	double dy = y - cy;
+                        	double dx = x - cx;
+
+                        	double theta = Math.atan2(dy, dx);
+                        	double r = Math.sqrt(dy*dy+dx*dx);
+
+                        	double rp = A*r + B*r*r;
+
+                        	int nx = (int) Math.round(cx + rp*Math.cos(theta));
+                        	int ny = (int) Math.round(cy + rp*Math.sin(theta));
+
+                        	if (nx >= 0 && nx < image.getWidth() && ny >= 0 && ny < image.getHeight()) {
+                            		im2.setRGB(x, y, image.getRGB((int) nx, (int) ny));
+                        	}
+							else {
+									im2.setRGB(x, y, 0xffffffff);
+							}
+                    	}
+                }
+			}
+			else {
+				im2 = image;
+			}
+
+
+
         // detect and retrieve boundary map
-        detector = new LineDetectionDetector(image, binaryThresh, lwPassThresh);
+        detector = new LineDetectionDetector(im2, binaryThresh, lwPassThresh);
         boundaryMap = detector.getBoundaryMap();
         
         // segment points
         LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
         ArrayList<int[][]> segments = lds.getSegments();
-        
+        /*
         // rectify
         Rectification rectifier = new Rectification(segments, image.getWidth(), image.getHeight());
         rectifiedMap = rectifier.getRectifiedPoints();
@@ -277,9 +315,9 @@ public class LineDetectionController {
 		System.out.println("Boundary Line:");
 		System.out.println("initial: (" + real_segment[0][0] + ", " + real_segment[0][1] + ")");
 		System.out.println("final: (" + real_segment[1][0] + ", " + real_segment[1][1] + ")");
-	
+		
         }
-      
+      	*/
         return detector.getProcessedImage();
     }
     

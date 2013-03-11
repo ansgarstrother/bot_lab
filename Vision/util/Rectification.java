@@ -49,8 +49,10 @@ public class Rectification {
             double fin_r = getRadius(fin_x, fin_y);
             double fin_t = getAngle(fin_x, fin_y);
             double rect_fin_r = getRectifiedRadius(fin_r);
-            double[] init_point = {rect_init_r, init_t};
-            double[] fin_point = {rect_fin_r, fin_t};
+			double[] init_point = new double[2];
+            init_point[0] = rect_init_r; init_point[1] = init_t;
+			double[] fin_point = new double[2];
+            fin_point[0] = rect_fin_r; fin_point[1] = fin_t;
             insertRectifiedPoint(init_point, fin_point);
         }
         
@@ -73,15 +75,18 @@ public class Rectification {
     protected void insertRectifiedPoint(double[] ip, double[] fp) {
         double init_rp = ip[0];
         double init_theta = ip[1];
-        double fin_rp = ip[0];
-        double fin_theta = ip[1];
+        double fin_rp = fp[0];
+        double fin_theta = fp[1];
         int init_nx = (int) Math.round(CENTER_X + init_rp*Math.cos(init_theta));
         int init_ny = (int) Math.round(CENTER_Y + init_rp*Math.sin(init_theta));
         int fin_nx = (int) Math.round(CENTER_X + fin_rp*Math.cos(fin_theta));
         int fin_ny = (int) Math.round(CENTER_Y + fin_rp*Math.sin(fin_theta));
         if (init_nx >= 0 && init_nx < width && init_ny >= 0 && init_ny < height &&
             fin_nx >= 0 && fin_nx < width && fin_nx >= 0 && fin_ny < height) {
-            int[][] input = {{init_nx, init_ny}, {fin_nx, fin_ny}};
+			int[][] input = new int[2][2];
+			input[0][0] = init_nx; input[0][1] = init_ny; input[1][0] = fin_nx; input[1][1] = fin_ny;
+			//System.out.println(input[0][0] + ", " + input[0][1]);
+			//System.out.println(input[1][0] + ", " + input[1][1]);
             outputMap.add(input);
         }
     }

@@ -20,7 +20,7 @@ public class LineDetectionSegmentation {
     // args
     private int[] boundaryMap;
     private Direction dir;
-    private ArrayList<int[][]> segment_list;
+    protected ArrayList<int[][]> segment_list;
     
     public LineDetectionSegmentation(int[] bm) {
         // init
@@ -30,7 +30,7 @@ public class LineDetectionSegmentation {
         
         // traverse and find segments
         traverse();
-        System.out.println(segment_list.size());
+        //System.out.println(segment_list.size());
         
     }
     
@@ -47,7 +47,7 @@ public class LineDetectionSegmentation {
         
         while (x < boundaryMap.length) {
             int y = boundaryMap[x];
-            System.out.println(x + ", " + dir);
+            //System.out.println(x + ", " + dir);
             switch (dir) {
                 case NONE:  // initialize direction
                     if (x+slope < boundaryMap.length) {
@@ -84,9 +84,13 @@ public class LineDetectionSegmentation {
                         else {
                             if (n > MIN_LENGTH) {
                                 final_point[0] = x; final_point[1] = y;
-                                System.out.println(init_point[0] + " " + init_point[1]);
-                                System.out.println(final_point[0] + " " + final_point[1]);
-                                int[][] object = {init_point, final_point};
+                                //System.out.println(init_point[0] + " " + init_point[1]);
+                                //System.out.println(final_point[0] + " " + final_point[1]);
+								int[] init_insert = new int[2]; int[] final_insert = new int[2];
+								init_insert = init_point; final_insert = final_point;
+                                int[][] object = new int[2][2];
+								object[0][0] = init_insert[0]; object[0][1] = init_insert[1];
+								object[1][0] = final_insert[0]; object[1][0] = final_insert[1];
                                 segment_list.add(object);
                             }
                             // reset all vars
@@ -109,9 +113,14 @@ public class LineDetectionSegmentation {
         if (n > MIN_LENGTH) {
             int y = boundaryMap[boundaryMap.length-1];
             final_point[0] = boundaryMap.length-1; final_point[1] = y;
-            System.out.println(init_point[0] + " " + init_point[1]);
-            System.out.println(final_point[0] + " " + final_point[1]);
-            int[][] object = {init_point, final_point};
+            //System.out.println(init_point[0] + " " + init_point[1]);
+            //System.out.println(final_point[0] + " " + final_point[1]);
+			int[] init_insert = new int[2]; int[] final_insert = new int[2];
+			init_insert = init_point; final_insert = final_point;
+            int[][] object = new int[2][2];
+			object[0][0] = init_insert[0]; object[0][1] = init_insert[1];
+			object[1][0] = final_insert[0]; object[1][0] = final_insert[1];
+            segment_list.add(object);
             segment_list.add(object);
         }
 
