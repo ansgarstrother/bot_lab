@@ -16,19 +16,19 @@ import april.jmat.*;
 public class Projection extends JFrame {
 
     private final double cameraHeight = .2032; // height of camera off the ground
-    private double z1 = 0.38735; // 3 sets of distances away from camera
-    private double z2 = 0.43815;
-    private double z3 = 0.48895;
-    private double z4 = 0.53975;
-    private double z5 = 0.59055;
-    private double z6 = 0.64135;
-    private double z7 = 0.69215;
-    private double z8 = 0.74295;
-    private double z9 = 0.79375;
+    private double z1 = 0.37465; // 3 sets of distances away from camera
+    private double z2 = z1 + 0.0254;
+    private double z3 = z1 + 0.0254 * 2;
+    private double z4 = z1 + 0.0254 * 3;
+    private double z5 = z1 + 0.0254 * 4;
+    private double z6 = z1;
+    private double z7 = z1 + 0.0254;
+    private double z8 = z1 + 0.0254 * 2;
+    private double z9 = z1 + 0.0254 * 3;
 
 
-    private double x1 = -0.36195; // 3 sets of distances spanning from left to right
-    private double x2 = -0.1397;
+    private double x1 = -0.0889; // 3 sets of distances spanning from left to right
+    private double x2 = 0.0889;
     private double x3 = 0.4;
 
     private double y = -cameraHeight;
@@ -140,6 +140,13 @@ public class Projection extends JFrame {
                                                     fmt.width,
                                                     fmt.height,
                                                     buf);
+
+			// DRAW CENTER LINE IN BLUE
+			int column = fmt.width / 2;
+			for (int i = 0; i < fmt.height; i++) {
+				im.setRGB(column, i, 0x00ff0000ff);
+			}
+
 
 			// RECTIFY IMAGE
 			// Consistent with Rectification Process Vision/util/
