@@ -16,7 +16,7 @@ import april.jmat.*;
 public class Projection extends JFrame {
 
     private final double cameraHeight = .2032; // height of camera off the ground
-    private double z1 = 0.37465; // 3 sets of distances away from camera
+    private double z1 = 0.4064; // 3 sets of distances away from camera
     private double z2 = z1 + 0.0254;
     private double z3 = z1 + 0.0254 * 2;
     private double z4 = z1 + 0.0254 * 3;
@@ -57,7 +57,7 @@ public class Projection extends JFrame {
                                         {x2, y, z9} };
 
 
-    private Point[] testPixels;
+    private Point2D[] testPixels;
 
 
 
@@ -140,7 +140,7 @@ public class Projection extends JFrame {
                                                     fmt.width,
                                                     fmt.height,
                                                     buf);
-
+					
 			// DRAW CENTER LINE IN BLUE
 			int column = fmt.width / 2;
 			for (int i = 0; i < fmt.height; i++) {
@@ -270,10 +270,22 @@ public class Projection extends JFrame {
 
         if (count < 9) {
 
-            Point input = me.getPoint();
-            System.out.println ("Clicked at " + input.x + " " + input.y);
+		// Retrieve clicked point, convert
+		Point input = me.getPoint();
+
+		final Point guiPoint = new Point(input.x, input.y);
+		System.out.println("Clicked at " + guiPoint + " w.r.t GUI.");
+		AffineTransform imageTransform = null;
+		try {
+        		 imageTransform = this.jim.getAffine().createInverse();
+		} catch ( Exception e ) {
+			System.out.println("Fuck.");
+			return;
+		}
+        	Point2D imagePoint = imageTransform.transform(guiPoint, null);
+        	System.out.println("Clicked at " + imagePoint + " w.r.t image.");
 	        System.out.println("count = " + count);
-            testPixels[count] = input;
+            testPixels[count].setLocation(imagePoint.getX(), imagePoint.getY());
 
             count++;
         }
