@@ -4,11 +4,13 @@ import lcmtypes.*;
 import lcm.lcm.*;
 import april.util.TimeUtil;
 import Panda.sensors.*;
+import java.util.ArrayList;
 
 public class PandaDrive
 {
     static final boolean DEBUG = true;
 
+    //Speed Constants
     static final float KP = 0.0015F;
     static final float STOP = 0.0F;
     static final float MAX_SPEED = 1.0F;
@@ -17,12 +19,14 @@ public class PandaDrive
     static final float TPM_RIGHT = 5050.003F;
     static final float TPM_LEFT = 494904.3733F;
 
-        //Left encoder: 128.27 ticks/inch
-        //Right encoder: 124.571 ticks/inch
+    //Left encoder: 128.27 ticks/inch
+    //Right encoder: 124.571 ticks/inch
 	static final float CORRECTION = 1.0F;
 
-    static final float CALIBRATION_TIME = 1000; //Approx 1 sec
-    
+    //Gyro Constants
+    static final float CALIBRATION_TIME = 300; //Approx 3 sec
+    static final double SENSITIVITY_CONSTANT = 1.0; //This needs to be calculated
+
 	LCM lcm;
 
 	MotorSubscriber ms;
@@ -32,11 +36,13 @@ public class PandaDrive
 
     float leftSpeed;
     float rightSpeed;
-    
+
     private double gyroOffset;
+    private double gyroAngle;
+
+    private long prevTimeInMilli;
 
     public PandaDrive(){
-
         try{
 			System.out.println("Hello World!");
 
@@ -65,24 +71,48 @@ public class PandaDrive
     private void initGyro(){
         System.out.println("Calibrating Gyro..");
         int counter = 0;
-        ArrayList<double> data = new ArrayList<double>();
+        ArrayList<Double> data = new ArrayList<Double>();
 
-        //This loop will take 1000 gyro data points
+        //This loop will take 100 gyro data points
         while(counter < CALIBRATION_TIME){
             pimu_t pimuData = ps.getMessage();
             //TODO: Add gyro integrator value to data ArrayList here
-
-            Thread.sleep(1);
+            double curGyroIntegrator = 0;
+            data.add(curGyroIntegrator);
+            try{ Thread.sleep(10); }
+            catch(Exception e){};
             counter++;
         }
 
         double temp = 0;
         for(double dataPoint : data){
-            temp += dataPoint; 
+            temp += dataPoint;
         }
 
-        gyroOffset = temp / CALIBRATION_TIME;
+        gyroOffset = temp / (CALIBRATION_TIME / 10);
         System.out.println("Finished Gyro Calibration");
+
+        //Note: You could improve this offset calibration and limit
+        //drift using this: New offset = (samplesize – 1) * old offset + (1 / samplesize) * gyro
+        //every time the robot is stopped
+    }
+
+    public double getGyroAngle(){
+        //This should be called continuously in short time intervals to minimize error
+
+        pimu_t pimuData = ps.getMessage();
+        //TODO: Get current gyro value
+        double curGyroIntegrator = 0;
+
+        //Final units of gyroRate should be degrees per second
+        double gyroRate = (curGyroIntegrator - gyroOffset) / SENSITIVITY_CONSTANT;
+        gyroAngle += gyroRate * (System.currentTimeMillis() - prevTimeInMilli) / 1000;
+
+        prevTimeInMilli = System.currentTimeMillis();
+        return gyroAngle;
+
+        //Note: Can also integrate the accelerometer and use a Kalman filter to
+        //      minimize drift
     }
 
     public void Stop(){
@@ -155,7 +185,7 @@ public class PandaDrive
 
 
 		boolean update = true;
-		
+
             leftSpeed = REG_SPEED ;
             rightSpeed = REG_SPEED;
             msg.utime = TimeUtil.utime();
@@ -165,7 +195,7 @@ public class PandaDrive
             lcm.publish("DIFF_DRIVE", msg);
 
 		while (distanceTraveled < distance) {
-            
+
 			while(update){
 				motorFeedback = ms.getMessage();
             	curLeftEncoder = motorFeedback.encoders[0] - initLeftEncoder;
@@ -216,7 +246,7 @@ public class PandaDrive
 
 			if (DEBUG){
 				//System.out.println("Error: " + KError);
-				System.out.println("Left Speed: " + leftSpeed +"    Right Speed: " + rightSpeed); 
+				System.out.println("Left Speed: " + leftSpeed +"    Right Speed: " + rightSpeed);
 				//System.out.println ("delta distances " + leftDistance + " " + rightDistance);
 				//System.out.println ("distance traveled " + distanceTraveled);
 			}
