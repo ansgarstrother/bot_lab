@@ -3,21 +3,26 @@ package Panda.sensors;
 import java.io.*;
 import java.lang.Math;
 import lcmtypes.*;
+import Panda.sensors.*;
+import java.util.ArrayList;
 
-public class GyroLib
+public class Gyro
 {
     //Gyro Constants
     static final float CALIBRATION_TIME = 300; //Approx 3 sec
     static final double SENSITIVITY_CONSTANT = 1.0; //This needs to be calculated
 
+    private long prevTimeInMilli;
     private double gyroOffset;
     private double gyroAngle;
 
     PIMUSubscriber ps;
 
-    public GyroLib() 
+    public Gyro()
     {
-        ps = new PIMUSubscriber();
+        try{
+            ps = new PIMUSubscriber();
+        }catch(Exception e){}
         initGyro();
     }
 

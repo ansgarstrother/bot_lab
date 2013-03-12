@@ -4,7 +4,6 @@ import lcmtypes.*;
 import lcm.lcm.*;
 import april.util.TimeUtil;
 import Panda.sensors.*;
-import java.util.ArrayList;
 
 public class PandaDrive
 {
@@ -16,6 +15,7 @@ public class PandaDrive
     static final float MAX_SPEED = 1.0F;
     static final float MIN_SPEED = 0.0F;
     static final float REG_SPEED = 0.7F;
+    static final float FASTER_SPEED = 0.85F;
     static final float TPM_RIGHT = 4904.373F;
     static final float TPM_LEFT = 5050.003F;
 
@@ -26,21 +26,19 @@ public class PandaDrive
 	LCM lcm;
 
 	MotorSubscriber ms;
-
-    
+    Gyro gyro;
 
     diff_drive_t msg;
 
     float leftSpeed;
     float rightSpeed;
 
-    private long prevTimeInMilli;
-
     public PandaDrive(){
         try{
 			System.out.println("Hello World!");
 
             ms = new MotorSubscriber();
+            gyro = new Gyro();
 			// Get an LCM Object
             lcm = LCM.getSingleton();
 
@@ -56,6 +54,14 @@ public class PandaDrive
 		catch(Throwable t) {
 			System.out.println("Error: Exception thrown");
 		}
+    }
+
+    public void Stop(){
+        // Add Timestamp (lcm really cares about this)
+        msg.utime = TimeUtil.utime();
+        msg.left = STOP;
+        msg.right = STOP;
+        lcm.publish("10_DIFF_DRIVE", msg);
     }
 
 	public void turn(double angle) {
@@ -102,7 +108,7 @@ public class PandaDrive
         //Needs to be called in a loop
         //Left encoder: 128.27 ticks/inch
         //Right encoder: 124.571 ticks/inch
-        double desiredHeading = getGyroAngle();
+        double desiredHeading = gyro.getGyroAngle();
 
         double distanceTraveled = 0;
 		int lastLeftEncoder = 0, lastRightEncoder = 0;
@@ -151,19 +157,11 @@ public class PandaDrive
             leftSpeed = REG_SPEED ;
             rightSpeed = REG_SPEED;
 
-
-            float KError = KP*( curRightEncoder - curLeftEncoder);
-            leftSpeed = speedCheck(leftSpeed + KError);
-            rightSpeed = speedCheck(rightSpeed - KError);
-
-            //TODO: Fix below
-			//pimuDerivs = ps.getMessage();
-			//System.out.printf ("gyro derivs " + pimuDerivs[0] + " "  + pimuDerivs[1]);
-			/*
-			if (pimuDerivs[0] > 3) {
-
-			}
-			*/
+            //TODO: Tweak this
+            double curHeading = gyro.getGyroAngle();
+            float Error = (float)(curHeading - desiredHeading);
+            leftSpeed = leftSpeed + (KP * Error);
+            rightSpeed = rightSpeed + (KP * Error);
 
 			msg.utime = TimeUtil.utime();
 			msg.left = leftSpeed;
