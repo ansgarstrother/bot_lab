@@ -66,8 +66,12 @@ public class MySubscriber implements LCMSubscriber
                     System.out.println("  alttemp     = [ " + msg.alttemp[i] + " ]");
                 }
 				*/
-				LCM sent = new LCM("udpm://239.255.76.10:7667?ttl=1");
-				sent.publish("10_PIMU", msg);
+				try {
+					LCM sent = new LCM("udpm://239.255.76.10:7667?ttl=1");
+					sent.publish("10_PIMU", msg);
+				} catch (IOException e) {
+					System.out.println("Error: " + e.getMessage());
+				}
             }
             
         } catch (IOException ex) {
