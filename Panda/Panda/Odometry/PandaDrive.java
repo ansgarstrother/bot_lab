@@ -16,8 +16,8 @@ public class PandaDrive
     static final float MAX_SPEED = 1.0F;
     static final float MIN_SPEED = 0.0F;
     static final float REG_SPEED = 0.7F;
-    static final float TPM_RIGHT = 5050.003F;
-    static final float TPM_LEFT = 494904.3733F;
+    static final float TPM_RIGHT = 4904.373F;
+    static final float TPM_LEFT = 5050.003F;
 
     //Left encoder: 128.27 ticks/inch
     //Right encoder: 124.571 ticks/inch
