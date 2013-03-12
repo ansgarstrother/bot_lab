@@ -29,7 +29,7 @@ public class PIMUSubscriber implements LCMSubscriber
 			if (channel.equals ("PIMU")) {
                 this.msg = new pimu_t(ins);
             }
-            
+
         } catch (IOException ex) {
             System.out.println("Exception: " + ex);
         }

@@ -16,9 +16,9 @@ public class DriveTest
     {
        PandaDrive pandaDrive = new PandaDrive();
        int i = 0;
-		while (true) {    
+		while (true) {
 			try{
-				pandaDrive.driveForward(1.0F);
+				pandaDrive.driveForward(0.1F);
 				//pandaDrive.turnRight();
 				Thread.sleep(100);
 				System.out.println (i);

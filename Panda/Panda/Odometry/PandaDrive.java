@@ -120,7 +120,7 @@ public class PandaDrive
         msg.utime = TimeUtil.utime();
         msg.left = STOP;
         msg.right = STOP;
-        lcm.publish("DIFF_DRIVE", msg);
+        lcm.publish("10_DIFF_DRIVE", msg);
     }
 
 
@@ -176,7 +176,9 @@ public class PandaDrive
 		float leftDistance = 0, rightDistance = 0;
 		double[] pimuDerivs = new double[2];
 
-        motor_feedback_t motorFeedback = ms.getMessage();
+
+        motor_feedback_t motorFeedback = new motor_feedback_t();
+        motorFeedback = ms.getMessage();
         int initLeftEncoder = motorFeedback.encoders[0];
         int initRightEncoder = motorFeedback.encoders[1];
 		lastLeftEncoder = 0;
@@ -192,10 +194,10 @@ public class PandaDrive
             msg.left = leftSpeed;
             msg.right = rightSpeed;
 
-            lcm.publish("DIFF_DRIVE", msg);
+            lcm.publish("10_DIFF_DRIVE", msg);
 
-		while (distanceTraveled < distance) {
-
+		while (distanceTraveled < distance - .01) {
+            // get updated encoder data
 			while(update){
 				motorFeedback = ms.getMessage();
             	curLeftEncoder = motorFeedback.encoders[0] - initLeftEncoder;
@@ -215,6 +217,7 @@ public class PandaDrive
             leftSpeed = REG_SPEED ;
             rightSpeed = REG_SPEED;
 
+
             float KError = KP*( curRightEncoder - curLeftEncoder);
             leftSpeed = speedCheck(leftSpeed + KError);
             rightSpeed = speedCheck(rightSpeed - KError);
@@ -232,11 +235,11 @@ public class PandaDrive
 			msg.left = leftSpeed;
 			msg.right = rightSpeed;
 
-			lcm.publish("DIFF_DRIVE", msg);
+			lcm.publish("10_DIFF_DRIVE", msg);
 
 			System.out.println ("current encoders " + curLeftEncoder + " " + curRightEncoder);
 
-
+            // distance traveled is
 			leftDistance = (curLeftEncoder - lastLeftEncoder) / TPM_LEFT;
 			rightDistance = (curRightEncoder - lastRightEncoder) / TPM_RIGHT;
 			distanceTraveled += (leftDistance + rightDistance) / 2;

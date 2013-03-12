@@ -17,7 +17,7 @@ public class MotorSubscriber implements LCMSubscriber
     {
         this.lcm = new LCM();
         //this.lcm.subscribe("10_POSE", this);
-        this.lcm.subscribe("MOTOR_FEEDBACK", this);
+        this.lcm.subscribe("10_MOTOR_FEEDBACK", this);
         //this.lcm.subscribe("10_PIMU", this);
 		this.msg = new motor_feedback_t();
     }
@@ -26,10 +26,10 @@ public class MotorSubscriber implements LCMSubscriber
     {
 		//System.out.println("Received message on channel " + channel);
 		try {
-			if (channel.equals ("MOTOR_FEEDBACK")) {
+			if (channel.equals ("10_MOTOR_FEEDBACK")) {
                 this.msg = new motor_feedback_t(ins);
             }
-            
+
         } catch (IOException ex) {
             System.out.println("Exception: " + ex);
         }
