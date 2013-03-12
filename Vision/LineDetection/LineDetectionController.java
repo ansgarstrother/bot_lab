@@ -48,15 +48,17 @@ public class LineDetectionController {
     // constants
     final static double binaryThresh = 155;
     final static double lwPassThresh = 100;
-    private double[][] calibrationMatrix;
-	private ArrayList<Matrix> history; 
+    private double[] calibrationVector;
+	private ArrayList<Matrix> history;
+	private PandaPositioning pp;
 
     
     
     // CONSTRUCTOR
-    public LineDetectionController(LineDetectionFrame frame, double[][] cm, ArrayList<Matrix> history) {
-			this.calibrationMatrix = cm; // calibration matrix
-			this.history = history;
+    public LineDetectionController(LineDetectionFrame frame, double[] cv, PandaPositioning pp) {
+			this.calibrationVector = cv; // calibration vector [f, cx, cy]
+			this.pp = pp;
+			this.history = pp.getHistory();
 			
         	this.frame = frame;
         	frame.setSize(1024, 768);
@@ -287,6 +289,9 @@ public class LineDetectionController {
         // from calibrationMatrix
         // coordinates should now be in 3D
         realWorldMap = new ArrayList<double[][]>();
+
+		// PRIOR CAMERA CALIBRATION IMPLEMENTATION
+		/*
         Matrix calibMat = new Matrix(calibrationMatrix);
 
 		// retrieve extrinsics matrix
@@ -299,15 +304,21 @@ public class LineDetectionController {
 		// RETRIEVE CAMERA CALIBRATION MATRIX "K" = calibMat * E
 		Matrix K = calibMat.times(E);
 
+		*/
+
         for (int i = 0; i < segments.size(); i++) {
             int[][] segment = segments.get(i);
+
+				double[] init_point = {segment[0][0], segment[0][1]};
+				double[] fin_point = {segment[1][0], segment[1][1]};
+				// PRIOR CAMERA CALIBRATION IMPLEMENTATION
+				/*
 	    		double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
 	    		double[][] fin_point = {{segment[1][0]}, {segment[1][1]}, {1}};
 
 				System.out.println("initial: (" + segment[0][0] + ", " + segment[0][1] + ", " + 1 + ")");
 				System.out.println("final: (" + segment[1][0] + ", " + segment[1][1] + ", " + 1 + ")");
 
-	
 	    		Matrix init_pixel_mat = new Matrix(init_point);
 	    		Matrix fin_pixel_mat = new Matrix(fin_point);
 				
@@ -315,13 +326,18 @@ public class LineDetectionController {
 	    		Matrix t = K.transpose()
 									.times(K);
 				System.out.println(t);
-				/*
+				
 									.inverse()
 									.times(K.transpose());
 				System.out.println(t);
-				*/
+				
 	    		Matrix init_vec = t.times(init_pixel_mat);
 	    		Matrix fin_vec = t.times(fin_pixel_mat);
+				*/
+
+				// Ray Projection Implementation
+				Matrix init_vec = pp.getGlobalPoint(calibrationVector, init_point);
+				Matrix fin_vec = pp.getGlobalPoint(calibrationVector, fin_point);
 
 	    		// add real world coordinate
 	    		double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},

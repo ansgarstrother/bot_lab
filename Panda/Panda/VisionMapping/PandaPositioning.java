@@ -11,18 +11,17 @@ import april.jmat.*;
 
 public class PandaPositioning {
 
+	// constants
+	private static final double static_height = 0.2032;	// camera height from Z=0
+
 	// args
-	ArrayList<Matrix> history;
-	double cur_x;	// current x coordinate in robot coordinate frame
-	double cur_y;	// current y coordinate in robot coordinate frame
-	double cur_t;	// current theta orientation in robot coordinate frame
-	double prev_x;
-	double prev_y;
-	double prev_t;
+	private ArrayList<Matrix> history;
+	private double scale;		// scale factor for calibration
 	
 
 	public PandaPositioning() {
 		this.history = new ArrayList<Matrix>();	// A series of transformations since beginning
+		this.scale = 0;
 	}
 
 
@@ -39,6 +38,19 @@ public class PandaPositioning {
 
 	public ArrayList<Matrix> getHistory() {
 		return history;
+	}
+	
+	public Matrix getGlobalPoint(double[] intrinsics, double[] pixels) {
+		// intrinsics = [f, cx, cy]
+		// pixels = [u, v]
+		double scale = Math.abs(static_height / (pixels[1] - intrinsics[2]));
+		double X = scale * (pixels[0] - intrinsics[1]);
+		double Y = -0.2032;
+		double Z = scale * intrinsics[0];
+		double[][] res = new double[3][1];
+		res[0][0] = X; res[1][0] = Y; res[2][0] = Z;
+		Matrix ret_mat = new Matrix(res);
+		return ret_mat;
 	}
 
 }

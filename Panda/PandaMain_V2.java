@@ -54,8 +54,10 @@ public class PandaMain{
 
 		//Read in Calibration of Panda Bot
 		//Projection projection = new Projection();
+		
 
 		// get matrix transform history
+		// get calibrated coordinate transform
 		PandaPositioning positioning = new PandaPositioning();
 
 		//Panda Driver
