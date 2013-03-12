@@ -150,7 +150,7 @@ public class PandaOdometry {
 	}
 
 	protected void sendPose() {
-		LCM lcm = LCM.getSingleton();
+		LCM lcm = new LCM("udpm://239.255.76.10:7667?ttl=1");
                         
 		//publish
 		if (cur_pos_msg.delta_x != 0 && cur_pos_msg.theta != 0) {
