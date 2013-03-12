@@ -14,17 +14,15 @@ public class LineDetectionMain {
     private static double[][] calibrationMatrix =
 		{ 	{f, 0, c_x}, {0, f, c_y}, {0, 0, 1}	};
 
-	private ArrayList<Matrix> history;
 
     public static void main(String[] args) {
-
-			this.history = new ArrayList<Matrix>();
 
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 // create app frame
                 LineDetectionFrame frame = new LineDetectionFrame();
                 // build controller
+				ArrayList<Matrix> history = new ArrayList<Matrix>();
                 LineDetectionController appController = new LineDetectionController(frame, calibrationMatrix, history);
 
             }

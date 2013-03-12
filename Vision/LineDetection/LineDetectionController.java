@@ -290,11 +290,14 @@ public class LineDetectionController {
         Matrix calibMat = new Matrix(calibrationMatrix);
 
 		// retrieve extrinsics matrix
-		double ident = { {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+		double[][] ident = { {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0} };
 		Matrix E = new Matrix(ident);
 		for (int i = 0; i < history.size(); i++) {
 			E = E.times(history.get(i));
 		}
+
+		// RETRIEVE CAMERA CALIBRATION MATRIX "K" = calibMat * E
+		Matrix K = calibMat.times(E);
 
         for (int i = 0; i < segments.size(); i++) {
             int[][] segment = segments.get(i);
@@ -307,16 +310,18 @@ public class LineDetectionController {
 	
 	    		Matrix init_pixel_mat = new Matrix(init_point);
 	    		Matrix fin_pixel_mat = new Matrix(fin_point);
+				
+				System.out.println(K);
+	    		Matrix t = K.transpose()
+									.times(K);
+				System.out.println(t);
 				/*
-				System.out.println(calibMat);
-	    		Matrix affine_vec = calibMat.transpose()
-									.times(calibMat)
 									.inverse()
-									.times(calibMat.transpose());
-				System.out.println(affine_vec);
+									.times(K.transpose());
+				System.out.println(t);
 				*/
-	    		Matrix init_vec = calibMat.inverse().times(init_pixel_mat);
-	    		Matrix fin_vec = calibMat.inverse().times(fin_pixel_mat);
+	    		Matrix init_vec = t.times(init_pixel_mat);
+	    		Matrix fin_vec = t.times(fin_pixel_mat);
 
 	    		// add real world coordinate
 	    		double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},
