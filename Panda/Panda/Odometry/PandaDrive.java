@@ -23,22 +23,16 @@ public class PandaDrive
     //Right encoder: 124.571 ticks/inch
 	static final float CORRECTION = 1.0F;
 
-    //Gyro Constants
-    static final float CALIBRATION_TIME = 300; //Approx 3 sec
-    static final double SENSITIVITY_CONSTANT = 1.0; //This needs to be calculated
-
 	LCM lcm;
 
 	MotorSubscriber ms;
-	PIMUSubscriber ps;
+
+    
 
     diff_drive_t msg;
 
     float leftSpeed;
     float rightSpeed;
-
-    private double gyroOffset;
-    private double gyroAngle;
 
     private long prevTimeInMilli;
 
@@ -47,12 +41,8 @@ public class PandaDrive
 			System.out.println("Hello World!");
 
             ms = new MotorSubscriber();
-			ps = new PIMUSubscriber();
 			// Get an LCM Object
             lcm = LCM.getSingleton();
-
-			// CrestLeftEncoder = curLeftEncoder;
-
 
 			msg = new diff_drive_t();
 
@@ -67,62 +57,6 @@ public class PandaDrive
 			System.out.println("Error: Exception thrown");
 		}
     }
-
-    private void initGyro(){
-        System.out.println("Calibrating Gyro..");
-        int counter = 0;
-        ArrayList<Double> data = new ArrayList<Double>();
-
-        //This loop will take 100 gyro data points
-        while(counter < CALIBRATION_TIME){
-            pimu_t pimuData = ps.getMessage();
-            //TODO: Add gyro integrator value to data ArrayList here
-            double curGyroIntegrator = 0;
-            data.add(curGyroIntegrator);
-            try{ Thread.sleep(10); }
-            catch(Exception e){};
-            counter++;
-        }
-
-        double temp = 0;
-        for(double dataPoint : data){
-            temp += dataPoint;
-        }
-
-        gyroOffset = temp / (CALIBRATION_TIME / 10);
-        System.out.println("Finished Gyro Calibration");
-
-        //Note: You could improve this offset calibration and limit
-        //drift using this: New offset = (samplesize – 1) * old offset + (1 / samplesize) * gyro
-        //every time the robot is stopped
-    }
-
-    public double getGyroAngle(){
-        //This should be called continuously in short time intervals to minimize error
-
-        pimu_t pimuData = ps.getMessage();
-        //TODO: Get current gyro value
-        double curGyroIntegrator = 0;
-
-        //Final units of gyroRate should be degrees per second
-        double gyroRate = (curGyroIntegrator - gyroOffset) / SENSITIVITY_CONSTANT;
-        gyroAngle += gyroRate * (System.currentTimeMillis() - prevTimeInMilli) / 1000;
-
-        prevTimeInMilli = System.currentTimeMillis();
-        return gyroAngle;
-
-        //Note: Can also integrate the accelerometer and use a Kalman filter to
-        //      minimize drift
-    }
-
-    public void Stop(){
-        // Add Timestamp (lcm really cares about this)
-        msg.utime = TimeUtil.utime();
-        msg.left = STOP;
-        msg.right = STOP;
-        lcm.publish("10_DIFF_DRIVE", msg);
-    }
-
 
 	public void turn(double angle) {
 		// gyro derivatives are positive
@@ -168,7 +102,7 @@ public class PandaDrive
         //Needs to be called in a loop
         //Left encoder: 128.27 ticks/inch
         //Right encoder: 124.571 ticks/inch
-
+        double desiredHeading = getGyroAngle();
 
         double distanceTraveled = 0;
 		int lastLeftEncoder = 0, lastRightEncoder = 0;
