@@ -48,20 +48,20 @@ public class LineDetectionController {
     // constants
     final static double binaryThresh = 155;
     final static double lwPassThresh = 100;
-	private final static double f = -269.30751168;
-	private final static double c_x = 560.081029;
-	private final static double c_y = 280.264223576;
-    private double[][] calibrationMatrix =
-		{ 	{f, 0, c_x, 0}, {0, f, c_y, 0}, {0, 0, 1, 0}	};
+    private double[][] calibrationMatrix;
+	private ArrayList<Matrix> history; 
+
     
     
     // CONSTRUCTOR
-    public LineDetectionController(LineDetectionFrame frame, double[][] cm) {
-        calibrationMatrix = cm; // calibration matrix
-        this.frame = frame;
-        frame.setSize(1024, 768);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
+    public LineDetectionController(LineDetectionFrame frame, double[][] cm, ArrayList<Matrix> history) {
+			this.calibrationMatrix = cm; // calibration matrix
+			this.history = history;
+			
+        	this.frame = frame;
+        	frame.setSize(1024, 768);
+        	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        	frame.setVisible(true);
         
         // add action event listeners
         frame.getChooseCameraSourceButton().addActionListener(new ActionListener() {
@@ -288,39 +288,47 @@ public class LineDetectionController {
         // coordinates should now be in 3D
         realWorldMap = new ArrayList<double[][]>();
         Matrix calibMat = new Matrix(calibrationMatrix);
+
+		// retrieve extrinsics matrix
+		double ident = { {1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+		Matrix E = new Matrix(ident);
+		for (int i = 0; i < history.size(); i++) {
+			E = E.times(history.get(i));
+		}
+
         for (int i = 0; i < segments.size(); i++) {
             int[][] segment = segments.get(i);
-	    	double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
-	    	double[][] fin_point = {{segment[1][0]}, {segment[1][1]}, {1}};
+	    		double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
+	    		double[][] fin_point = {{segment[1][0]}, {segment[1][1]}, {1}};
 
-			System.out.println("initial: (" + segment[0][0] + ", " + segment[0][1] + ", " + 1 + ")");
-			System.out.println("final: (" + segment[1][0] + ", " + segment[1][1] + ", " + 1 + ")");
+				System.out.println("initial: (" + segment[0][0] + ", " + segment[0][1] + ", " + 1 + ")");
+				System.out.println("final: (" + segment[1][0] + ", " + segment[1][1] + ", " + 1 + ")");
 
 	
-	    	Matrix init_pixel_mat = new Matrix(init_point);
-	    	Matrix fin_pixel_mat = new Matrix(fin_point);
-			/*
-			System.out.println(calibMat);
-	    	Matrix affine_vec = calibMat.transpose()
-								.times(calibMat)
-								.inverse()
-								.times(calibMat.transpose());
-			System.out.println(affine_vec);
-			*/
-	    	Matrix init_vec = calibMat.inverse().times(init_pixel_mat);
-	    	Matrix fin_vec = calibMat.inverse().times(fin_pixel_mat);
+	    		Matrix init_pixel_mat = new Matrix(init_point);
+	    		Matrix fin_pixel_mat = new Matrix(fin_point);
+				/*
+				System.out.println(calibMat);
+	    		Matrix affine_vec = calibMat.transpose()
+									.times(calibMat)
+									.inverse()
+									.times(calibMat.transpose());
+				System.out.println(affine_vec);
+				*/
+	    		Matrix init_vec = calibMat.inverse().times(init_pixel_mat);
+	    		Matrix fin_vec = calibMat.inverse().times(fin_pixel_mat);
 
-	    	// add real world coordinate
-	    	double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},
-						{fin_vec.get(0,0), fin_vec.get(1,0), fin_vec.get(2,0)}};
-	    	realWorldMap.add(real_segment);
+	    		// add real world coordinate
+	    		double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},
+							{fin_vec.get(0,0), fin_vec.get(1,0), fin_vec.get(2,0)}};
+	    		realWorldMap.add(real_segment);
 
-			System.out.println("Boundary Line:");
-			System.out.println("initial: (" + real_segment[0][0] + ", " + real_segment[0][1] + ", " + real_segment[0][2] + ")");
-			System.out.println("final: (" + real_segment[1][0] + ", " + real_segment[1][1] + ", " + real_segment[1][2] + ")");
-			System.out.println(init_vec);
-			System.out.println(fin_vec);
-        }
+				System.out.println("Boundary Line:");
+				System.out.println("initial: (" + real_segment[0][0] + ", " + real_segment[0][1] + ", " + real_segment[0][2] + ")");
+				System.out.println("final: (" + real_segment[1][0] + ", " + real_segment[1][1] + ", " + real_segment[1][2] + ")");
+				System.out.println(init_vec);
+				System.out.println(fin_vec);
+        	}
 
 
         return detector.getProcessedImage();
