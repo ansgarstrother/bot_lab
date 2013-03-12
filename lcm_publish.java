@@ -28,8 +28,8 @@ public class lcm_publish {
 
     		msg.nmotors = 2;
 			msg.encoders = new int[2];
-    		msg.encoders[0] = 700;
-			msg.encoders[1] = 700;
+    		msg.encoders[0] = 1000;
+			msg.encoders[1] = 1000;
 			msg.current = new float[2];
     		msg.current[0] = 0f;
 			msg.current[1] = 0f;

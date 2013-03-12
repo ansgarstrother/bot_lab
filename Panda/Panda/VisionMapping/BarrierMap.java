@@ -40,15 +40,14 @@ public class BarrierMap{
     // constants
     final static double binaryThresh = 155;
     final static double lwPassThresh = 100;
-	private final static double f = -269.30751168;
-	private final static double c_x = 560.081029;
-	private final static double c_y = 280.264223576;
-    private double[][] calibrationMatrix =
-		{ 	{f, 0, c_x, 0}, {0, f, c_y, 0}, {0, 0, 1, 0}	};
+    private double[][] calibrationMatrix;
     
     
-	public BarrierMap( BufferedImage im ){
+	public BarrierMap( BufferedImage im, ArrayList<Matrix> history, double[][] cm ){
         
+		this.calibrationMatrix = cm;
+
+
         // LINE DETECTION ALGORITHM
         // detect and retrieve boundary map
         detector = new LineDetectionDetector(im, binaryThresh, lwPassThresh);
