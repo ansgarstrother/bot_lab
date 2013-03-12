@@ -17,7 +17,7 @@ public class RoverSubscriber implements LCMSubscriber
     public RoverSubscriber()
     throws IOException
     {
-        this.lcm = new LCM();
+        this.lcm = new LCM("udpm://239.255.76.10:7667?ttl=1");
         this.lcm.subscribe("10_POSE", this);
         //this.lcm.subscribe("10_MOTOR_FEEDBACK", this);
         //this.lcm.subscribe("10_PIMU", this);

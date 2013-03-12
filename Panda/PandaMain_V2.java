@@ -21,6 +21,8 @@ public class PandaMain{
 	static boolean run = true;
     static double sampleRate = 200;    //microseconds
 
+	static double[][] calibrationMatrix = {{0, 0, 1}, {0, 1, 0}, {0, 0, 1}};
+
 //=================================================================//
 // main of the panda bot                                           //
 //                                                                 //
@@ -51,7 +53,10 @@ public class PandaMain{
 		ImageSourceFormat fmt = is.getCurrentFormat();
 
 		//Read in Calibration of Panda Bot
-		Projection projection = new Projection();
+		//Projection projection = new Projection();
+
+		// get matrix transform history
+		PandaPositioning positioning = new PandaPositioning();
 
 		//Panda Driver
     	Drive drive = new Drive();
@@ -78,7 +83,7 @@ public class PandaMain{
 			target.destroy();
 
 			//Line Detector finds barriers and adds them to the map
-			BarrierMap barrierMap = new BarrierMap(im);
+			BarrierMap barrierMap = new BarrierMap(im, positioning.getHistory(), calibrationMatrix);
 			map.addBarrier(barrierMap);
 
 			//Plans path 
