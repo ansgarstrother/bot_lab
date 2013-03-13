@@ -1,9 +1,11 @@
-package Panda;
+package Panda.Odometry;
 
 import java.io.*;
 
 import lcm.lcm.*;
-//import Panda.*;
+
+import java.util.*;
+import Panda.*;
 
 public class DriveTest
 {
@@ -17,16 +19,24 @@ public class DriveTest
        PandaDrive pandaDrive = new PandaDrive();
        int i = 0;
 		while (true) {
+			Scanner in = new Scanner(System.in);
+			float a, b, c;
 			try{
-				pandaDrive.driveForward(0.1F);
-				//pandaDrive.turnRight();
+				a = in.nextFloat();
+				b = in.nextFloat();
+				c = in.nextFloat();
+
+				if(a == 0)	
+					pandaDrive.driveForward(b, c);
+			
+				if(a == 1)
+					pandaDrive.turn(b, c);
+
 				Thread.sleep(100);
-				System.out.println (i);
-				i++;
 
             } catch(InterruptedException ex) {
                 //Do stuff crazy fun things with excesption
             }
-         }
+        }
     }
 }
