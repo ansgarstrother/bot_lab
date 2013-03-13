@@ -285,8 +285,9 @@ public class LineDetectionController {
 	// RUN IN LINEDETECTIONSEGMENTATION
 
         // segment points
-        //LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
-        //ArrayList<int[][]> segments = lds.getSegments();
+        LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap, im2);
+        ArrayList<int[][]> segments = lds.getSegments();
+		BufferedImage im3 = lds.getImage();
         
         // TRANSFORM LINE SEGMENTS INTO REAL WORLD COORDINATES
 	// ADD REAL WORLD LINE POINTS TO REAL WORLD MAP
