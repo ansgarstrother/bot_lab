@@ -241,13 +241,13 @@ public class LineDetectionController {
     protected BufferedImage processImage(BufferedImage image, boolean flag) {
 			// RECTIFICATION
 			BufferedImage im2 = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-			if (flag) {
+			if (false) {
                 double cx = image.getWidth() / 2.0;
                 double cy = image.getHeight() / 2.0;
 
                 double B = -0.000910;
                 double A = 1.527995;
-
+		
                 for (int y = 0; y < image.getHeight(); y++) {
                     	for (int x = 0; x < image.getWidth(); x++) {
 
@@ -281,14 +281,18 @@ public class LineDetectionController {
         detector = new LineDetectionDetector(im2, binaryThresh, lwPassThresh);
         boundaryMap = detector.getBoundaryMap();
         
+	// PERFORM "SPLIT AND FIT" TO FIND LINE SEGMENTS
+	// RUN IN LINEDETECTIONSEGMENTATION
+
         // segment points
-        LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
-        ArrayList<int[][]> segments = lds.getSegments();
+        //LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap);
+        //ArrayList<int[][]> segments = lds.getSegments();
         
-        // transform to real world coordiantes
+        // TRANSFORM LINE SEGMENTS INTO REAL WORLD COORDINATES
+	// ADD REAL WORLD LINE POINTS TO REAL WORLD MAP
         // from calibrationMatrix
         // coordinates should now be in 3D
-        realWorldMap = new ArrayList<double[][]>();
+        //realWorldMap = new ArrayList<double[][]>();
 
 		// PRIOR CAMERA CALIBRATION IMPLEMENTATION
 		/*
@@ -306,11 +310,11 @@ public class LineDetectionController {
 
 		*/
 
-        for (int i = 0; i < segments.size(); i++) {
-            int[][] segment = segments.get(i);
+        //for (int i = 0; i < segments.size(); i++) {
+            //int[][] segment = segments.get(i);
 
-				double[] init_point = {segment[0][0], segment[0][1]};
-				double[] fin_point = {segment[1][0], segment[1][1]};
+				//double[] init_point = {segment[0][0], segment[0][1]};
+				//double[] fin_point = {segment[1][0], segment[1][1]};
 				// PRIOR CAMERA CALIBRATION IMPLEMENTATION
 				/*
 	    		double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
@@ -336,20 +340,23 @@ public class LineDetectionController {
 				*/
 
 				// Ray Projection Implementation
-				Matrix init_vec = pp.getGlobalPoint(calibrationVector, init_point);
-				Matrix fin_vec = pp.getGlobalPoint(calibrationVector, fin_point);
+				//Matrix init_vec = pp.getGlobalPoint(calibrationVector, init_point);
+				//Matrix fin_vec = pp.getGlobalPoint(calibrationVector, fin_point);
 
 	    		// add real world coordinate
-	    		double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},
-							{fin_vec.get(0,0), fin_vec.get(1,0), fin_vec.get(2,0)}};
-	    		realWorldMap.add(real_segment);
+	    		//double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},
+							//{fin_vec.get(0,0), fin_vec.get(1,0), fin_vec.get(2,0)}};
+	    		//realWorldMap.add(real_segment);
 
-				System.out.println("Boundary Line:");
-				System.out.println("initial: (" + real_segment[0][0] + ", " + real_segment[0][1] + ", " + real_segment[0][2] + ")");
-				System.out.println("final: (" + real_segment[1][0] + ", " + real_segment[1][1] + ", " + real_segment[1][2] + ")");
-				System.out.println(init_vec);
-				System.out.println(fin_vec);
-        	}
+				//System.out.println("Pixel Coordinates:");
+				//System.out.println("initial: " + init_point[0] + ", " + init_point[1]);
+				//System.out.println("final: " + fin_point[0] + ", " + fin_point[1]);
+				//System.out.println("Boundary Line:");
+				//System.out.println("initial: (" + real_segment[0][0] + ", " + real_segment[0][1] + ", " + real_segment[0][2] + ")");
+				//System.out.println("final: (" + real_segment[1][0] + ", " + real_segment[1][1] + ", " + real_segment[1][2] + ")");
+				//System.out.println(init_vec);
+				//System.out.println(fin_vec);
+        	//}
 
 
         return detector.getProcessedImage();

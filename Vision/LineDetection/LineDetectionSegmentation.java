@@ -9,8 +9,8 @@ import java.util.ArrayList;
 public class LineDetectionSegmentation {
     
     // const
-    private final static int MIN_LENGTH = 40;
-    private final static int ERROR_THRESHOLD = 5;
+    private final static int MIN_LENGTH = 10;
+    private final static int ERROR_THRESHOLD = 3;
     
     // typedef
     public enum Direction {

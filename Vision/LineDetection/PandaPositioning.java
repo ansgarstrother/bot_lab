@@ -44,8 +44,8 @@ public class PandaPositioning {
 		// intrinsics = [f, cx, cy]
 		// pixels = [u, v]
 		double scale = Math.abs(static_height / (pixels[1] - intrinsics[2]));
-		double X = scale * (pixels[0] - intrinsics[1]);
-		double Y = scale * (pixels[1] - intrinsics[2]);
+		double X = scale * (intrinsics[1] - pixels[0]);
+		double Y = scale * (intrinsics[2] - pixels[1]);
 		double Z = scale * intrinsics[0];
 		double[][] res = new double[3][1];
 		res[0][0] = X; res[1][0] = Y; res[2][0] = Z;

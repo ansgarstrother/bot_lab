@@ -4,6 +4,7 @@ import Vision.util.*;
 import april.jcam.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.awt.Color;
 
 public class LineDetectionDetector {
 
@@ -18,9 +19,9 @@ public class LineDetectionDetector {
 		in = im;
 		out = im;
 
-		grayscale g = new grayscale(im);
-		out = g.getGrayScale();
-		binarize b = new binarize(out, thresh);
+		//grayscale g = new grayscale(im);
+		//out = g.getGrayScale();
+		binarize b = new binarize(in, thresh);
 		out = b.getBinarizedImage();
 		//colored_binarize cb = new colored_binarize(out, thresh, lwpass);
 		//out = cb.getBinarizedImage();
@@ -34,7 +35,7 @@ public class LineDetectionDetector {
 		//sb.init(out);
 		//out = sb.process();
         
-        boundaryMap = ed.getBoundaryMap();
+        	boundaryMap = ed.getBoundaryMap();
 /*		
 		// save boundary map to txt file
 		boundaryMap = ed.getBoundaryMap();
