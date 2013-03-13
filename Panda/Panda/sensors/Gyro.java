@@ -15,6 +15,7 @@ public class Gyro
     private double gyroCreep;
     private long startTime;
     private int startGyroVal;
+	private double startAngle;
 
     private long curTime;
     private int curGyroVal;
@@ -22,9 +23,11 @@ public class Gyro
     private double gyroAngle;
 
     PIMUSubscriber ps;
+	pimu_t pimuData;
 
     public Gyro()
     {
+		pimuData = new pimu_t();
         try{
             ps = new PIMUSubscriber();
         }catch(Exception e){}
@@ -33,16 +36,23 @@ public class Gyro
 
     private void initGyro(){
         System.out.println("Calibrating Gyro..");
-        pimu_t pimuData = ps.getMessage();
+        try{ //This wait is needed otherwise the code below will execute before a pimu message comes in 
+           Thread.sleep(50);
+        }catch(Exception e){}
+        pimuData = ps.getMessage();
         startTime = pimuData.utime_pimu;
         startGyroVal = pimuData.integrator[5];
+		System.out.println(startGyroVal);
         try{
-           Thread.sleep(2000);
+           Thread.sleep(5000);
         }catch(Exception e){}
+        pimuData = ps.getMessage();
         curTime = pimuData.utime_pimu;
         curGyroVal = pimuData.integrator[5];
+		System.out.println(curGyroVal);
 
-        gyroCreep = (curGyroVal - startGyroVal) / (curTime - startTime);
+        gyroCreep = (double)(curGyroVal - startGyroVal) / (double)(curTime - startTime);
+		System.out.println("Gyro Creep Val: " + gyroCreep);
 
         //Note: You could improve this offset calibration and limit
         //drift using this: New offset = (samplesize – 1) * old offset + (1 / samplesize) * gyro
@@ -50,15 +60,18 @@ public class Gyro
     }
 
     public double getGyroAngle(){
-        pimu_t pimuData = ps.getMessage();
-        curTime = pimuData.integrator[5];
+        pimuData = ps.getMessage();
+        curTime = pimuData.utime_pimu;
         curGyroVal = pimuData.integrator[5];
+		System.out.println("Current gyro val: " + curGyroVal);
 
         long timeChange = curTime - startTime;
+		System.out.println("Time Change: " + timeChange);
         double totalCreep = gyroCreep * timeChange;
+		System.out.println("Total Creep: " + totalCreep);
         gyroAngle = (curGyroVal - startGyroVal) - totalCreep;
 
-        return gyroAngle;
+        return (gyroAngle / 999059);
 
         //Note: Can also integrate the accelerometer and use a Kalman filter to
         //      minimize drift
