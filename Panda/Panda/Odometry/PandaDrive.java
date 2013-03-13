@@ -36,6 +36,7 @@ public class PandaDrive
 
     public PandaDrive(){
         try{
+			ms = new MotorSubscriber();
 			ps = new PIMUSubscriber();
 			// Get an LCM Object
             lcm = LCM.getSingleton();
