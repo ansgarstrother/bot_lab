@@ -10,13 +10,15 @@ import java.util.Random;
 public class LineDetectionSegmentation {
     
     // const
-    private static final int MIN_SIZE = 48;	// data fit to model (d)
-	private static final double MIN_ERROR = 3;	// min error for RANSAC (t)
+    private static final int MIN_SIZE = 50;	// data fit to model (d)
+	private static final double MIN_ERROR = 5;	// min error for RANSAC (t)
 	private static final int k = 400;		// num iterations for RANSAC (k)
 	private static final int q = 10;		// num iterations for finding best lines (max = 10)
 	private static final int n = 2;			// num randomly selected points from data (n)
 
 	private static final double inf = Double.POSITIVE_INFINITY;
+	private static final int COUNT_THRESH = 6;
+	private static final int GOOD_THRESH = 10;
 
     
     // args
@@ -84,60 +86,54 @@ public class LineDetectionSegmentation {
 				int[] point_b = new int[2]; point_b[0] = index_b; point_b[1] = boundaryMap[index_b];
 
 
-				while (point_a[1] == 0 || point_b[1] == 0) {
+				while (point_a[0] == point_b[0]) {
 					index_a = randomizer.nextInt(boundaryMap.length);
 					index_b = randomizer.nextInt(boundaryMap.length);
 					point_a = new int[2]; point_a[0] = index_a; point_a[1] = boundaryMap[index_a];
 					point_b = new int[2]; point_b[0] = index_b; point_b[1] = boundaryMap[index_b];
 				}
-				if (point_a[1] == 0 || point_b[1] == 0 || point_a[0] == point_b[0]) {
-					// skip
-				}
-				else {
-					double[] model = new double[2];
-					model = getLinearModel(point_a, point_b);
+				double[] model = new double[2];
+				model = getLinearModel(point_a, point_b);
+				System.out.println("Model:");
+				System.out.println("y = " + model[0] + "x + " + model[1]);
 
 			
-					// find consensus points
-					ArrayList<int[]> consensusSet = new ArrayList<int[]>();
-					consensusSet.add(point_a); consensusSet.add(point_b);
-					for (int i = 0; i < data.size(); i++) {
-						if (i == index_a || i == index_b) {
-							// skip
-						}
-						else {
-							int[] test_point = {i, boundaryMap[i]};
-							if (test_point[1] == 0) {
-								// skip
-							}
-							else {
-								double line_y = model[0] * test_point[0] + model[1];
-								double error = Math.abs(line_y - test_point[1]);
-								if (error < MIN_ERROR) {
-									// insert into consensusSet
-									int[] in = new int[2]; in[0] = test_point[0]; in[1] = test_point[1];
-									consensusSet.add(in);
-								}
-							}
-						}
+				// find consensus points
+				ArrayList<int[]> consensusSet = new ArrayList<int[]>();
+				consensusSet.add(point_a); consensusSet.add(point_b);
+				int jump_count = 0;
+				int good_count = 0;
+				for (int i = 0; i < data.size(); i++) {
+					int[] test_point = {i, boundaryMap[i]};
+					double line_y = model[0] * test_point[0] + model[1];
+					double error = Math.abs(line_y - test_point[1]);
+					if (error < MIN_ERROR && (jump_count < COUNT_THRESH || good_count < GOOD_THRESH)) {
+						// insert into consensusSet
+						int[] in = new int[2]; in[0] = test_point[0]; in[1] = test_point[1];
+						consensusSet.add(in);
+						jump_count = 0;
+						good_count++;
 					}
-			
-					// test consensus set
-					if (consensusSet.size() > MIN_SIZE) {
-						// create a new model reflecting points in consensus set
-						// model_stats = [m b rss ssr R2]
-						double[] model_stats = linearRegression(consensusSet);
-						System.out.println("Model Stats:");
-						System.out.println(model_stats[2] + " " + model_stats[3] + " " + model_stats[4]);
-						System.out.println("Best Stats:");
-						System.out.println(best_model[2] + " " + best_model[3] + " " + best_model[4]);
+					else {
+						jump_count++;
+					}
+				}
 
-						// evaluate model stats error
-						if ((model_stats[2] + model_stats[3] < best_model[2] + best_model[3]) && model_stats[4] > best_model[4]) {
-							best_model = model_stats.clone();
-							best_consensusSet.clear();
-							best_consensusSet.addAll(consensusSet);
-						}
+				// test consensus set
+				if (consensusSet.size() > MIN_SIZE) {
+					// create a new model reflecting points in consensus set
+					// model_stats = [m b rss ssr R2]
+					double[] model_stats = linearRegression(consensusSet);
+					System.out.println("Model Stats:");
+					System.out.println(model_stats[2] + " " + model_stats[3] + " " + model_stats[4]);
+					System.out.println("Best Stats:");
+					System.out.println(best_model[2] + " " + best_model[3] + " " + best_model[4]);
+
+					// evaluate model stats error
+					if ((model_stats[2] + model_stats[3] < best_model[2] + best_model[3]) && model_stats[4] > best_model[4]) {
+						best_model = model_stats.clone();
+						best_consensusSet.clear();
+						best_consensusSet.addAll(consensusSet);
 					}
 				}
 			
@@ -160,8 +156,8 @@ public class LineDetectionSegmentation {
 					boundaryMap[remove_point[0]] = 0;	// remove point from boundary map
 					for (int g = -2; g < 2; g++) {
 						if (remove_point[0] + g < width && remove_point[0] + g > 0 &&
-								remove_point[1] + g < height && remove_point[1] + g > 0) {
-							im.setRGB(remove_point[0] + g, remove_point[1] + g, 0xff0000ff);
+								(int)(best_model[0]*remove_point[0] + best_model[1]) + g < height && (int)(best_model[0]*remove_point[0] + best_model[1]) + g > 0) {
+							im.setRGB(remove_point[0] + g, (int)(best_model[0]*remove_point[0] + best_model[1]) + g, 0xff0000ff);
 						}
 					}
 				}

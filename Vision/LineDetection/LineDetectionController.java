@@ -242,6 +242,7 @@ public class LineDetectionController {
 			// RECTIFICATION
 			BufferedImage im2 = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
 			if (false) {
+				//im2 = image;
                 double cx = image.getWidth() / 2.0;
                 double cy = image.getHeight() / 2.0;
 
@@ -274,8 +275,6 @@ public class LineDetectionController {
 			else {
 				im2 = image;
 			}
-
-
 
         // detect and retrieve boundary map
         detector = new LineDetectionDetector(im2, binaryThresh, lwPassThresh);
