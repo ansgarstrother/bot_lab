@@ -16,13 +16,9 @@ public class PandaDrive
     static final float MAX_SPEED = 1.0F;
     static final float MIN_SPEED = 0.0F;
     static final float REG_SPEED = 0.7F;
-    static final float TPM = 5000F;
+    static final float TPM = 4900F;
 	static final float STRAIGHT_GYRO_THRESH = 7.0F;
 	static final float ANGLE = 7.8F;
-
-    //Turn Constants
-    static final float TURN_SPEED = 0.5F;
-    static final float TURN_RANGE = 0.5F;
 	LCM lcm;
 
 	MotorSubscriber ms;
@@ -68,30 +64,6 @@ public class PandaDrive
         lcm.publish("10_DIFF_DRIVE", msg);
     }
 
-    public void gyroTurn(double angle, float K){
-        leftSpeed = TURN_SPEED;
-        rightSpeed = TURN_SPEED;
-
-        boolean outsideRange = true;
-        while (outsideRange){
-            double curAngle = gyro.getGyroAngle();
-            if ((curAngle > (angle - TURN_RANGE)) &&
-                (curAngle < (angle + TURN_RANGE))){
-                outsideRange = false;
-            }
-            else{
-                double KERROR = K*(angle - curAngle);
-                msg.left = speedCheck(leftSpeed - KERROR);
-                msg.right = speedCheck(rightSpeed + KERROR);
-                msg.utime = TimeUtil.utime();
-                lcm.publish("10_DIFF_DRIVE", msg);
-            }
-        }
-        //Make sure one of the stop messages gets through
-        for (int i = 0; i < 50; i++){
-            Stop();
-        }
-    }
 
 	public void turn(float angle, float k) {
 		// gyro derivatives are positive
@@ -130,9 +102,9 @@ public class PandaDrive
 				motorFeedback = ms.getMessage();
         		curLeft = motorFeedback.encoders[0];
     	    	curRight = motorFeedback.encoders[1];
-
-				angled_turned = (initRight - curRight)/ANGLE;
-
+				
+				angled_turned = (initRight - curRight)/ANGLE; 	
+	
 				if(angled_turned < 0)
 					angled_turned *= -1;
 
@@ -156,11 +128,11 @@ public class PandaDrive
         int initLeftEncoder = motorFeedback.encoders[0];
         int initRightEncoder = motorFeedback.encoders[1];
 
-		while (distanceTraveled < distance - .01) {
+		while (distanceTraveled < distance - .05) {
             // get updated encoder data
 
 			motorFeedback = ms.getMessage();
-
+			
           	curLeftEncoder = motorFeedback.encoders[0] - initLeftEncoder;
            	curRightEncoder = motorFeedback.encoders[1] - initRightEncoder;
 
@@ -168,7 +140,9 @@ public class PandaDrive
             rightSpeed = REG_SPEED;
 
             float KError = KP*( curRightEncoder - curLeftEncoder);
-            leftSpeed = speedCheck(leftSpeed + KError);
+			System.out.println("Right " + curRightEncoder + "    " + curLeftEncoder);
+            System.out.println(KError + "  " + KP + "     " + (curRightEncoder - curLeftEncoder));
+			leftSpeed = speedCheck(leftSpeed + KError);
             rightSpeed = speedCheck(rightSpeed - KError);
 
 
@@ -178,10 +152,10 @@ public class PandaDrive
 
 			lcm.publish("10_DIFF_DRIVE", msg);
 
-			System.out.println ("current encoders " + curLeftEncoder + " " + curRightEncoder);
+			System.out.println ("current encoders " + leftSpeed + " " + rightSpeed);
 
             // distance traveled
-			distanceTraveled = (curLeftEncoder + curRightEncoder) / (2 * kp);
+			distanceTraveled = (curLeftEncoder + curRightEncoder) / (2 * TPM);
 
 		}
 		Stop();
