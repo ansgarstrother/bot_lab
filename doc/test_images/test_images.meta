@@ -18,6 +18,14 @@ Specifications:
 			X = 0.1524
 			Y = -0.2032
 			Z = 0.76835
+    Pixel Board Coordinates #1 (unrectified):
+        Init Point:
+            x = 439
+            y = 618
+        Final Point:
+            x = 794
+            y = 630
+        Slope: 0.0338
 
 Image Test #2:
 Description:
@@ -37,6 +45,14 @@ Specifications:
 			X = 0.1524
 			Y = -0.2032
 			Z = 1.07315
+    Pixel Board Coordinates #1 (unrectified):
+        Init Point:
+            x = 503
+            y = 578
+        Final Point:
+            x = 760
+            y = 584
+        Slope: 0.0233
 
 Image Test #3:
 Description:
@@ -56,6 +72,14 @@ Specifications:
 			X = 0.1524
 			Y = -0.2032
 			Z = 0.46355
+    Pixel Board Coordinates #1 (unrectified):
+        Init Point:
+            x = 314
+            y = 699
+        Final Point:
+            x = 873
+            y = 731
+        Slope: 0.0572
 
 Image Test #4:
 Description:
@@ -86,6 +110,22 @@ Specifications:
 			X = 0.4572
 			Y = -0.2032
 			Z = 0.9144
+    Pixel Board Coordinates #1 (unrectified):
+        Init Point:
+            x = 555
+            y = 626
+        Final Point:
+            x = 795
+            y = 630
+        Slope: 0.0167
+    Pixel Board Coordinates #2 (unrectified):
+        Init Point:
+            x = 1162
+            y = 685
+        Final Point:
+            x = 961
+            y = 597
+        Slope: 0.4732
 
 Image Test #5:
 Description:
@@ -116,5 +156,21 @@ Specifications:
 			X = -0.4572
 			Y = -0.2032
 			Z = 0.9144
+    Pixel Board Coordinates #1 (unrectified):
+        Init Point:
+            x = 555
+            y = 625
+        Final Point:
+            x = 796
+            y = 630
+        Slope: 0.0207
+    Pixel Board Coordinates #2 (unrectified):
+        Init Point:
+            x = 183
+            y = 668
+        Final Point:
+            x = 386
+            y = 588
+        Slope: -0.3941
 
 

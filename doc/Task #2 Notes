@@ -47,18 +47,17 @@ Revised Process:
 	- color it and its previous neighbor white
 
 
-To get ground truth, manually click random points along the blue tape to assign
-	- Run tests on ten images and calculate error between selected points and computed points
-	- color1
-	- color2
-	- color3
-	- color4
-	- 1.png
-	- 2.png
-	- 3.png
-	- 4.png
-	- 5.png
-	- 6.png
+To get ground truth, find init point of blue line, and final point of blue line, calculate slope, then compare both the init point, the final point, and the slope (with the slope having the most weight) with the line detection algorithm and the real data manually selected from all training images.
+
+(See test_images.meta)
+
+
+
+Camera Calibration:
+    - Intrinsic: focal length, center coordinate (c_x, c_y)
+        - Solved through affine matrix transformation and point correspondences between real world coordinates and pixel coordinates
+    - Extrinsic: history of transformations of robot frame
+        - chain of transformation matrices (rotation and translation from one robot frame to another)
 
 
 Radial Distortion:
@@ -66,3 +65,10 @@ Parameters: A = 1.527995
             B = -0.000910
 
 Relation:   r' = 1.527995 * r - 0.000910 * r^2
+
+
+
+Occupancy Grid Resolution:
+    - 1000cm x 1000cm
+    - Chosen because the occupancy grid needed to be large enough to account for a large sized maze, but small enough to make it time efficient
+    - Ten meters is plenty size for a maze considering the size of the room

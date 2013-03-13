@@ -1,0 +1,21 @@
+Green Triangle Detection:
+    - Initial Plan:
+		// Union Find searching for pixels of high green intensity
+		// Traverse Entire Image
+		//	a. Retrieve current pixel, right pixel, and down pixel
+		//		- current pixel must pass threshold test for the following to occur:
+		//	b. If right pixel passes threshold test
+		//		1. if parent to right pixel == self, then update to current pixel
+		//		2. else if parent to right pixel != cur_pixel, trace parent back and link roots to cur_pixel
+		//	c. Repeat with down pixel
+		// Build Hash Table of stats useful to detect a triangle
+		// Traverse Entire Image
+		//	a. For each pixel, find root node and update stats in hash map
+		// For all root nodes in hash map
+		//	a. Build a covariance matrix and use stats to determine shape of pixel blob
+    - Evolved Plan:
+        - Build a boolean image representation that is a 1 if the pixel at this location is within a certain threshold signifying green
+        - Scan image at a jumped rate to save time 
+        - Do an explosion of traversal at a point discovered as potentially a triangle
+        - Retrieve groups of these 1's and do statistical analysis to analyze shape
+        - If the object makes up roughly half of the bounding box, and data has a triangular shape, then signify this object as a green triangle
