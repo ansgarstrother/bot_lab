@@ -1,4 +1,4 @@
-package Panda.VisionMapping;
+package Panda.Targeting;
 
 import java.awt.image.BufferedImage;
 import java.awt.Color;

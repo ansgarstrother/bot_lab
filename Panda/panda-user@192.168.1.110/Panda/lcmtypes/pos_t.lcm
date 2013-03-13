@@ -1,0 +1,11 @@
+package lcmtypes;
+
+struct pos_t
+{
+    boolean triangle_found;
+    boolean finished;
+
+    int64_t timestamp;
+	float delta_x;
+	double theta;
+}
