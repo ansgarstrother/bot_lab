@@ -25,7 +25,7 @@ public class edgeDetection {
 		// White pixels denote boundary
 		for (int i = 0; i < width; i++) {
 			int x = i;
-			for (int j = 0; j < (height/2) + 100; j++) {
+			for (int j = 0; j < (height/2); j++) {
 				int y = height - 1 - j;
 				int rgb = in.getRGB(x,y);
 				int r = (rgb >> 16) & 0xff;

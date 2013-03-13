@@ -140,13 +140,14 @@ public class Projection extends JFrame {
                                                     fmt.width,
                                                     fmt.height,
                                                     buf);
-					
+				
+			/*	
 			// DRAW CENTER LINE IN BLUE
 			int column = fmt.width / 2;
 			for (int i = 0; i < fmt.height; i++) {
 				im.setRGB(column, i, 0x00ff0000ff);
 			}
-
+			*/
 
 			// RECTIFY IMAGE
 			// Consistent with Rectification Process Vision/util/
