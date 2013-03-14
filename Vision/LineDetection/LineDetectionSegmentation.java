@@ -10,15 +10,14 @@ import java.util.Random;
 public class LineDetectionSegmentation {
     
     // const
-    private static final int MIN_SIZE = 50;	// data fit to model (d)
-	private static final double MIN_ERROR = 5;	// min error for RANSAC (t)
+    private static final int MIN_SIZE = 48;	// data fit to model (d)
+	private static final double MIN_ERROR = 3;	// min error for RANSAC (t)
 	private static final int k = 400;		// num iterations for RANSAC (k)
 	private static final int q = 10;		// num iterations for finding best lines (max = 10)
 	private static final int n = 2;			// num randomly selected points from data (n)
 
 	private static final double inf = Double.POSITIVE_INFINITY;
-	private static final int COUNT_THRESH = 6;
-	private static final int GOOD_THRESH = 10;
+	private static final int DELTA_X = 20;
 
     
     // args
@@ -92,30 +91,35 @@ public class LineDetectionSegmentation {
 					point_a = new int[2]; point_a[0] = index_a; point_a[1] = boundaryMap[index_a];
 					point_b = new int[2]; point_b[0] = index_b; point_b[1] = boundaryMap[index_b];
 				}
+				
 				double[] model = new double[2];
 				model = getLinearModel(point_a, point_b);
-				System.out.println("Model:");
-				System.out.println("y = " + model[0] + "x + " + model[1]);
+				//im.setRGB(point_a[0], point_a[1], 0xff00ff00);
+				//im.setRGB(point_b[0], point_b[1], 0xff00ff00);
+				//System.out.println("Model:");
+				//System.out.println("y = " + model[0] + "x + " + model[1]);
 
 			
 				// find consensus points
 				ArrayList<int[]> consensusSet = new ArrayList<int[]>();
 				consensusSet.add(point_a); consensusSet.add(point_b);
-				int jump_count = 0;
-				int good_count = 0;
-				for (int i = 0; i < data.size(); i++) {
+				for (int i = 0; i < boundaryMap.length; i++) {
 					int[] test_point = {i, boundaryMap[i]};
-					double line_y = model[0] * test_point[0] + model[1];
-					double error = Math.abs(line_y - test_point[1]);
-					if (error < MIN_ERROR && (jump_count < COUNT_THRESH || good_count < GOOD_THRESH)) {
+					double error = getLinePointError(model, test_point);
+					if (error < MIN_ERROR) {
 						// insert into consensusSet
 						int[] in = new int[2]; in[0] = test_point[0]; in[1] = test_point[1];
 						consensusSet.add(in);
-						jump_count = 0;
-						good_count++;
 					}
-					else {
-						jump_count++;
+				}
+				
+				// remove outliers
+				for (int i = 1; i < consensusSet.size(); i++) {
+					int[] prev = consensusSet.get(i-1);
+					int[] cur = consensusSet.get(i);
+					if (Math.abs(cur[0] -  prev[0]) > DELTA_X) {
+						consensusSet.remove(i);
+						i = i - 1;
 					}
 				}
 
@@ -124,10 +128,10 @@ public class LineDetectionSegmentation {
 					// create a new model reflecting points in consensus set
 					// model_stats = [m b rss ssr R2]
 					double[] model_stats = linearRegression(consensusSet);
-					System.out.println("Model Stats:");
-					System.out.println(model_stats[2] + " " + model_stats[3] + " " + model_stats[4]);
-					System.out.println("Best Stats:");
-					System.out.println(best_model[2] + " " + best_model[3] + " " + best_model[4]);
+					//System.out.println("Model Stats:");
+					//System.out.println(model_stats[2] + " " + model_stats[3] + " " + model_stats[4]);
+					//System.out.println("Best Stats:");
+					//System.out.println(best_model[2] + " " + best_model[3] + " " + best_model[4]);
 
 					// evaluate model stats error
 					if ((model_stats[2] + model_stats[3] < best_model[2] + best_model[3]) && model_stats[4] > best_model[4]) {
@@ -168,10 +172,17 @@ public class LineDetectionSegmentation {
 
     }
 
+	private double getLinePointError(double[] model, int[] point) {
+		double y = (double)point[1]; double x = (double)point[0];
+		double m = model[0]; double b = model[1];
+		double dist = (Math.abs(y - m * x - b)) / (Math.sqrt(m * m + 1));
+		return dist;
+	}
+
 	private double[] getLinearModel(int[] a, int[] b) {
 		// retrieves slope and y offset of a line between two points
-		double m = (a[1] - b[1]) / (a[0] - b[0]);
-		double beta = (-m * a[0] + a[1]);
+		double m = (double)(a[1] - b[1]) / (double)(a[0] - b[0]);
+		double beta = (-m * (double)a[0] + (double)a[1]);
 		double[] ret = new double[2];
 		ret[0] = m; ret[1] = beta;
 		return ret;
