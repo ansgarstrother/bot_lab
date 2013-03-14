@@ -17,7 +17,7 @@ public class PandaPositioning {
 	// args
 	private ArrayList<Matrix> history;
 	private double scale;		// scale factor for calibration
-	
+
 
 	public PandaPositioning() {
 		this.history = new ArrayList<Matrix>();	// A series of transformations since beginning
@@ -39,12 +39,12 @@ public class PandaPositioning {
 	public ArrayList<Matrix> getHistory() {
 		return history;
 	}
-	
+
 	public Matrix getGlobalPoint(double[] intrinsics, double[] pixels) {
 		// intrinsics = [f, cx, cy]
 		// pixels = [u, v]
 		double scale = Math.abs(static_height / (pixels[1] - intrinsics[2]));
-		double X = scale * (intrinsics[1] - pixels[0]);
+		double X = scale * (pixels[0] - intrinsics[0]);
 		double Y = scale * (intrinsics[2] - pixels[1]);
 		double Z = scale * intrinsics[0];
 		double[][] res = new double[3][1];
