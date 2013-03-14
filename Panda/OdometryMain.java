@@ -31,7 +31,8 @@ public class OdometryMain {
 		try {
 			MotorSubscriber ms = new MotorSubscriber();
 			PIMUSubscriber ps = new PIMUSubscriber();
-			PandaOdometry po = new PandaOdometry(ms, ps);
+			Gyro g = new Gyro();
+			PandaOdometry po = new PandaOdometry(ms, ps, g);
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 		}		

@@ -31,6 +31,7 @@ public class PandaOdometry {
 	//args
 	private MotorSubscriber ms;
 	private PIMUSubscriber ps;
+	private Gyro g;
 	
 	private volatile motor_feedback_t prev_mf_msg;
 	private volatile pimu_t prev_pimu_msg;
@@ -48,10 +49,11 @@ public class PandaOdometry {
 
 
 	// CONSTRUCTOR METHOD
-	public PandaOdometry(MotorSubscriber ms, PIMUSubscriber ps) {
+	public PandaOdometry(MotorSubscriber ms, PIMUSubscriber ps, Gyro g) {
 		// initialize subscribers
 		this.ms = ms;
 		this.ps = ps;
+		this.g = g;
 		// initialize messages
 		this.prev_mf_msg = new motor_feedback_t();
 		this.prev_pimu_msg = new pimu_t();
@@ -128,16 +130,14 @@ public class PandaOdometry {
 		//							arC = (arL + arR) / 2 (may not be needed)
 		//		c. delta x = (dR + dL) / 2
 
-		// TODO: GYRO SENSOR IMPLEMENTATION
-		double gyro1 = (pimu.integrator[4] - pimu.integrator[4]) / 
-							(pimu.utime_pimu - prev_pimu.utime_pimu);
-		double gyro2 = (pimu.integrator[5] - pimu.integrator[5]) / 
-							(pimu.utime_pimu - prev_pimu.utime_pimu);
-
 		double encoL = (mf.encoders[0] - prev_mf.encoders[0]);
 		double encoR = (mf.encoders[1] - prev_mf.encoders[1]);
 		double dL = encoL / left_ticks_per_meter;
 		double dR = encoR / right_ticks_per_meter;
+
+		long[] times = new long[2];
+		times[0] = prev_pimu.utime_pimu; times[1] = pimu.utime_pimu;
+		System.out.println(g.getGyroAngle());
 
 		// setup pos msg
 		// TODO: TRIANGLE FOUND AND FINISHED FLAGS MUST BE PASSED IN
@@ -145,8 +145,9 @@ public class PandaOdometry {
     	cur_pos_msg.finished = false;
     	cur_pos_msg.timestamp = mf.utime;
 		cur_pos_msg.delta_x = (float)((dL + dR) / 2);
-		cur_pos_msg.theta = (dR - dL) / base_distance; // in radians
-
+		cur_pos_msg.theta = g.getGyroAngle(); // in radians
+	
+		System.out.println("delta_x cm: " + (dL + dR) / 0.02);
 	}
 
 	protected void sendPose() {

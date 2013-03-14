@@ -63,18 +63,26 @@ public class Gyro
         pimuData = ps.getMessage();
         curTime = pimuData.utime_pimu;
         curGyroVal = pimuData.integrator[5];
-		System.out.println("Current gyro val: " + curGyroVal);
+		//System.out.println("Current gyro val: " + curGyroVal);
 
         long timeChange = curTime - startTime;
-		System.out.println("Time Change: " + timeChange);
+		//System.out.println("Time Change: " + timeChange);
         double totalCreep = gyroCreep * timeChange;
-		System.out.println("Total Creep: " + totalCreep);
+		//System.out.println("Total Creep: " + totalCreep);
         gyroAngle = (curGyroVal - startGyroVal) - totalCreep;
 
-        return (gyroAngle / 999059);
+        return Math.toRadians(gyroAngle / 999059);
 
         //Note: Can also integrate the accelerometer and use a Kalman filter to
         //      minimize drift
     }
+	public double getGyroAngle(double gyroVal, long[] time) {
+		// gyroVals = [prev cur]
+		// time = [prev cur]
+		long timeDiff = time[1] - time[0];
+		double totalCreep = gyroCreep * timeDiff;
+		double gyroAngle = gyroVal - startGyroVal - totalCreep;
+		return gyroAngle;
+	}
 
 }
