@@ -241,7 +241,7 @@ public class LineDetectionController {
     protected BufferedImage processImage(BufferedImage image, boolean flag) {
 			// RECTIFICATION
 			BufferedImage im2 = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-			if (false) {
+			if (flag) {
 				//im2 = image;
                 double cx = image.getWidth() / 2.0;
                 double cy = image.getHeight() / 2.0;
@@ -284,7 +284,7 @@ public class LineDetectionController {
 	// RUN IN LINEDETECTIONSEGMENTATION
 
         // segment points
-        LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap, im2);
+        LineDetectionSegmentation lds = new LineDetectionSegmentation(boundaryMap, detector.getProcessedImage());
         ArrayList<int[][]> segments = lds.getSegments();
 		BufferedImage im3 = lds.getImage();
         
@@ -359,7 +359,7 @@ public class LineDetectionController {
         	//}
 
 
-        return detector.getProcessedImage();
+        return im3;
     }
     
     
