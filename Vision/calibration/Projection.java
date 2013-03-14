@@ -13,11 +13,18 @@ import april.jcam.*;
 import april.util.*;
 import april.jmat.*;
 
+
+import Vision.LineDetection.*;
 public class Projection extends JFrame {
 
     private final double cameraHeight = .2032; // height of camera off the ground
-    private double z1 = 0.3302; // 3 sets of distances away from camera
-    private double z2 = z1 + 0.0254;
+//    private double z1 = 0.3302; // 3 sets of distances away from camera
+    private double z1 = 0.4572; // 3 sets of distances away from camera
+    private double z2 = z1 + .3048; // 3 sets of distances away from camera
+
+    private double z3 = z1 + .3048 * 1.5;
+    /*
+    //  private double z2 = z1 + 0.0254;
     private double z3 = z1 + 0.0254 * 2;
     private double z4 = z1 + 0.0254 * 3;
     private double z5 = z1 + 0.0254 * 4;
@@ -25,12 +32,16 @@ public class Projection extends JFrame {
     private double z7 = z1 + 0.0254;
     private double z8 = z1 + 0.0254 * 2;
     private double z9 = z1 + 0.0254 * 3;
+*/
 
-
-    private double x1 = -0.0889; // 3 sets of distances spanning from left to right
+    private double x0 = -.1016 -.1016;
+    private double x1 = -.1016;
+    private double x2 = .1016;
+    private double x3 = x2 + .1016;
+ /*   private double x1 = -0.0889; // 3 sets of distances spanning from left to right
     private double x2 = 0.0889;
     private double x3 = 0.4;
-
+*/
     private double y = -cameraHeight;
 
     // click points for calibration
@@ -46,6 +57,19 @@ public class Projection extends JFrame {
 
     private int count;		// used to keep track of which points we have clicked
 
+    private double[][] testCoords = { {x0, y, z1},
+                                        {x0, y, z2},
+                                        {x0, y, z3},
+                                        {x1, y, z1},
+                                        {x1, y, z2},
+                                        {x1, y, z3},
+                                        {x2, y, z1},
+                                        {x2, y, z2},
+                                        {x2, y, z3},
+                                        {x3, y, z1},
+                                        {x3, y, z2},
+                                        {x3, y, z3} };
+/*
     private double[][] testCoords = { {x1, y, z1},
                                         {x1, y, z2},
                                         {x1, y, z3},
@@ -55,10 +79,11 @@ public class Projection extends JFrame {
                                         {x2, y, z7},
                                         {x2, y, z8},
                                         {x2, y, z9} };
-
+*/
 
     private Point2D[] testPixels;
 
+    private double[] instrinsics;
 
 
     private ImageSource imageSource;
@@ -67,6 +92,7 @@ public class Projection extends JFrame {
     private JFrame jf = new JFrame ("Projection");
     private JImage jim = new JImage();
 
+    private PandaPositioning pp;
 
     // constructor
     public Projection() {
@@ -77,8 +103,9 @@ public class Projection extends JFrame {
         jf.setVisible (true);
         jf.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
 
-        testPixels = new Point[9];
+        testPixels = new Point[testCoords.length];
         lengths = new double[3];
+
 
         // fill corresponding real world coordinates for points
         // always strat from bottom left, bottom middle, bottom right, middle left, etc.
@@ -140,8 +167,8 @@ public class Projection extends JFrame {
                                                     fmt.width,
                                                     fmt.height,
                                                     buf);
-				
-			/*	
+
+			/*
 			// DRAW CENTER LINE IN BLUE
 			int column = fmt.width / 2;
 			for (int i = 0; i < fmt.height; i++) {
@@ -200,14 +227,14 @@ public class Projection extends JFrame {
         double [][] pixelVec = new double[2*testCoords.length][1];
         int j = 0;
         for (int i=0; i < A.length; i+= 2) {
-            A[i][0] = testCoords[j][0] / testCoords[j][2];
-            A[i][1] = 1;
+            A[i][0] = testCoords[j][0];
+            A[i][1] = testCoords[j][2];
             A[i][2] = 0;
 
             pixelVec[i][0] = testPixels[j].getX();
-            A[i+1][0] = (testCoords[j][1] / testCoords[j][2]);
+            A[i+1][0] = testCoords[j][1];
             A[i+1][1] = 0;
-            A[i+1][2] = 1;
+            A[i+1][2] = testCoords[j][2];
 
             pixelVec[i+1][0] = testPixels[j].getY();
             j++;
@@ -231,6 +258,7 @@ public class Projection extends JFrame {
         System.out.println(this.f);
         System.out.println(this.c_x);
         System.out.println(this.c_y);
+
 
         // matrix returned and printed to file
         // matrix will then be imported and used in main controller
@@ -269,7 +297,7 @@ public class Projection extends JFrame {
         // must click from left to right, closest to furthest
         // first click must be MM, then row from left to right
 
-        if (count < 9) {
+        if (count < testCoords.length) {
 
 		// Retrieve clicked point, convert
 		Point input = me.getPoint();
