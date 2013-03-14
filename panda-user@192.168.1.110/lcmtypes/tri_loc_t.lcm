@@ -1,7 +1,0 @@
-struct tri_loc_t
-{
-    boolean found;
-    float x_pos;
-    float y_pos;
-    double theta;
-}

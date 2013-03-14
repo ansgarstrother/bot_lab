@@ -1,1 +1,0 @@
-lcm-gen -j --jmkdir false lcmtypes/*.lcm
