@@ -7,8 +7,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 
 import javax.swing.*;
 
@@ -73,6 +72,12 @@ public class RoverController implements Runnable {
 			this.isExecuting = true;
 
 		}
+
+		// PRINT TO FILE
+		try {
+			FileWriter fstream = new FileWriter("odom_squares.csv");
+			BufferedWriter out = new BufferedWriter(fstream);
+
 		
         // init
         this.delegate.getFrame().getParameterGUI().ss("roverStatus", "Running");
@@ -93,6 +98,10 @@ public class RoverController implements Runnable {
             
             	if (!new_msg.finished) {
 					if (prev_msg != new_msg) {
+						
+					// PRINT TO FILE
+					out.write(new_pos[0] + "," + new_pos[1] + "\n");
+
 						this.new_pos = roverPositioning.getNewPosition(new_msg);
 						this.prev_pos = roverPositioning.getPrevPosition();
 						System.out.println("x: " + new_pos[0]*100);
@@ -125,6 +134,9 @@ public class RoverController implements Runnable {
         synchronized (this) {
             this.isExecuting = false;
         }
+	} catch (Exception e) {
+		System.err.println("Error: " + e.getMessage());
+		}
 		
 	}
 

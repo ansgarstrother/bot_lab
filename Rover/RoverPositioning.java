@@ -38,9 +38,9 @@ public class RoverPositioning {
 
 	public double[] getNewPosition(pos_t msg) {
 		// add current transform to history
-		double[][] trans = {{Math.cos(-msg.theta),	-Math.sin(-msg.theta),	-msg.delta_x},
-							{Math.sin(-msg.theta), 	Math.cos(-msg.theta), 	0		},
-							{0, 					0, 						1		}};
+		double[][] trans = {{Math.cos(-(msg.theta - prev_t)),	-Math.sin(-(msg.theta - prev_t)),	-msg.delta_x},
+							{Math.sin(-(msg.theta - prev_t)), 	Math.cos(-(msg.theta - prev_t)), 	0		},
+							{0, 								0, 									1		}};
 
 
 		Matrix T = new Matrix(trans);
@@ -57,7 +57,7 @@ public class RoverPositioning {
 		double[] current_pos = new double[3];
 		current_pos[0] = cur_mat.get(0,0);
 		current_pos[1] = cur_mat.get(1,0);
-		current_pos[2] = (cur_t + msg.theta) % (2*Math.PI);
+		current_pos[2] = (msg.theta) % (2*Math.PI);
 		prev_x = cur_x;
 		prev_y = cur_y;
 		prev_t = cur_t;
