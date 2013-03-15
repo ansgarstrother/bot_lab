@@ -17,7 +17,7 @@ import april.jmat.*;
 import Vision.LineDetection.*;
 public class Test extends JFrame {
 
-    private double[] intrinsics = {652.1483, 676.0408, 480.3221};
+    private double[] intrinsics = {640.1483, 676.0408, 480.3221};
 
 
     private ImageSource imageSource;
