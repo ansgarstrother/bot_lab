@@ -8,9 +8,9 @@ import april.jmat.*;
 
 public class LineDetectionMain {
 
-	private final static double f = 425.226845;
-	private final static double c_x = 653.45258;
-	private final static double c_y = 447.21663;
+	private final static double f = 640.1483;
+	private final static double c_x = 676.0408;
+	private final static double c_y = 480.3221;
     private static double[] calibrationMatrix =
 		{ 	f, c_x, c_y	};
 
