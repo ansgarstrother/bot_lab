@@ -19,7 +19,7 @@ public class MotorSubscriber implements LCMSubscriber
         //this.lcm.subscribe("10_POSE", this);
         this.lcm.subscribe("10_MOTOR_FEEDBACK", this);
         //this.lcm.subscribe("10_PIMU", this);
-		this.msg = new motor_feedback_t();
+		//this.msg = new motor_feedback_t();
     }
 
     public void messageReceived(LCM lcm, String channel, LCMDataInputStream ins)
@@ -36,7 +36,12 @@ public class MotorSubscriber implements LCMSubscriber
 	}
 
 	public motor_feedback_t getMessage() {
-		return msg;
+		while(this.msg == null)
+			{System.out.println("waiting");}
+
+		while(this.msg.nmotors < 2)
+			{System.out.println("waiting");}
+		return this.msg;
 
 	}
 

@@ -1,10 +1,8 @@
 import lcm.lcm.*;
 import java.util.Vector;
 
-import Panda.sensors.*;
-import Panda.VisionMapping.*;
-import Panda.Odometry.*;
-import Panda.util.*;
+import Panda.*;
+import Panda.Targeting.*;
 
 import java.io.*;
 import java.util.*;
@@ -16,12 +14,16 @@ import april.jcam.*;
 import april.util.*;
 import april.jmat.*;
 
-public class PandaMain{
+public class PandaMain_V2{
 
 	static boolean run = true;
     static double sampleRate = 200;    //microseconds
 
-	static double[][] calibrationMatrix = {{0, 0, 1}, {0, 1, 0}, {0, 0, 1}};
+	private final static double f = 640.1483;
+	private final static double c_x = 676.0408;
+	private final static double c_y = 480.3221;
+    private static double[] calibrationMatrix =
+		{ 	f, c_x, c_y	};
 
 //=================================================================//
 // main of the panda bot                                           //
@@ -58,13 +60,13 @@ public class PandaMain{
 
 		// get matrix transform history
 		// get calibrated coordinate transform
-		PandaPositioning positioning = new PandaPositioning();
+		//PandaPositioning positioning = new PandaPositioning();
 
 		//Panda Driver
-    	Drive drive = new Drive();
-		Path path = new Path();
-        Map map = new Map();    // init random int
-        
+    	//Drive drive = new Drive();
+		//Path path = new Path();
+        //Map map = new Map();    // init random int
+        TargetDetector target = new TargetDetector();
 
 		while(run){
 
@@ -81,9 +83,9 @@ public class PandaMain{
 			is.stop();
 
 			//Detect any triangles and then fire on them
-			Target target = new Target(im);
-			target.destroy();
 
+			target.runDetection(im);
+/*
 			//Line Detector finds barriers and adds them to the map
 			BarrierMap barrierMap = new BarrierMap(im, positioning.getHistory(), calibrationMatrix);
 			map.addBarrier(barrierMap);
@@ -98,7 +100,7 @@ public class PandaMain{
 			// moves robot foward 
 			double forward = path.forward();
 			drive.foward( forward );
-
+*/
 		}
 	}
 }
