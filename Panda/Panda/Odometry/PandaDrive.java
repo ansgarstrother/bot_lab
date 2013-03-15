@@ -65,9 +65,10 @@ public class PandaDrive
     }
 
 
-	public void turn(float angle, float k) {
+	public void turn(float angle) {
 		// gyro derivatives are positive
 
+		
 		double angled_turned = 0;
 
 		int curRight = 0;
@@ -77,24 +78,30 @@ public class PandaDrive
         motorFeedback = new motor_feedback_t();
 
         motorFeedback = ms.getMessage();
-        int initLeft = motorFeedback.encoders[0];
+
+		int initLeft = motorFeedback.encoders[0];
         int initRight = motorFeedback.encoders[1];
 
+		boolean neg = false;
+		if( angle < 0F){
+			neg = true;
+			angle = -angle;
+		}
 
 		while(angled_turned < angle) {
 				msg.utime = TimeUtil.utime();
-
+				
+				System.out.println("angle " + angle);
 				// right turn if angle is negative
-				if (angle <=0 ) {
+				if (neg) {
+					System.out.println("here");
 					msg.left = 0.3F;
 					msg.right = -0.3F;
-
 				}
-				// left turn
 				else {
+					System.out.println("no here");
 					msg.left = -0.3F;
 					msg.right = 0.3F;
-
 				}
 
 				lcm.publish ("10_DIFF_DRIVE", msg);
@@ -109,11 +116,12 @@ public class PandaDrive
 					angled_turned *= -1;
 
 		}
+
 		Stop();
 	}
 
 
-    public void driveForward (float distance, float kp) {
+    public void driveForward (float distance) {
 
 		float distanceTraveled = 0;
 		int curLeftEncoder = 0, curRightEncoder = 0;
@@ -125,6 +133,7 @@ public class PandaDrive
 		motorFeedback = new motor_feedback_t();
 
         motorFeedback = ms.getMessage();
+
         int initLeftEncoder = motorFeedback.encoders[0];
         int initRightEncoder = motorFeedback.encoders[1];
 
