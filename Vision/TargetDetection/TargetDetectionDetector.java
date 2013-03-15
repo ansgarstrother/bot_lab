@@ -11,18 +11,13 @@ public class TargetDetectionDetector {
     static final int BLOB_SIZE_CONSTANT = 150;
     //Triangle must be within 100 pixels of half of its bounding box
     static final int TRI_HALF_BOX_THRES_CONSTANT = 100;
-    	// HSV LIMITS
-	static double HLB;		// hue lower bound
-	static double HUB;		// hue upper bound
-	static double SLB;		// saturation lower bound
-	static double VLB;
 
 	BufferedImage im;
 	BufferedImage out;	// bounding box w/center at triangle
-	TargetDetectionController tdc;
 	int width;
 	int height;
 	int delimiter;		// restricts height
+	double threshold;	// RGB threshold
 
     int group = 1;
 
@@ -40,18 +35,15 @@ public class TargetDetectionDetector {
     Vector<Stats> finalTriVec = new Vector<Stats>();
 
 	// CONSTRUCTOR METHOD
-	public TargetDetectionDetector(BufferedImage in, int delimiter, TargetDetectionController tdc) {
+	public TargetDetectionDetector(BufferedImage in, int delimiter, double thresh) {
+        delimiter = 150;
 		im = in;
-		this.tdc = tdc;
+
 		width = in.getWidth();
 		height = in.getHeight();
 		this.delimiter = delimiter;
-		double[] thresholds = tdc.getThresholds();
-		HLB = thresholds[0];
-		HUB = thresholds[1];
-		SLB = thresholds[2];
-		VLB = thresholds[3];
-        	group = 1;
+		threshold = thresh;
+        group = 1;
 		runDetection();
 	}
 
@@ -68,7 +60,7 @@ public class TargetDetectionDetector {
             // convert to HSV
 		    float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
 		    //System.out.println(cHSV[0]);
-		    if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
+		    if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 
                 s = stats.get(group-1);
                 if(i+1 > s.maxY){
@@ -86,8 +78,8 @@ public class TargetDetectionDetector {
             // convert to HSV
 		    float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
 		    //System.out.println(cHSV[0]);
-	    	if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
-                
+	    	if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
+
                 s = stats.get(group-1);
                 if(i+1 < s.minY){
                     s.minY = i-1;
@@ -105,7 +97,7 @@ public class TargetDetectionDetector {
             // convert to HSV
 		    float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
 	    	//System.out.println(cHSV[0]);
-		    if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
+		    if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 
                 s = stats.get(group-1);
                 if(j+1 > s.maxX){
@@ -124,10 +116,10 @@ public class TargetDetectionDetector {
              // convert to HSV
 	    	float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
 	    	//System.out.println(cHSV[0]);
-		    if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
+		    if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 
                 s = stats.get(group-1);
-                
+
                 if(j-1 < s.minX){
                     s.minX = j-1;
                     stats.set(group-1, s);
@@ -164,7 +156,7 @@ public class TargetDetectionDetector {
 				// convert to HSV
 				float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
 				//System.out.println(cHSV[0]);
-				if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
+				if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
                     Stats temp = new Stats();
                     temp.minX = 1000000;
                     temp.minY = 1000000;
@@ -196,7 +188,7 @@ public class TargetDetectionDetector {
 
 
 	}
-	
+
 	protected void mark(BufferedImage img, int[] bounds, int color){
         // draw the horizontal lines
         for (int x = bounds[0]; x <=bounds[2]; x++) {

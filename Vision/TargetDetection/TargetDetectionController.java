@@ -23,7 +23,7 @@ import april.jcam.ImageSource;
 import april.jcam.ImageConvert;
 import april.jcam.ImageSourceFormat;
 import april.jcam.ImageSourceFile;
-import april.util.*;
+import april.util.ParameterGUI;
 
 
 
@@ -40,10 +40,6 @@ public class TargetDetectionController {
 
     // constants
     protected final static int delimiter = 150;		// reduces size of image for detection
-    private double hueLowerThresh;
-    private double hueUpperThresh;
-    private double satThresh;
-    private double valThresh;
     
     
     // CONSTRUCTOR
@@ -52,11 +48,7 @@ public class TargetDetectionController {
         frame.setSize(1024, 768);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
-
-	hueLowerThresh = 0;
-	hueUpperThresh = 0;
-	satThresh = 0;
-	valThresh = 0;
+	pg = frame.getParameterGUI();
 
         // add action event listeners
         frame.getChooseCameraSourceButton().addActionListener(new ActionListener() {
@@ -92,24 +84,7 @@ public class TargetDetectionController {
 				TargetDetectionController.this.didClickMouse(me);
 			}
 		});
-
-	frame.getParameterGUI().addListener(new ParameterListener() {
-		@Override
-		public void parameterChanged(ParameterGUI pg, String name) {
-			if (name == "HueLower") {
-				hueLowerThresh = pg.gd(name); 
-			}
-			else if (name == "HueUpper") {
-				hueUpperThresh = pg.gd(name);
-			}
-			else if (name == "Saturation") {
-				satThresh = pg.gd(name);
-			}
-			else if (name == "Value") {
-				valThresh = pg.gd(name);
-			}
-		}
-	});
+        
         
     }
     
@@ -250,7 +225,7 @@ public class TargetDetectionController {
     // Image Processing
     protected BufferedImage processImage(BufferedImage image) {
         // process image
-	detector = new TargetDetectionDetector(image, delimiter, this);
+	detector = new TargetDetectionDetector(image, delimiter, pg.gd("Threshold"));
 	BufferedImage out = detector.getImage();
         return out;
     }
@@ -259,10 +234,6 @@ public class TargetDetectionController {
     // PUBLIC CLASS METHODS
     public TargetDetectionFrame getFrame() {
         return frame;
-    }
-    public double[] getThresholds() {
-	double[] ret = {hueLowerThresh, hueUpperThresh, satThresh, valThresh};
-	return ret;
     }
     
 }
