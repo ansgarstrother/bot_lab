@@ -152,7 +152,7 @@ public class LineDetectionSegmentation {
 				int[] final_point = best_consensusSet.get(best_consensusSet.size()-1);
 				int[][] segment = new int[2][2];
 				segment[0][0] = init_point[0]; segment[0][1] = init_point[1];
-				segment[1][0] = final_point[0]; segment[1][0] = final_point[1];
+				segment[1][0] = final_point[0]; segment[1][1] = final_point[1];
 				segment_list.add(segment);
 	
 				for (int i = 0; i < best_consensusSet.size(); i++) {

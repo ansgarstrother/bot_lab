@@ -21,7 +21,11 @@ public class PandaMain{
 	static boolean run = true;
     static double sampleRate = 200;    //microseconds
 
-	static double[][] calibrationMatrix = {{0, 0, 1}, {0, 1, 0}, {0, 0, 1}};
+	private final static double f = 640.1483;
+	private final static double c_x = 676.0408;
+	private final static double c_y = 480.3221;
+    private static double[] calibrationMatrix =
+		{ 	f, c_x, c_y	};
 
 //=================================================================//
 // main of the panda bot                                           //

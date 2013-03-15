@@ -292,7 +292,7 @@ public class LineDetectionController {
 	// ADD REAL WORLD LINE POINTS TO REAL WORLD MAP
         // from calibrationMatrix
         // coordinates should now be in 3D
-        //realWorldMap = new ArrayList<double[][]>();
+        realWorldMap = new ArrayList<double[][]>();
 
 		// PRIOR CAMERA CALIBRATION IMPLEMENTATION
 		/*
@@ -310,54 +310,28 @@ public class LineDetectionController {
 
 		*/
 
-        //for (int i = 0; i < segments.size(); i++) {
-            //int[][] segment = segments.get(i);
+        for (int i = 0; i < segments.size(); i++) {
+            int[][] segment = segments.get(i);
 
-				//double[] init_point = {segment[0][0], segment[0][1]};
-				//double[] fin_point = {segment[1][0], segment[1][1]};
-				// PRIOR CAMERA CALIBRATION IMPLEMENTATION
-				/*
-	    		double[][] init_point = {{segment[0][0]}, {segment[0][1]}, {1}};
-	    		double[][] fin_point = {{segment[1][0]}, {segment[1][1]}, {1}};
+		double[] init_point = {segment[0][0], segment[0][1]};
+		double[] fin_point = {segment[1][0], segment[1][1]};
+		// Ray Projection Implementation
+		Matrix init_vec = pp.getGlobalPoint(calibrationVector, init_point);
+		Matrix fin_vec = pp.getGlobalPoint(calibrationVector, fin_point);
 
-				System.out.println("initial: (" + segment[0][0] + ", " + segment[0][1] + ", " + 1 + ")");
-				System.out.println("final: (" + segment[1][0] + ", " + segment[1][1] + ", " + 1 + ")");
+	    	// add real world coordinate
+	    	double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},
+							{fin_vec.get(0,0), fin_vec.get(1,0), fin_vec.get(2,0)}};
+	    	realWorldMap.add(real_segment);
 
-	    		Matrix init_pixel_mat = new Matrix(init_point);
-	    		Matrix fin_pixel_mat = new Matrix(fin_point);
-				
-				System.out.println(K);
-	    		Matrix t = K.transpose()
-									.times(K);
-				System.out.println(t);
-				
-									.inverse()
-									.times(K.transpose());
-				System.out.println(t);
-				
-	    		Matrix init_vec = t.times(init_pixel_mat);
-	    		Matrix fin_vec = t.times(fin_pixel_mat);
-				*/
+		System.out.println("Pixel Coordinates:");
+		System.out.println("initial: " + init_point[0] + ", " + init_point[1]);
+		System.out.println("final: " + fin_point[0] + ", " + fin_point[1]);
+		System.out.println("Boundary Line:");
+		System.out.println("initial: (" + real_segment[0][0] + ", " + real_segment[0][1] + ", " + real_segment[0][2] + ")");
+		System.out.println("final: (" + real_segment[1][0] + ", " + real_segment[1][1] + ", " + real_segment[1][2] + ")");
 
-				// Ray Projection Implementation
-				//Matrix init_vec = pp.getGlobalPoint(calibrationVector, init_point);
-				//Matrix fin_vec = pp.getGlobalPoint(calibrationVector, fin_point);
-
-	    		// add real world coordinate
-	    		//double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},
-							//{fin_vec.get(0,0), fin_vec.get(1,0), fin_vec.get(2,0)}};
-	    		//realWorldMap.add(real_segment);
-
-				//System.out.println("Pixel Coordinates:");
-				//System.out.println("initial: " + init_point[0] + ", " + init_point[1]);
-				//System.out.println("final: " + fin_point[0] + ", " + fin_point[1]);
-				//System.out.println("Boundary Line:");
-				//System.out.println("initial: (" + real_segment[0][0] + ", " + real_segment[0][1] + ", " + real_segment[0][2] + ")");
-				//System.out.println("final: (" + real_segment[1][0] + ", " + real_segment[1][1] + ", " + real_segment[1][2] + ")");
-				//System.out.println(init_vec);
-				//System.out.println(fin_vec);
-        	//}
-
+        }
 
         return im3;
     }
