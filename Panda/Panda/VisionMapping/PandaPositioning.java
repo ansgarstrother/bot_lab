@@ -16,7 +16,10 @@ public class PandaPositioning {
 
 	// args
 	private ArrayList<Matrix> history;
-	private double scale;		// scale factor for calibration
+	private double scale;		// scale factor for calibration\
+
+	private double cur_t;
+	private double prev_t;
 	
 
 	public PandaPositioning() {
@@ -27,13 +30,15 @@ public class PandaPositioning {
 
 	public void setNewPosition(pos_t msg) {
 		// add current transform to history
-		double[][] trans = {{Math.cos(-msg.theta),	-Math.sin(-msg.theta),	0,		-msg.delta_x},
-							{Math.sin(-msg.theta), 	Math.cos(-msg.theta), 	0, 		0		},
-							{0, 					0, 						0,		1		}};
+		double[][] trans = {{Math.cos(-(msg.theta - prev_t)),	-Math.sin(-(msg.theta - prev_t)),	-msg.delta_x},
+							{Math.sin(-(msg.theta - prev_t)), 	Math.cos(-(msg.theta - prev_t)), 	0		},
+							{0, 								0, 									1		}};
 
 
 		Matrix T = new Matrix(trans);
 		history.add(T);
+		prev_t = cur_t;
+		cur_t = (msg.theta) % (2*Math.PI);
 	}
 
 	public ArrayList<Matrix> getHistory() {
