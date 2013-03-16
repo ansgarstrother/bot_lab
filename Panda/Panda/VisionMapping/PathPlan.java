@@ -7,7 +7,9 @@ import java.math.*;
 
 public class PathPlan{
 
-	protected int map[][];
+	protected int pathMap[][];
+	protected double pathAngle;
+	protected double pathDistance;
 
 //=================================================================//
 // PathPlan                                                        //
@@ -27,7 +29,7 @@ public class PathPlan{
 //                                                                 //
 // Returns: VOID                                                   //
 //=================================================================//
-	public void plan(){
+	public void plan(int[][] map){
 
 	}
 
@@ -39,7 +41,7 @@ public class PathPlan{
 // Returns: double                                                 //
 //=================================================================//
 	public double getPathAngle(){
-
+		return pathAngle;	
 	}
 	
 //=================================================================//
@@ -50,7 +52,7 @@ public class PathPlan{
 // Returns: double                                                 //
 //=================================================================//
 	public double getPathDistance(){
-
+		return pathDistance;
 	}
     
 }
