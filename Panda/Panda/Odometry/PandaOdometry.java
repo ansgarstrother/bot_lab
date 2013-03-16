@@ -32,7 +32,7 @@ public class PandaOdometry {
 	private MotorSubscriber ms;
 	private PIMUSubscriber ps;
 	private Gyro g;
-	
+
 	private volatile motor_feedback_t prev_mf_msg;
 	private volatile pimu_t prev_pimu_msg;
 	private volatile motor_feedback_t cur_mf_msg;
@@ -41,7 +41,7 @@ public class PandaOdometry {
 	private boolean mf_flag;
 	private boolean pimu_flag;
 	private boolean initialized;
-	
+
 	private volatile pos_t prev_pos_msg;
 	private volatile pos_t cur_pos_msg;
 
@@ -103,7 +103,7 @@ public class PandaOdometry {
 				// CALCULATE POSE
 				calculatePose(cur_mf_msg, cur_pimu_msg, prev_pimu_msg, prev_mf_msg);
 				// PUBLISH TO GUI
-				sendPose();	
+				sendPose();
 				// bump cur msg to prev msg
 				prev_mf_msg = cur_mf_msg;
 				prev_pimu_msg = cur_pimu_msg;
@@ -112,7 +112,7 @@ public class PandaOdometry {
 				// reset time
 				previousTimeMillis = System.currentTimeMillis();
 			}
-			
+
 		}
 	}
 
@@ -146,14 +146,14 @@ public class PandaOdometry {
     	cur_pos_msg.timestamp = mf.utime;
 		cur_pos_msg.delta_x = (float)((dL + dR) / 2);
 		cur_pos_msg.theta = g.getGyroAngle(); // in radians
-	
+
 		System.out.println("delta_x cm: " + (dL + dR) / 0.02);
 	}
 
 	protected void sendPose() {
 		try {
 			LCM lcm = new LCM("udpm://239.255.76.10:7667?ttl=1");
-                        
+
 			//publish
 			if (cur_pos_msg.delta_x != 0 && cur_pos_msg.theta != 0) {
 				lcm.publish("10_POSE", cur_pos_msg);
@@ -164,7 +164,7 @@ public class PandaOdometry {
 		} catch (IOException e) {
 			System.out.println("Error: " + e.getMessage());
 		}
-	
+
 	}
 
 

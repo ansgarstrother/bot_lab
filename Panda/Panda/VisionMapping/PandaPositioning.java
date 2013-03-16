@@ -17,20 +17,44 @@ public class PandaPositioning {
 
 	// args
 	private ArrayList<Matrix> history;
+    private Matrix historyTrans;
+    private Matrix curGlobalPos;
 	private double scale;		// scale factor for calibration
 
 
 	public PandaPositioning() {
 		this.history = new ArrayList<Matrix>();	// A series of transformations since beginning
+        double[] origin = { 0, 0, 1};
+        this.curGlobalPos = new Matrix(origin);
+        double[][] identitiy = { {1, 0, 0},
+                                {0, 1, 0},
+                                {0, 0, 1} };
+        this.historyTrans = new Matrix (identity);
 		this.scale = 0;
 	}
+
+    public void setNewGlobalPosition (pos_t msg) {
+		double[][] newRelPos = {{Math.cos(-msg.theta),	-Math.sin(-msg.theta),	-msg.delta_x},
+							{Math.sin(-msg.theta), 	Math.cos(-msg.theta),	0		},
+							{0, 					0, 						1		}};
+
+
+        Matrix relPosMat = new Matrix (newRelPos);
+        curGlobalPos = relPosMat.times (curGlobalPos);
+        historyTrans = historyTrans.times (newRelPos);
+    }
+
+    public Matrix getGlobalPos () {
+        return curGlobalPos;
+
+    }
 
 
 	public void setNewPosition(pos_t msg) {
 		// add current transform to history
 		double[][] trans = {{Math.cos(-msg.theta),	-Math.sin(-msg.theta),	0,		-msg.delta_x},
-				{Math.sin(-msg.theta), 	Math.cos(-msg.theta), 	0, 		0		},
-				{0, 		0, 		0,		1	}};
+							{Math.sin(-msg.theta), 	Math.cos(-msg.theta), 	0, 		0		},
+							{0, 					0, 						0,		1		}};
 
 
 		Matrix T = new Matrix(trans);
@@ -51,24 +75,22 @@ public class PandaPositioning {
 		double first_Y = scale * (intrinsics[2] - pixels[1]);
 		double first_Z = scale * intrinsics[0];
 
-
 		double[][] res = new double[3][1];
 
-        //res[0][0] = calcX (first_X, pixels[0]);
-        res[0][0] = first_X;
-        res[1][0] = first_Y; //res[2][0] = first_Z;
-        res[2][0] = calcZ (first_Z, pixels[1]);
+        double scaled_Z = calcZ (first_Z, pixels[1]);
+        double scaled_X = first_Z*(pixels[0] - intrinsics[1]) / intrinsics[0];
+
+        res[0][0] = scaled_X;
+        res[1][0] = scaled_Z;
+        res[2][0] = first_Y;
+
+
 		Matrix ret_mat = new Matrix(res);
-		return ret_mat;
+        //Matrix global_Coords = historyTrans.times (ret_mat);
+		//return global_Coords;
+        return ret_mat;
 	}
 
-    public double calcX (double calc_val, double pixel_x) {
-
-        double offset_factor = pixel_x * .00513 - 3.69726;
-        double actual_x = calc_val / offset_factor;
-        return actual_x;
-
-    }
 
     public double calcZ (double calc_val, double pixel_y) {
 

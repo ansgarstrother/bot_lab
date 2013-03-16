@@ -30,7 +30,7 @@ public class PositionCalulator {
     static Location curLocation = new Location();
 
 
-	public void PostisionCalulator(int OdCalibration, int roverBase){
+	public void positionCalulator(int OdCalibration, int roverBase){
 		OdCal = OdCalibration;
 		base = roverBase;
         curLocation.locX = 0;
@@ -62,7 +62,7 @@ public class PositionCalulator {
         curLocation.errorY += .01 * move.distance * Math.sin(curLocation.theta);
     }
 
-	public void updatelocation(int ticksL, int ticksR){
+	public void updateLocation(int ticksL, int ticksR){
 		int disL = ticksL * OdCal;
 		int disR = ticksR * OdCal;
 
