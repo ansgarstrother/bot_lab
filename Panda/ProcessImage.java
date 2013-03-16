@@ -1,12 +1,14 @@
-import Panda.*;
+import Panda.Odometry.*;
+import Panda.VisionMapping.*;
+import Panda.Targeting.*;
 
 import java.util.*;
 import java.io.*;
-import java.util.*;
+import java.awt.*;
 
 // ProcessImage abstracts away ALL of image processing
 
-public class ProcessImage () {
+public class ProcessImage {
 
     LineDetectionDetector lineDetector;
     TargetDetector targetDetector;

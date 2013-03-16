@@ -1,8 +1,9 @@
 import lcm.lcm.*;
 import java.util.Vector;
 
-import Panda.*;
+import Panda.Odometry.*;
 import Panda.Targeting.*;
+import Panda.VisionMapping.*;
 
 import java.io.*;
 import java.util.*;
@@ -56,7 +57,7 @@ public class PandaMain_V2{
 
 		//Read in Calibration of Panda Bot
 		//Projection projection = new Projection();
-		
+
 
 		// get matrix transform history
 		// get calibrated coordinate transform
@@ -90,14 +91,14 @@ public class PandaMain_V2{
 			BarrierMap barrierMap = new BarrierMap(im, positioning.getHistory(), calibrationMatrix);
 			map.addBarrier(barrierMap);
 
-			//Plans path 
+			//Plans path
 			path.plan();
 
 			//turns robot
 			double angle = path.turn();
 			drive.turn( angle );
 
-			// moves robot foward 
+			// moves robot foward
 			double forward = path.forward();
 			drive.foward( forward );
 */

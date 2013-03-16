@@ -10,7 +10,7 @@ public class TargetDetector {
     static final int BLOB_SIZE_CONSTANT = 150;
     //Triangle must be within 100 pixels of half of its bounding box
     static final int TRI_HALF_BOX_THRES_CONSTANT = 100;
-    
+
 	// HSV LIMITS
 
 	//TODO need to actually find out what these values are
@@ -40,12 +40,13 @@ public class TargetDetector {
     Vector<Stats> finalTriVec = new Vector<Stats>();
 
 	// CONSTRUCTOR METHOD
-	public TargetDetector(BufferedImage in) {
-		im = in;
+	public TargetDetector(/*BufferedImage in*/) {
+		/*im = in;
 		width = in.getWidth();
 		height = in.getHeight();
-       	group = 1;
-		runDetection();
+       	*/
+        group = 1;
+		//runDetection(im);
 	}
 
     void expand(int[][] green, int i, int j){
@@ -78,9 +79,9 @@ public class TargetDetector {
 
             // convert to HSV
 		    float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
-	
-	    	if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {                
-              
+
+	    	if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
+
 				s = stats.get(group-1);
                 if(i+1 < s.minY){
                     s.minY = i-1;
@@ -120,7 +121,7 @@ public class TargetDetector {
 		    if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
 
                 s = stats.get(group-1);
-                
+
                 if(j-1 < s.minX){
                     s.minX = j-1;
                     stats.set(group-1, s);
@@ -135,7 +136,32 @@ public class TargetDetector {
 
 
 	// PROTECTED METHODS
-	protected void runDetection() {
+
+	protected float[] RGBtoHSV(int r, int g, int b) {
+		float[] HSV = new float[3];
+		Color.RGBtoHSB(r,g,b,HSV);
+		return HSV;
+	}
+
+
+	// PUBLIC METHODS
+	public BufferedImage getImage() {
+		return im;
+	}
+
+	public boolean found(){
+		if(finalTriVec.isEmpty()){
+			return false;
+		}
+		return true;
+	}
+
+
+    public void runDetection(BufferedImage in) {
+
+        im = in;
+        width = im.getWidth();
+        height = im.getHeight();
 
         int green[][] = new int[width][height];
 
@@ -177,24 +203,5 @@ public class TargetDetector {
 
 
 
-	}
-	
-	protected float[] RGBtoHSV(int r, int g, int b) {
-		float[] HSV = new float[3];
-		Color.RGBtoHSB(r,g,b,HSV);
-		return HSV;
-	}
-
-
-	// PUBLIC METHODS
-	public BufferedImage getImage() {
-		return im;
-	}
-
-	public boolean found(){
-		if(finalTriVec.isEmpty()){
-			return false;
-		}
-		return true;
 	}
 }
