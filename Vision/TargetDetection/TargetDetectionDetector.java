@@ -176,15 +176,28 @@ public class TargetDetectionDetector {
                 int [] bounds = {s.minX, s.minY, s.maxX, s.maxY};
                 s.centerX = (s.maxX + s.minX) / 2;
                 s.centerY = (s.maxY + s.minY) / 2;
-				System.out.println("max y: " + s.maxY);
-				System.out.println("count: " + s.count);
 				if (s.maxY > Y_THRESH && s.count >= CLOSE_COUNT_THRESH) { 
                 	mark(im, bounds, 0xffff0000);
 					finalTriVec.add(s);
+
+					double angle =  (s.centerX - (width/2));
+					
+					System.out.println("angle: " + angle + " Y " + s.centerY + " X " + s.centerX);
+					double factor = 135.0/(double)width;
+
+					System.out.println(factor);
+
+					angle = angle * factor;
+
+					System.out.println("Angle: "  + angle + " Width " + width);
 				}
 				else if (s.maxY <= Y_THRESH) {
 					mark(im, bounds, 0xffff0000);
 					finalTriVec.add(s);
+                                        int angle = s.centerY - (width/2);
+                                        angle = angle / (width / 135);
+                                        System.out.println("Angle: "  + angle);
+
 				}
 
 				/*
