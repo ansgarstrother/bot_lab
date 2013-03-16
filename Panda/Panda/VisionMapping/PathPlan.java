@@ -7,18 +7,21 @@ import java.math.*;
 
 public class PathPlan{
 	//40 cm
-	protected static final int forwardDistance = 40; 
+	protected static final int FORWARD_DISTANCE = 40;
 
+    int[][] m;
 	protected class Pos{
 		int x;
 		int y;
 	}
 
 	protected int botXPos;
-	protected int botYPos;	
+	protected int botYPos;
 	protected double heading;
 	protected double pathAngle;
 	protected double pathDistance;
+
+    protected double prevAngle;
 
 //=================================================================//
 // PathPlan                                                        //
@@ -28,6 +31,7 @@ public class PathPlan{
 // Returns: VOID                                                   //
 //=================================================================//
 	public void PathPlan(){
+        prevAngle = 0;
 		pathAngle = 0;
 		pathDistance = 0;
 	}
@@ -40,23 +44,39 @@ public class PathPlan{
 // Returns: VOID                                                   //
 //=================================================================//
 	public void plan(int[][] map){
-		
+
 	}
 
 //=================================================================//
 // simplePlan                                                      //
 //                                                                 //
 // Runs a simple path planning algorithm to get around maze        //
-//      Go straight until you can't.  Turn in direction with       // 
+//      Go straight until you can't.  Turn in direction with       //
 //      fewest walls.                                              //
 //                                                                 //
 // Returns: VOID                                                   //
 //=================================================================//
 	public void simplePlan(int[][] map){
+        m = map;
 		//TODO: Set X, Y and heading here
-		
-		//Calculate point straight ahead
-			
+
+        Pos p = new Pos();
+
+        int[] possibleAngleArray = {0, -45, 45};
+
+        for (int i : possibleAngleArray){
+            //Calculate point based on possible angle and go there if no barriers
+            double angleFromPrev = heading - prevAngle + possibleAngleArray[i];
+            p.x = (int)(FORWARD_DISTANCE * Math.sin(angleFromPrev)) + botXPos;
+            p.y = (int)(FORWARD_DISTANCE * Math.cos(angleFromPrev)) + botYPos;
+
+            if (checkPath(p)){
+                pathAngle = heading + angleFromPrev;
+                pathDistance = FORWARD_DISTANCE;
+                return;
+            }
+        }
+
 	}
 
 //=================================================================//
@@ -68,6 +88,7 @@ public class PathPlan{
 // Returns: boolean                                                //
 //=================================================================//
 	protected boolean checkPath(Pos p){
+        Pos temp = new Pos();
 		ArrayList<Pos> pathPoints = new ArrayList<Pos>();
 
 		//Run Bresenham's
@@ -76,9 +97,11 @@ public class PathPlan{
 		double error = 0;
 		double deltaError = Math.abs(deltaY / deltaX);
 
-		double y = botYPos;
-		for (int x = botXPos; i <= p.x; i++){
-			pathPoints.add(x, y);
+		int y = botYPos;
+		for (int x = botXPos; x <= p.x; x++){
+            temp.x = x;
+            temp.y = y;
+			pathPoints.add(temp);
 			error = error + deltaError;
 			if (error >= 0.5){
 				y += 1;
@@ -87,13 +110,13 @@ public class PathPlan{
 		}
 
 		//Check path points for barriers
-		for (Pos p : pathPoints){
+		for (Pos pos : pathPoints){
 			//Barriers are positive numbers
-			if (map[p.x][p.y] > 0){
+			if (m[pos.x][pos.y] > 0){
 				return false;
 			}
 		}
-		
+
 		//Path is good return true
 		return true;
 	}
@@ -106,9 +129,9 @@ public class PathPlan{
 // Returns: double                                                 //
 //=================================================================//
 	public double getPathAngle(){
-		return pathAngle;	
+		return pathAngle;
 	}
-	
+
 //=================================================================//
 //getPathDistance                                                  //
 //                                                                 //
@@ -119,10 +142,10 @@ public class PathPlan{
 	public double getPathDistance(){
 		return pathDistance;
 	}
-    
+
 }
 
 
 
 
-		
+
