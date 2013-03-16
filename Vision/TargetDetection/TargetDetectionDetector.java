@@ -11,6 +11,10 @@ public class TargetDetectionDetector {
     static final int BLOB_SIZE_CONSTANT = 150;
     //Triangle must be within 100 pixels of half of its bounding box
     static final int TRI_HALF_BOX_THRES_CONSTANT = 100;
+	// close proximity test
+	static final int Y_THRESH = 500;
+	static final int CLOSE_COUNT_THRESH = 600;
+
 
 	BufferedImage im;
 	BufferedImage out;	// bounding box w/center at triangle
@@ -63,8 +67,8 @@ public class TargetDetectionDetector {
 		    if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 
                 s = stats.get(group-1);
-                if(i+1 > s.maxY){
-                    s.maxY = i+1;
+                if(i+1 > s.maxX){
+                    s.maxX = i+1;
                     stats.set(group-1, s);
                 }
                 expand(green, i+1, j);
@@ -81,8 +85,8 @@ public class TargetDetectionDetector {
 	    	if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 
                 s = stats.get(group-1);
-                if(i+1 < s.minY){
-                    s.minY = i-1;
+                if(i+1 < s.minX){
+                    s.minX = i-1;
                     stats.set(group-1, s);
                 }
                 expand(green, i-1, j);
@@ -100,8 +104,8 @@ public class TargetDetectionDetector {
 		    if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 
                 s = stats.get(group-1);
-                if(j+1 > s.maxX){
-                    s.maxX = j+1;
+                if(j+1 > s.maxY){
+                    s.maxY = j+1;
                     stats.set(group-1, s);
                 }
                 expand(green, i, j+1);
@@ -120,8 +124,8 @@ public class TargetDetectionDetector {
 
                 s = stats.get(group-1);
 
-                if(j-1 < s.minX){
-                    s.minX = j-1;
+                if(j-1 < s.minY){
+                    s.minY = j-1;
                     stats.set(group-1, s);
                 }
                 expand(green, i, j-1);
@@ -169,18 +173,32 @@ public class TargetDetectionDetector {
 
         for (Stats s : stats){
             if (s.count > BLOB_SIZE_CONSTANT){
-                int [] bounds = {s.minY, s.minX, s.maxY, s.maxX};
-                mark(im, bounds, 0xffff0000);
-                s.centerX = (s.maxX - s.minX) / 2;
-                s.centerY = (s.maxY - s.minY) / 2;
+                int [] bounds = {s.minX, s.minY, s.maxX, s.maxY};
+                s.centerX = (s.maxX + s.minX) / 2;
+                s.centerY = (s.maxY + s.minY) / 2;
+				System.out.println("max y: " + s.maxY);
+				System.out.println("count: " + s.count);
+				if (s.maxY > Y_THRESH && s.count >= CLOSE_COUNT_THRESH) { 
+                	mark(im, bounds, 0xffff0000);
+					finalTriVec.add(s);
+				}
+				else if (s.maxY <= Y_THRESH) {
+					mark(im, bounds, 0xffff0000);
+					finalTriVec.add(s);
+				}
 
+				/*
                 //Check if blob is approx half the box size to be added to finalTriVec
                 int approxTriangleSize = ((s.maxX - s.minX) * (s.maxY - s.minY)) / 2;
                 int minTriangleSize = approxTriangleSize - TRI_HALF_BOX_THRES_CONSTANT;
                 int maxTriangleSize = approxTriangleSize - TRI_HALF_BOX_THRES_CONSTANT;
                 if ((s.count < maxTriangleSize) && (s.count > minTriangleSize)){
-                    finalTriVec.add(s);
+					System.out.println("max count: " + s.count);
+					if (s.maxY > Y_THRESH && s.count >= CLOSE_COUNT_THRESH) { 
+                    	finalTriVec.add(s);
+					}
                 }
+				*/
             }
         }
 
@@ -201,6 +219,8 @@ public class TargetDetectionDetector {
             img.setRGB(bounds[0],y, color); //Go Blue!
             img.setRGB(bounds[2],y, color); //Go Blue
         }
+
+		System.out.println("Center of Triangle: (" + ((bounds[0] + bounds[2]) / 2) + ", " + ((bounds[1] + bounds[3]) / 2) + ")");
      }
 
 	// HELPER FUNCTIONS
