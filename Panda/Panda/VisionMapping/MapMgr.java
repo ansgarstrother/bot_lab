@@ -220,6 +220,10 @@ public class MapMgr {
 
     }
 
+	public HashMap<Point, Integer> getMap() {
+		return map;
+	}
+
 
 
 }
