@@ -4,6 +4,7 @@ import java.util.Vector;
 import Panda.Odometry.*;
 import Panda.Targeting.*;
 import Panda.VisionMapping.*;
+import Panda.sensors.*;
 
 import java.io.*;
 import java.util.*;
@@ -32,6 +33,22 @@ public class PandaMain_V2{
 //=================================================================//
 	public static void main(String [] args){
 
+
+        try {
+        // start motor, pimu, gyro subscribers
+            MotorSubscriber ms = new MotorSubscriber();
+            PIMUSubscriber ps = new PIMUSubscriber();
+            Gyro g = new Gyro();
+
+            System.out.println ("Starting Odometry Thread");
+            Thread odometryThread = new Thread (new PandaOdometry (ms, ps, g));
+            odometryThread.start();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        System.out.printf ("Main thread running\n");
         ArrayList<String> urls = ImageSource.getCameraURLs();
 
         String url = null;
@@ -61,12 +78,13 @@ public class PandaMain_V2{
 
 		// get matrix transform history
 		// get calibrated coordinate transform
-		//PandaPositioning positioning = new PandaPositioning();
+        PandaPositioning positioning = new PandaPositioning();
+
 
 		//Panda Driver
     	//Drive drive = new Drive();
 		//Path path = new Path();
-        //Map map = new Map();    // init random int
+        MapMgr map = new MapMgr();    // init random int
         TargetDetector target = new TargetDetector();
 
 		while(run){
@@ -83,14 +101,19 @@ public class PandaMain_V2{
 			BufferedImage im = ImageConvert.convertToImage(fmt.format, fmt.width, fmt.height, buf);
 			is.stop();
 
+            // global transformation matrix used to calculate points
+            Matrix globalTrans = positioning.getGlobalTrans();
 			//Detect any triangles and then fire on them
-
 			target.runDetection(im);
-/*
-			//Line Detector finds barriers and adds them to the map
-			BarrierMap barrierMap = new BarrierMap(im, positioning.getHistory(), calibrationMatrix);
-			map.addBarrier(barrierMap);
 
+			//Line Detector finds barriers and adds them to the map
+			BarrierMap barrierMap = new BarrierMap(im, calibrationMatrix, pp);
+			//map.addBarrier(barrierMap);
+
+            // set barriers, update known positions
+            map.updateMap (barrierMap, globalPos, globalTheta);
+
+/*
 			//Plans path
 			path.plan();
 
@@ -102,6 +125,10 @@ public class PandaMain_V2{
 			double forward = path.forward();
 			drive.foward( forward );
 */
+
+            // calculate new global position
+
+
 		}
 	}
 }
