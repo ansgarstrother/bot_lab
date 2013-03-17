@@ -59,7 +59,7 @@ public class Gyro
         //every time the robot is stopped
     }
 
-    public double getGyroAngle(){
+	public double getGyroAngleInDegrees(){
         pimuData = ps.getMessage();
         curTime = pimuData.utime_pimu;
         curGyroVal = pimuData.integrator[5];
@@ -71,11 +71,16 @@ public class Gyro
 		//System.out.println("Total Creep: " + totalCreep);
         gyroAngle = (curGyroVal - startGyroVal) - totalCreep;
 
-        return Math.toRadians(gyroAngle / 999059);
+        return gyroAngle / 999059;
 
         //Note: Can also integrate the accelerometer and use a Kalman filter to
         //      minimize drift
+
+	}
+    public double getGyroAngle(){
+        return Math.toRadians(getGyroAngleInDegrees());
     }
+
 	public double getGyroAngle(double gyroVal, long[] time) {
 		// gyroVals = [prev cur]
 		// time = [prev cur]

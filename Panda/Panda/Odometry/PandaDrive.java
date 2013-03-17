@@ -19,7 +19,11 @@ public class PandaDrive
     static final float TPM = 4900F;
 	static final float STRAIGHT_GYRO_THRESH = 7.0F;
 	static final float ANGLE = 7.8F;
-    static final float TURN_SPEED = 0.4F;
+
+	//Turn Speed Constants
+	static final float TURN_K = 0.007f;
+    static final float TURN_SPEED = 0.0F;
+	static final float MAX_TURN_SPEED = 0.4f;
     static final float TURN_RANGE = 0.5F;
 	LCM lcm;
 
@@ -53,6 +57,7 @@ public class PandaDrive
 			// False means Enabled (lcm weirdness)
 			msg.left_enabled = false;
 			msg.right_enabled = false;
+			gyro = new Gyro();
 		}
 		catch(Throwable t) {
 			System.out.println("Error: Exception thrown");
@@ -123,27 +128,34 @@ public class PandaDrive
 		Stop();
 	}
 
-    public void gyroTurn(double angle, float K){
-        leftSpeed = TURN_SPEED;
-        rightSpeed = TURN_SPEED;
+    public void gyroTurn(float angle){
+        float speed = TURN_SPEED;
 
         boolean outsideRange = true;
         while (outsideRange){
-            double curAngle = gyro.getGyroAngle();
+            double curAngle = gyro.getGyroAngleInDegrees();
             if ((curAngle > (angle - TURN_RANGE)) &&
                 (curAngle < (angle + TURN_RANGE))){
                 outsideRange = false;
             }
             else{
-                float KERROR = K*(float)(angle - curAngle);
-                msg.left = speedCheck(leftSpeed - KERROR);
-                msg.right = speedCheck(rightSpeed - KERROR);
+                float KERROR = TURN_K*(float)(angle - curAngle);
+                msg.left = turnSpeedCheck(speed + KERROR);
+                msg.right = turnSpeedCheck(speed + KERROR);
+				if (angle > curAngle){
+					msg.left = msg.left * -1;
+				}
+				else {
+					msg.right = msg.right * -1;
+				}
+				System.out.println("Current Angle: " +curAngle + "  Left: " + msg.left + " Right: " + msg.right);
                 msg.utime = TimeUtil.utime();
                 lcm.publish("10_DIFF_DRIVE", msg);
             }
         }
         //Make sure one of the stop messages gets through
         for (int i = 0; i < 50; i++){
+			System.out.println("Stop!");
             Stop();
         }
     }
@@ -198,6 +210,15 @@ public class PandaDrive
 		Stop();
     }
 
+
+    private float turnSpeedCheck (float speed){
+        //If speed is greater then max
+        if (speed > MAX_TURN_SPEED)
+            return MAX_TURN_SPEED;
+        if (speed < (MAX_TURN_SPEED*-1))
+            return MAX_TURN_SPEED * -1;
+        return speed;
+    }
 
     private float speedCheck (float speed){
         //If speed is greater then max
