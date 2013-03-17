@@ -4,7 +4,7 @@ import lcmtypes.*;
 
 import java.util.ArrayList;
 import java.lang.*;
-
+import Panda.sensors.*;
 import april.jmat.*;
 
 
@@ -13,11 +13,10 @@ public class PandaPositioning {
 
 	// constants
 	private static final double static_height = 0.2032;	// camera height from Z=0
-    private final double Z_OFFSET_SLOPE = -0.00147;
 
 	// args
     private Matrix curGlobalPos;
-    private double globalTheta;
+    private double curGlobalTheta;
 
     private double[][] origin = { {0, 0, 1} };
     Matrix originMat = new Matrix (origin);
@@ -25,7 +24,7 @@ public class PandaPositioning {
 	public PandaPositioning() {
 		//this.history = new ArrayList<Matrix>();	// A series of transformations since beginning
         this.curGlobalPos = originMat;
-        this.globalTheta = 0;
+        this.curGlobalTheta = 0;
 	}
 
     public void updateGlobalPosition (double distance, double theta) {
@@ -45,6 +44,19 @@ public class PandaPositioning {
 
     }
 
+    public void updateGlobalTheta (Gyro gyro) {
+        curGlobalTheta = gyro.getGyroAngle();
+
+    }
+
+    public Matrix getGlobalPos() {
+        return curGlobalPos;
+
+    }
+
+    public double getGlobalTheta() {
+        return curGlobalTheta;
+    }
 
     public Matrix getGlobalPoint(double[] intrinsics, double[] pixels) {
 		// intrinsics = [f, cx, cy]
@@ -77,8 +89,8 @@ public class PandaPositioning {
                                     {0, 1, curGlobalPos.get(1,0)},
                                     {0, 0, 1} };
 
-		double[][] rotate = {{Math.cos(globalTheta),	-Math.sin(globalTheta),	0},
-							{Math.sin(globalTheta), 	Math.cos(globalTheta),	0},
+		double[][] rotate = {{Math.cos(curGlobalTheta),	-Math.sin(curGlobalTheta),	0},
+							{Math.sin(curGlobalTheta), 	Math.cos(curGlobalTheta),	0},
 							{0, 					0, 						1}};
 
         Matrix translateMat = new Matrix (translate);

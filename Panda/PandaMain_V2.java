@@ -78,7 +78,7 @@ public class PandaMain_V2{
 
 		// get matrix transform history
 		// get calibrated coordinate transform
-        PandaPositioning positioning = new PandaPositioning();
+        PandaPositioning positioner = new PandaPositioning();
 
 
 		//Panda Driver
@@ -86,6 +86,7 @@ public class PandaMain_V2{
 		//Path path = new Path();
         MapMgr map = new MapMgr();    // init random int
         TargetDetector target = new TargetDetector();
+        double globalTheta;
 
 		while(run){
 
@@ -101,13 +102,15 @@ public class PandaMain_V2{
 			BufferedImage im = ImageConvert.convertToImage(fmt.format, fmt.width, fmt.height, buf);
 			is.stop();
 
+            Matrix globalPos = positioner.getGlobalPos();
+            globalTheta = positioner.getGlobalTheta();
+
             // global transformation matrix used to calculate points
-            Matrix globalTrans = positioning.getGlobalTrans();
 			//Detect any triangles and then fire on them
 			target.runDetection(im);
 
 			//Line Detector finds barriers and adds them to the map
-			BarrierMap barrierMap = new BarrierMap(im, calibrationMatrix, pp);
+			BarrierMap barrierMap = new BarrierMap(im, calibrationMatrix, positioner);
 			//map.addBarrier(barrierMap);
 
             // set barriers, update known positions
@@ -127,6 +130,8 @@ public class PandaMain_V2{
 */
 
             // calculate new global position
+            // positioner.updateGlobalPosition (distance, theta);
+            // positioner.updateGlobalTheta (g);
 
 
 		}

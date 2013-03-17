@@ -37,7 +37,7 @@ public class MapMgr {
 
 	}
 
-    public void updateMap (/*BarrierMap bm,*/ Matrix globalPos, double globalTheta) {
+    public void updateMap (BarrierMap bm, Matrix globalPos, double globalTheta) {
 
         double[][] globalTrans = { {1, 0, globalPos.get(0,0) },
                                 {0, 1, globalPos.get(1,0) },
@@ -73,7 +73,7 @@ public class MapMgr {
 
         }
 
-        addBarrier();
+        addBarrier(bm);
         printMap(globalPos);
 
 
@@ -93,7 +93,7 @@ public class MapMgr {
 //                                                                 //
 // Returns: VOID                                                   //
 //=================================================================//
-	private void addBarrier(/*BarrierMap bm*/){
+	private void addBarrier(BarrierMap bm){
 
         // BarrierMap:
         // NOTE: BarrierMap is in meter
@@ -102,9 +102,9 @@ public class MapMgr {
 
 
 
-        ArrayList<double[][]> realWorldMap = new ArrayList<double[][]>();// = bm.getBarriers();
-        double[][] barrier1 = { {0.75, 0.25}, {1.4, -0.25} };
-        realWorldMap.add(barrier1);
+        ArrayList<double[][]> realWorldMap = bm.getBarriers();
+       // double[][] barrier1 = { {0.75, 0.25}, {1.4, -0.25} };
+       // realWorldMap.add(barrier1);
 
 
         for (int i = 0; i < realWorldMap.size(); i++) {
@@ -124,8 +124,6 @@ public class MapMgr {
             if(deltaX == 0)
                 deltaX = .000001;
 
-
-            int base_y = barrier[1];
             int start, end, base;
             boolean horizontal = false;
             boolean decreasing = false;
@@ -133,10 +131,6 @@ public class MapMgr {
 
             if (deltaX >= deltaY) {
                 // barrier is more horizontal than vertical
-             /*   start = Math.min (barrier[0], barrier[2]);
-                end = Math.max (barrier[0], barrier[2]);
-                base = Math.min(barrier[1], barrier[3]);
-            */
                 if (barrier[0] <= barrier[2]) {
                     start = barrier[0];
                     end = barrier[2];
@@ -157,10 +151,6 @@ public class MapMgr {
 
             } else {
                 // barrier is more vertical than horizontal
-              /*  start = Math.min (barrier[1], barrier[3]);
-                end = Math.max (barrier[1], barrier[3]);
-                base = Math.min(barrier[0], barrier[2]);
-            */
                 if (barrier[1] <= barrier[3]) {
                     start = barrier[1];
                     end = barrier[3];
