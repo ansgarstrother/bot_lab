@@ -139,8 +139,8 @@ public class PandaMain_V2{
 
 
             // calculate new global position
-            // positioner.updateGlobalPosition (distance, theta);
-            // positioner.updateGlobalTheta (g);
+            positioner.updateGlobalPosition (dist, angle);
+            positioner.updateGlobalTheta (g);
 
 
 		}
