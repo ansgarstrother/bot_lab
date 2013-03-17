@@ -5,6 +5,7 @@ import Panda.*;
 import Panda.Targeting.*;
 import Panda.VisionMapping.*;
 import Panda.sensors.*;
+import Panda.Odometry.*;
 
 import java.io.*;
 import java.util.*;
@@ -21,7 +22,10 @@ public class PandaMain_V2{
 
     static double sampleRate = 200;    //microseconds
 
-	static double[][] calibrationMatrix = {{0, 0, 1}, {0, 1, 0}, {0, 0, 1}};
+	private final static double f = 640.1483;
+	private final static double c_x = 676.0408;
+	private final static double c_y = 480.3221;
+    private static double[] calibrationMatrix =   { f, c_x, c_y	};
 
 	static BufferedImage im;
 
@@ -83,7 +87,6 @@ public class PandaMain_V2{
 
 		// Map Manager
         MapMgr map = new MapMgr();    // init random int
-        TargetDetector target = new TargetDetector();
         double globalTheta;
 
 		// Path Planning
@@ -91,6 +94,7 @@ public class PandaMain_V2{
 
 		// Drive Application
     	PandaDrive drive = new PandaDrive();
+        TargetDetector target = new TargetDetector(drive, calibrationMatrix);
 
 		is.start();
 		while(run){

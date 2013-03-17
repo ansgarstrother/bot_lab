@@ -9,8 +9,10 @@ import java.*;
 public class Destroy {
 
 	final static double FEILD_VIEW = 135;
+	protected PandaDrive drive;
 
-	public void Destroy(){
+	public Destroy(PandaDrive pd){
+		this.drive = pd;
 	}
 
 	public void fire (float x, float width){
@@ -22,7 +24,6 @@ public class Destroy {
 
         angle =  - (angle * factor) ;
 
-		PandaDrive drive = new PandaDrive();
 		drive.turn((float)angle);
 
 		try{Thread.sleep(500);}
@@ -50,12 +51,6 @@ public class Destroy {
 		}
 	}
 
-	public static void main(String args[]){
-
-		Destroy d = new Destroy();
-		d.fire(0F, 4F);
-
-	}
 }	
 
 	

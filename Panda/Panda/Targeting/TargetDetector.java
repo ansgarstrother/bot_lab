@@ -1,9 +1,14 @@
 package Panda.Targeting;
 
+import Panda.Odometry.*;
 import Panda.Targeting.*;
+import Panda.VisionMapping.*;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.util.Vector;
+import java.util.ArrayList;
+
+import april.jmat.Matrix;
 
 public class TargetDetector {
 
@@ -15,6 +20,8 @@ public class TargetDetector {
 	static final int Y_THRESH = 500;
 	static final int CLOSE_COUNT_THRESH = 600;
 
+	PandaDrive drive;
+	PandaPositioning pp;
 
 	BufferedImage im;
 	BufferedImage out;	// bounding box w/center at triangle
@@ -22,6 +29,10 @@ public class TargetDetector {
 	int height;
 	int delimiter;		// restricts height
 	double threshold;	// RGB threshold
+
+	double[] calibrationMatrix;
+
+	Vector<int[]> triangles;	// vector of triangle pixel points
 
     int group = 1;
 
@@ -40,10 +51,13 @@ public class TargetDetector {
 	Destroy destroy;
 
 	// CONSTRUCTOR METHOD
-	public TargetDetector() {
+	public TargetDetector(PandaDrive pd, double[] cm) {
+		this.drive = pd;
+		this.calibrationMatrix = cm;
+		this.pp = new PandaPositioning();
        	delimiter = 150;
 		threshold = .7;
-		destroy = new Destroy();
+		destroy = new Destroy(pd);
     }
 
     void expand(int[][] green, int i, int j){
@@ -191,6 +205,9 @@ public class TargetDetector {
                  System.out.println(area + "     " + s.count);
    
                  if( (.4 * area < s.count & .7 * area > s.count)){
+						int[] center = new int[2];
+						center[0] = s.centerX; center[1] = s.centerY;
+						triangles.add(center);
       					destroy.fire(((s.maxX + s.minX) / 2), width);
                 }
             }
@@ -210,5 +227,40 @@ public class TargetDetector {
 	// PUBLIC METHODS
 	public BufferedImage getImage() {
 		return im;
+	}
+	
+	// get real world triangle coordinates
+	public ArrayList<double[]> getTrianglePoints() {
+		// retrieve all points in vector and transform them to world coordinates
+		ArrayList<double[]> realCoords = new ArrayList<double[]>();
+		for (int i = 0; i < triangles.size(); i++) {
+			int[] d = triangles.get(i);
+			double[] cur_point = {d[0], d[1]};
+			// transform points
+            // Ray Projection Implementation
+            Matrix vec = pp.getGlobalPoint(calibrationMatrix, cur_point, false);
+
+            // add real world coordinate
+            double[] real_point = {vec.get(0,0), vec.get(1,0), vec.get(2,0)};
+            realCoords.add(real_point);
+		}
+
+		return realCoords;
+
+	}
+
+	public ArrayList<float[]> getTriangleAngles() {
+		ArrayList<float[]> realAngles = new ArrayList<float[]>();
+		ArrayList<double[]> realCoords = getTrianglePoints();
+
+		for (int i = 0; i < realCoords.size(); i++) {
+			double[] coord = realCoords.get(i);
+			float[] theta = new float[1];
+			theta[0] = (float)Math.atan2(coord[2], coord[0]);
+			realAngles.add(theta);
+			System.out.println(theta[0]);
+		}
+
+		return realAngles;
 	}
 }
