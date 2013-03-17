@@ -40,12 +40,8 @@ public class PandaPositioning {
         Matrix tempPos = rotateMat.times (originMat);
 
         curGlobalPos = translateMat.times(tempPos);
+        curGlobalTheta = theta;
         // get current global position by multiplying relative transformation with previous
-
-    }
-
-    public void updateGlobalTheta (Gyro gyro) {
-        curGlobalTheta = gyro.getGyroAngle();
 
     }
 
