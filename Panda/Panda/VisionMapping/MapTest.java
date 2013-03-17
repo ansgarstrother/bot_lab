@@ -13,8 +13,8 @@ public class MapTest {
 
         MapMgr map = new MapMgr();
 
-        double[][] globalPos = { {1.25}, {0}, {1} };
-        double globalTheta = 4*Math.PI/6;
+        double[][] globalPos = { {0.5}, {0.5}, {1} };
+        double globalTheta = Math.PI/2;
         Matrix globalPosMat = new Matrix (globalPos);
 
         map.updateMap (globalPosMat, globalTheta);

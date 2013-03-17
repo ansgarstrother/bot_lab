@@ -37,7 +37,14 @@ public class MapMgr {
 
 	}
 
-    public void updateMap (BarrierMap bm, Matrix globalPos, double globalTheta) {
+    public HashMap<Point, Integer> getMap() {
+        return this.map;
+
+
+    }
+
+
+    public void updateMap (/*BarrierMap bm,*/ Matrix globalPos, double globalTheta) {
 
         double[][] globalTrans = { {1, 0, globalPos.get(0,0) },
                                 {0, 1, globalPos.get(1,0) },
@@ -73,7 +80,7 @@ public class MapMgr {
 
         }
 
-        addBarrier(bm);
+        addBarrier();
         printMap(globalPos);
 
 
@@ -93,7 +100,7 @@ public class MapMgr {
 //                                                                 //
 // Returns: VOID                                                   //
 //=================================================================//
-	private void addBarrier(BarrierMap bm){
+	private void addBarrier(/*BarrierMap bm*/){
 
         // BarrierMap:
         // NOTE: BarrierMap is in meter
@@ -102,9 +109,13 @@ public class MapMgr {
 
 
 
-        ArrayList<double[][]> realWorldMap = bm.getBarriers();
-       // double[][] barrier1 = { {0.75, 0.25}, {1.4, -0.25} };
-       // realWorldMap.add(barrier1);
+        ArrayList<double[][]> realWorldMap;// = bm.getBarriers();
+        realWorldMap = new ArrayList<double[][]>();
+        double[][] barrier1 = { {0.75, 0.5}, {1.4, -0.25} };
+        double[][] barrier2 = { {0, 0.5}, {1, 0.5} };
+        //double[][] barrier2 = { {
+        realWorldMap.add(barrier1);
+        realWorldMap.add(barrier2);
 
 
         for (int i = 0; i < realWorldMap.size(); i++) {
@@ -219,10 +230,6 @@ public class MapMgr {
 
 
     }
-
-	public HashMap<Point, Integer> getMap() {
-		return map;
-	}
 
 
 
