@@ -1,5 +1,6 @@
 package Panda.Targeting;
 
+import Panda.Targeting.*;
 import java.awt.image.BufferedImage;
 import java.awt.Color;
 import java.util.Vector;
@@ -7,26 +8,24 @@ import java.util.Vector;
 public class TargetDetector {
 
 	//Pixel area of triangle must be greater then this size to be counted
-    static final int BLOB_SIZE_CONSTANT = 150;
+    static final int BLOB_SIZE_CONSTANT = 200;
     //Triangle must be within 100 pixels of half of its bounding box
     static final int TRI_HALF_BOX_THRES_CONSTANT = 100;
+	// close proximity test
+	static final int Y_THRESH = 500;
+	static final int CLOSE_COUNT_THRESH = 600;
 
-	// HSV LIMITS
-
-	//TODO need to actually find out what these values are
-	static double HLB = 0;		// hue lower bound
-	static double HUB = 50;		// hue upper bound
-	static double SLB = 0;		// saturation lower bound
-	static double VLB = 50;
 
 	BufferedImage im;
 	BufferedImage out;	// bounding box w/center at triangle
 	int width;
 	int height;
+	int delimiter;		// restricts height
+	double threshold;	// RGB threshold
 
     int group = 1;
 
-    public class Stats{
+    class Stats{
         int centerX;
         int centerY;
         int count;
@@ -37,36 +36,42 @@ public class TargetDetector {
     }
 
     Vector<Stats> stats = new Vector<Stats>();
-    Vector<Stats> finalTriVec = new Vector<Stats>();
+    
+	Destroy destroy;
 
 	// CONSTRUCTOR METHOD
-	public TargetDetector(/*BufferedImage in*/) {
-		/*im = in;
-		width = in.getWidth();
-		height = in.getHeight();
-       	*/
-        group = 1;
-		//runDetection(im);
-	}
+	public TargetDetector() {
+       	delimiter = 150;
+		threshold = .7;
+		destroy = new Destroy();
+    }
 
     void expand(int[][] green, int i, int j){
-        im.setRGB(i,j,0xff00ff00);
+       	
+		if (j < 2 || j > height -2)
+			return;
+		if (i < 2 || i > width -2)
+			return;
+
+
         green[i][j] = group;
         Stats s = stats.get(group-1);
         s.count++;
         stats.set(group-1, s);
+
+	
 
         if(green[i+1][j] == 0){
 	        int cRGB = im.getRGB(i+1,j);
 
             // convert to HSV
 		    float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
-
-		    if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
+		    //System.out.println(cHSV[0]);
+		    if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 
                 s = stats.get(group-1);
-                if(i+1 > s.maxY){
-                    s.maxY = i+1;
+                if(i+1 > s.maxX){
+                    s.maxX = i+1;
                     stats.set(group-1, s);
                 }
                 expand(green, i+1, j);
@@ -79,12 +84,12 @@ public class TargetDetector {
 
             // convert to HSV
 		    float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
+		    //System.out.println(cHSV[0]);
+	    	if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 
-	    	if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
-
-				s = stats.get(group-1);
-                if(i+1 < s.minY){
-                    s.minY = i-1;
+                s = stats.get(group-1);
+                if(i+1 < s.minX){
+                    s.minX = i-1;
                     stats.set(group-1, s);
                 }
                 expand(green, i-1, j);
@@ -99,11 +104,11 @@ public class TargetDetector {
             // convert to HSV
 		    float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
 	    	//System.out.println(cHSV[0]);
-		    if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
+		    if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 
                 s = stats.get(group-1);
-                if(j+1 > s.maxX){
-                    s.maxX = j+1;
+                if(j+1 > s.maxY){
+                    s.maxY = j+1;
                     stats.set(group-1, s);
                 }
                 expand(green, i, j+1);
@@ -117,13 +122,13 @@ public class TargetDetector {
 
              // convert to HSV
 	    	float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
-
-		    if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
+	    	//System.out.println(cHSV[0]);
+		    if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
 
                 s = stats.get(group-1);
 
-                if(j-1 < s.minX){
-                    s.minX = j-1;
+                if(j-1 < s.minY){
+                    s.minY = j-1;
                     stats.set(group-1, s);
                 }
                 expand(green, i, j-1);
@@ -135,8 +140,66 @@ public class TargetDetector {
     }
 
 
-	// PROTECTED METHODS
+	// PROTECTED ETHODS
+	public void runDetection(BufferedImage in) {
+		// Union Find searching for pixels of high green intensity
+		// Traverse Entire Image
+		//	a. Retrieve current pixel, right pixel, and down pixel
+		//		- current pixel must pass threshold test for the following to occur:
+		//	b. If right pixel passes threshold test
+		//		1. if parent to right pixel == self, then update to current pixel
+		//		2. else if parent to right pixel != cur_pixel, trace parent back and link roots to cur_pixel
+		//	c. Repeat with down pixel
+		// Build Hash Table of stats useful to detect a triangle
+		// Traverse Entire Image
+		//	a. For each pixel, find root node and update stats in hash map
+		// For all root nodes in hash map
+		//	a. Build a covariance matrix and use stats to determine shape of pixel blob
 
+		im = in;
+		width = in.getWidth();
+		height = in.getHeight();
+
+		group = 1;
+
+		int green[][] = new int[width][height];
+		for (int j = height/2; j < height - delimiter; j += 10) {
+			for (int i = (j%10); i < width - 1; i += 40) {
+				int cRGB = im.getRGB(i,j);
+				// convert to HSV
+				float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
+				//System.out.println(cHSV[0]);
+				if (cHSV[0] > 0.15 && cHSV[0] < 0.4 && cHSV[1] > 0.4 && cHSV[2] > 0.3) {
+			            Stats temp = new Stats();
+			            temp.minX = 1000000;
+			            temp.minY = 1000000;
+			            stats.add(temp);
+			            expand(green, i, j);
+			            group++;
+			        }
+			}
+		}
+
+		for(Stats s : stats){
+            if(s.count > 20){
+                System.out.println("Target level 1");
+   
+             if( s.maxX - s.minX  < 1.2 * (s.maxY - s.minY) &  s.maxX - s.minX  > .3 * (s.maxY - s.minY)){
+                 System.out.println("Target level 2");
+   
+                 double area = (s.maxX - s.minX)  * (s.maxY - s.minY) ;
+                 System.out.println(area + "     " + s.count);
+   
+                 if( (.4 * area < s.count & .7 * area > s.count)){
+      					destroy.fire(((s.maxX + s.minX) / 2), width);
+                }
+            }
+         }
+     }
+   }
+
+
+	// HELPER FUNCTIONS
 	protected float[] RGBtoHSV(int r, int g, int b) {
 		float[] HSV = new float[3];
 		Color.RGBtoHSB(r,g,b,HSV);
@@ -147,61 +210,5 @@ public class TargetDetector {
 	// PUBLIC METHODS
 	public BufferedImage getImage() {
 		return im;
-	}
-
-	public boolean found(){
-		if(finalTriVec.isEmpty()){
-			return false;
-		}
-		return true;
-	}
-
-
-    public void runDetection(BufferedImage in) {
-
-        im = in;
-        width = im.getWidth();
-        height = im.getHeight();
-
-        int green[][] = new int[width][height];
-
-		for (int j = (height/2); j < height; j += 10) {
-			for (int i = (j%10); i < width - 1; i += 40) {
-
-				int cRGB = im.getRGB(i,j);
-
-				// convert to HSV
-				float[] cHSV = RGBtoHSV(cRGB >> 16 & 0xff, cRGB >> 8 & 0xff, cRGB & 0xff);
-
-				if (cHSV[0] > HLB && cHSV[0] < HUB && cHSV[1] > SLB && cHSV[2] > VLB) {
-                    Stats temp = new Stats();
-                    temp.minX = 1000000;
-                    temp.minY = 1000000;
-                    stats.add(temp);
-                    expand(green, i, j);
-                    group++;
-                }
-			}
-		}
-
-        for (Stats s : stats){
-            if (s.count > BLOB_SIZE_CONSTANT){
-                int [] bounds = {s.minY, s.minX, s.maxY, s.maxX};
-                s.centerX = (s.maxX - s.minX) / 2;
-                s.centerY = (s.maxY - s.minY) / 2;
-
-                //Check if blob is approx half the box size to be added to finalTriVec
-                int approxTriangleSize = ((s.maxX - s.minX) * (s.maxY - s.minY)) / 2;
-                int minTriangleSize = approxTriangleSize - TRI_HALF_BOX_THRES_CONSTANT;
-                int maxTriangleSize = approxTriangleSize - TRI_HALF_BOX_THRES_CONSTANT;
-                if ((s.count < maxTriangleSize) && (s.count > minTriangleSize)){
-                    finalTriVec.add(s);
-                }
-            }
-        }
-
-
-
-
 	}
 }

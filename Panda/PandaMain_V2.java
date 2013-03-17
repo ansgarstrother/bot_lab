@@ -1,9 +1,8 @@
 import lcm.lcm.*;
 import java.util.Vector;
 
-import Panda.Odometry.*;
+import Panda.*;
 import Panda.Targeting.*;
-import Panda.VisionMapping.*;
 
 import java.io.*;
 import java.util.*;
@@ -20,11 +19,9 @@ public class PandaMain_V2{
 	static boolean run = true;
     static double sampleRate = 200;    //microseconds
 
-	private final static double f = 640.1483;
-	private final static double c_x = 676.0408;
-	private final static double c_y = 480.3221;
-    private static double[] calibrationMatrix =
-		{ 	f, c_x, c_y	};
+	static double[][] calibrationMatrix = {{0, 0, 1}, {0, 1, 0}, {0, 0, 1}};
+
+	static BufferedImage im;
 
 //=================================================================//
 // main of the panda bot                                           //
@@ -57,7 +54,7 @@ public class PandaMain_V2{
 
 		//Read in Calibration of Panda Bot
 		//Projection projection = new Projection();
-
+		
 
 		// get matrix transform history
 		// get calibrated coordinate transform
@@ -69,19 +66,20 @@ public class PandaMain_V2{
         //Map map = new Map();    // init random int
         TargetDetector target = new TargetDetector();
 
+		is.start();
 		while(run){
 
             // Implement Sampling Rate
             //Thread.sleep(sampleRate);?
 
 			//Get a new image
-			is.start();
            	byte buf[] = is.getFrame().data;
            	if (buf == null)
            		continue;
 
-			BufferedImage im = ImageConvert.convertToImage(fmt.format, fmt.width, fmt.height, buf);
-			is.stop();
+			im = ImageConvert.convertToImage(fmt.format, fmt.width, fmt.height, buf);
+		
+				
 
 			//Detect any triangles and then fire on them
 
@@ -91,17 +89,23 @@ public class PandaMain_V2{
 			BarrierMap barrierMap = new BarrierMap(im, positioning.getHistory(), calibrationMatrix);
 			map.addBarrier(barrierMap);
 
-			//Plans path
+			//Plans path 
 			path.plan();
 
 			//turns robot
 			double angle = path.turn();
 			drive.turn( angle );
 
-			// moves robot foward
+			// moves robot foward 
 			double forward = path.forward();
 			drive.foward( forward );
 */
+
+			try{Thread.sleep(100);}
+            catch(Exception e){}
+
+
+			System.out.println("DONE WITH A LOOP");
 		}
 	}
 }

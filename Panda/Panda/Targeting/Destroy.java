@@ -4,29 +4,33 @@ import orc.*;
 import Panda.Odometry.*;
 import java.lang.Object.*;
 import orc.DigitalOutput.*;
+import java.*;
 
 public class Destroy {
 
-	final static float FEILD_VIEW = 90;
+	final static double FEILD_VIEW = 135;
 
 	public void Destroy(){
 	}
 
-	public void fire (float y, float width){
+	public void fire (float x, float width){
 
-		float center = width/2;
+	   double angle =  (x - (width/2));
+ 
+       double factor = 115.0/(double)width;
+ 
 
-		float conversion = width/FEILD_VIEW;
-
-		y -= center;
-		float turnAngle = y/conversion;
+        angle =  - (angle * factor) ;
 
 		PandaDrive drive = new PandaDrive();
-		drive.turn(turnAngle);
+		drive.turn((float)angle);
 
-		Laser();
+		try{Thread.sleep(500);}
+        catch(Exception e){}
 		
-		drive.turn( - turnAngle ); 
+		Laser();
+	
+		drive.turn( (float)- angle ); 
 
 	}
 
@@ -49,8 +53,6 @@ public class Destroy {
 	public static void main(String args[]){
 
 		Destroy d = new Destroy();
-		d.Laser();
-
 		d.fire(0F, 4F);
 
 	}
