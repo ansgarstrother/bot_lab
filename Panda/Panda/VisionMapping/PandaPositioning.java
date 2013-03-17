@@ -16,56 +16,37 @@ public class PandaPositioning {
     private final double Z_OFFSET_SLOPE = -0.00147;
 
 	// args
-	private ArrayList<Matrix> history;
-    private Matrix historyTrans;
     private Matrix curGlobalPos;
-	private double scale;		// scale factor for calibration
+    private double globalTheta;
 
+    private double[][] origin = { {0, 0, 1} };
+    Matrix originMat = new Matrix (origin);
 
 	public PandaPositioning() {
-		this.history = new ArrayList<Matrix>();	// A series of transformations since beginning
-        double[] origin = { 0, 0, 1};
-        this.curGlobalPos = new Matrix(origin);
-        double[][] identitiy = { {1, 0, 0},
-                                {0, 1, 0},
-                                {0, 0, 1} };
-        this.historyTrans = new Matrix (identity);
-		this.scale = 0;
+		//this.history = new ArrayList<Matrix>();	// A series of transformations since beginning
+        this.curGlobalPos = originMat;
+        this.globalTheta = 0;
 	}
 
-    public void setNewGlobalPosition (pos_t msg) {
-		double[][] newRelPos = {{Math.cos(-msg.theta),	-Math.sin(-msg.theta),	-msg.delta_x},
-							{Math.sin(-msg.theta), 	Math.cos(-msg.theta),	0		},
-							{0, 					0, 						1		}};
+    public void updateGlobalPosition (double distance, double theta) {
+        // translate
+        double[][] translate = { {1, 0, distance},
+                                    {0, 1, 0},
+                                    {0, 0, 1} };
+		double[][] rotate = {{Math.cos(theta),	-Math.sin(theta),	0},
+							{Math.sin(theta), 	Math.cos(theta),	0},
+							{0, 					0, 						1}};
+        Matrix translateMat = new Matrix (translate);
+        Matrix rotateMat = new Matrix (rotate);
+        Matrix tempPos = rotateMat.times (originMat);
 
-
-        Matrix relPosMat = new Matrix (newRelPos);
-        curGlobalPos = relPosMat.times (curGlobalPos);
-        historyTrans = historyTrans.times (newRelPos);
-    }
-
-    public Matrix getGlobalPos () {
-        return curGlobalPos;
+        curGlobalPos = translateMat.times(tempPos);
+        // get current global position by multiplying relative transformation with previous
 
     }
 
 
-	public void setNewPosition(pos_t msg) {
-		// add current transform to history
-		double[][] trans = {{Math.cos(-msg.theta),	-Math.sin(-msg.theta),	0,		-msg.delta_x},
-							{Math.sin(-msg.theta), 	Math.cos(-msg.theta), 	0, 		0		},
-							{0, 					0, 						0,		1		}};
-
-
-		Matrix T = new Matrix(trans);
-		history.add(T);
-	}
-
-	public ArrayList<Matrix> getHistory() {
-		return history;
-	}
-
-	public Matrix getGlobalPoint(double[] intrinsics, double[] pixels) {
+    public Matrix getGlobalPoint(double[] intrinsics, double[] pixels) {
 		// intrinsics = [f, cx, cy]
 		// pixels = [u, v]
 
@@ -82,14 +63,33 @@ public class PandaPositioning {
 
         res[0][0] = scaled_X;
         res[1][0] = scaled_Z;
-        res[2][0] = first_Y;
+        res[2][0] = 1;
 
-
+        // in robot's coordinate frame
 		Matrix ret_mat = new Matrix(res);
-        //Matrix global_Coords = historyTrans.times (ret_mat);
-		//return global_Coords;
-        return ret_mat;
+
+        return translateToGlobal (ret_mat);
 	}
+
+    public Matrix translateToGlobal (Matrix coordinate) {
+
+        double[][] translate = { {1, 0, curGlobalPos.get(0,0)},
+                                    {0, 1, curGlobalPos.get(1,0)},
+                                    {0, 0, 1} };
+
+		double[][] rotate = {{Math.cos(globalTheta),	-Math.sin(globalTheta),	0},
+							{Math.sin(globalTheta), 	Math.cos(globalTheta),	0},
+							{0, 					0, 						1}};
+
+        Matrix translateMat = new Matrix (translate);
+        Matrix rotateMat = new Matrix (rotate);
+        Matrix tempPos = rotateMat.times (coordinate);
+
+        Matrix globalCoord = translateMat.times(tempPos);
+
+        return globalCoord;
+
+    }
 
 
     public double calcZ (double calc_val, double pixel_y) {
