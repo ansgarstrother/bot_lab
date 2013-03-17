@@ -15,6 +15,7 @@ public class MapMgr {
     protected Integer UNKNOWN;
 	protected Integer BARRIER;
     protected Integer KNOWN;
+    protected int RADIUS = 10; // radius of robot
 
 //=================================================================//
 // Map                                                             //
@@ -56,9 +57,9 @@ public class MapMgr {
         Matrix globalRotMat = new Matrix (globalRot);
 
 
-        // bounding view box is 1 m by 1 m
-        for (float i = -.50F; i < .50F; i+=.01F) {
-            for (float j = 0F; j < 1F; j+=.01F) {
+        // bounding view box is 30 cm by 30 cm
+        for (float i = -.15F; i < .15F; i+=.01F) {
+            for (float j = 0F; j < .30F; j+=.01F) {
                 double[][] curLocalCoord = { {j}, {i}, {1} };
                 Matrix curLocalCoordMat = new Matrix (curLocalCoord);
                 //System.out.println ("looking at local coord" + curLocalCoordMat);
@@ -111,8 +112,8 @@ public class MapMgr {
 
         ArrayList<double[][]> realWorldMap;// = bm.getBarriers();
         realWorldMap = new ArrayList<double[][]>();
-        double[][] barrier1 = { {0.75, 0.5}, {1.4, -0.25} };
-        double[][] barrier2 = { {0, 0.5}, {1, 0.5} };
+        double[][] barrier1 = { {0, 1}, {0.25, 0.5} };
+        double[][] barrier2 = { {.55, 0.2}, {1, 0} };
         //double[][] barrier2 = { {
         realWorldMap.add(barrier1);
         realWorldMap.add(barrier2);
@@ -128,6 +129,14 @@ public class MapMgr {
                                 (int) (pre_barrier[1][0] * 100),
                                 (int) (pre_barrier[1][1] * 100)};
 
+            convolveAndDraw(barrier);
+
+        }
+
+    }
+
+    private void convolveAndDraw (int[] barrier) {
+
             double deltaX = Math.abs(barrier[2] - barrier[0]);
             double deltaY = Math.abs(barrier[3] - barrier[1]);
 
@@ -139,7 +148,8 @@ public class MapMgr {
             boolean horizontal = false;
             boolean decreasing = false;
             double deltaError;
-
+            // Width of the robot is ~20cm, therefore any barriers less than 20 cm apart should not be traversable
+           // convolve barriers with a 10cm radius circle
             if (deltaX >= deltaY) {
                 // barrier is more horizontal than vertical
                 if (barrier[0] <= barrier[2]) {
@@ -183,9 +193,9 @@ public class MapMgr {
             System.out.println (start + " " + end + " " + base);
 
             // from x_starting position to y_starting position
-            for(int x = start-5; x < end+5; x++){
+            for(int x = start-RADIUS; x < end+RADIUS; x++){
                 // increase thickness of barrier
-                for (int y = base-5; y < base+5; y++) {
+                for (int y = base-RADIUS; y < base+RADIUS; y++) {
                     Point pt;
                     if (horizontal) {
                         // set x is x-coord, y is y-coord
@@ -208,9 +218,11 @@ public class MapMgr {
                 }
 
             }
-        }
+
+
 
     }
+
 
     public void printMap (Matrix globalPos) {
         int X =(int) (globalPos.get(0,0) * 100);
