@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
 import java.math.*;
+import java.util.HashMap;
 
 public class PathPlan{
 	//40 cm
@@ -13,7 +14,7 @@ public class PathPlan{
 	protected static final int UNEXPLORED_REP = 0;	// representation of unexplored is an integer (0)
 	protected static final int BARRIER_REP = 1;		// representation of a barrier is an integer (1)
 
-    int[][] m;
+    HashMap<Point, Integer> m;
 	protected class Pos{
 		int x;
 		int y;
@@ -52,7 +53,7 @@ public class PathPlan{
 //                                                                 //
 // Returns: VOID                                                   //
 //=================================================================//
-	public void plan(int[][] map, int x, int y, int t) {
+	public void plan(HashMap<Point, Integer> map, int x, int y, double t) {
 		// init local variables
         m = map;
 		botXPos = x;	// current x
@@ -86,7 +87,7 @@ public class PathPlan{
 //                                                                 //
 // Returns: VOID                                                   //
 //=================================================================//
-	public void advancedPlan(int[][] map, int x, int y, int t) {
+	public void advancedPlan(HashMap<Point, Integer> map, int x, int y, double t) {
 		// init local variables
         m = map;
 		botXPos = x;	// current x
@@ -155,7 +156,7 @@ public class PathPlan{
 //                                                                 //
 // Returns: VOID                                                   //
 //=================================================================//
-	public void simplePlan(int[][] map, int x, int y, int t){
+	public void simplePlan(HashMap<Point, Integer> map, int x, int y, double t){
         m = map;
 		//bot's current orientation is passed in from main (calculated in Map)
 		botXPos = x;
@@ -215,11 +216,12 @@ public class PathPlan{
 		//Check path points for barriers
 		for (Pos pos : pathPoints){
 			//Barriers are positive numbers
-			if (m[pos.x][pos.y] == BARRIER_REP){
+			Point cur_point = new Point(pos.x, pos.y);
+			if (m.get(cur_point) == BARRIER_REP){
 				return false;
 			}
 			// unexplored found
-			if (m[pos.x][pos.y] == UNEXPLORED_REP && unexploredFlag) {
+			if (m.get(cur_point) == UNEXPLORED_REP && unexploredFlag) {
 				// SET PATH DISTANCE
 				double dx = pos.x - p.x; double dy = pos.y - p.y;
 				pathDistance = Math.floor(Math.sqrt(dx*dx + dy*dy));

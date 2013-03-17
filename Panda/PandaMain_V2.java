@@ -11,6 +11,7 @@ import java.util.*;
 import java.awt.*;
 import java.awt.image.*;
 import javax.swing.*;
+import java.util.HashMap;
 
 import april.jcam.*;
 import april.util.*;
@@ -18,7 +19,6 @@ import april.jmat.*;
 
 public class PandaMain_V2{
 
-	static boolean run = true;
     static double sampleRate = 200;    //microseconds
 
 	private final static double f = 640.1483;
@@ -32,6 +32,8 @@ public class PandaMain_V2{
 //                                                                 //
 //=================================================================//
 	public static void main(String [] args){
+
+		boolean run = true;	// main loop boolean
 
 
         try {
@@ -81,14 +83,16 @@ public class PandaMain_V2{
         PandaPositioning positioner = new PandaPositioning();
 
 
-		//Panda Driver
-    	//Drive drive = new Drive();
-		//Path path = new Path();
+		// Map Manager
         MapMgr map = new MapMgr();    // init random int
         TargetDetector target = new TargetDetector();
         double globalTheta;
 
+		// Path Planning
 		PathPlan path = new PathPlan();
+
+		// Drive Application
+    	PandaDrive drive = new PandaDrive();
 
 		while(run){
 
@@ -118,22 +122,24 @@ public class PandaMain_V2{
             // set barriers, update known positions
             map.updateMap (barrierMap, globalPos, globalTheta);
 
-/*
 			//Plans path
-			path.plan();
+			// requires map, current x, y, and orientation of bot in global frame
+			path.advancedPlan(map.getMap(), (int)globalPos.get(0,0), (int)globalPos.get(1,0), globalTheta);
+			double angle = path.getPathAngle();
+			double dist = path.getPathDistance();
+			run = !(path.getFinishedTest());
 
 			//turns robot
-			double angle = path.turn();
-			drive.turn( angle );
+			float in_angle = (float)angle;
+			drive.turn( in_angle );
 
 			// moves robot foward
-			double forward = path.forward();
-			drive.foward( forward );
-*/
+			float in_dist = (float)dist;
+			drive.driveForward( in_dist );
+
 
             // calculate new global position
-            // positioner.updateGlobalPosition (distance, theta);
-            // positioner.updateGlobalTheta (g);
+            positioner.updateGlobalPosition (dist, angle);
 
 
 		}
