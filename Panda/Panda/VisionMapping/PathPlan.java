@@ -8,6 +8,7 @@ import java.math.*;
 public class PathPlan{
 	//40 cm
 	protected static final int FORWARD_DISTANCE = 40;
+	protected static final int COUNT_THRESH = 4;	// full 360 degree turn
 
     int[][] m;
 	protected class Pos{
@@ -20,8 +21,11 @@ public class PathPlan{
 	protected double heading;
 	protected double pathAngle;
 	protected double pathDistance;
+	
+	protected int no_move_count;	// keeps track of the number of times no move has been found in a row
+									// if we do a complete 360 turn (count = 4), send a finished flag
+	protected boolean finished;
 
-    protected double prevAngle;
 
 //=================================================================//
 // PathPlan                                                        //
@@ -34,6 +38,9 @@ public class PathPlan{
         prevAngle = 0;
 		pathAngle = 0;
 		pathDistance = 0;
+
+		no_move_count = 0;
+		finished = false;
 	}
 
 //=================================================================//
@@ -43,9 +50,98 @@ public class PathPlan{
 //                                                                 //
 // Returns: VOID                                                   //
 //=================================================================//
-	public void plan(int[][] map){
+	public void plan(int[][] map, int x, int y, int t) {
+		// init local variables
+        m = map;
+		botXPos = x;	// current x
+		botYPos = y;	// current y
+		heading = t;	// current orientation
+
+		// INITAL IDEA:
+		//	- have the priority queue for searching for new angles
+		//	- travel along the line of a given angle in search of
+		//		unexplored space while checking for barrier
+		//	- return new angle from priority queue
+		//	- return new distance (dist from unexplored coord to cur coord)
+		
+		//	TEST FOR NO POSSIBLE MOVE:
+		//	- if there is no unexplored area in this current orientation:
+		//	- force the robot to turn 90 degrees, no change in distance
+		//
+
+
+
+
 
 	}
+
+
+
+//=================================================================//
+// advancedPlan                                                    //
+//                                                                 //
+// Runs a more advanced path planning algorithm to get around maze //
+//                                                                 //
+// Returns: VOID                                                   //
+//=================================================================//
+	public void advancedPlan(int[][] map, int x, int y, int t) {
+		// init local variables
+        m = map;
+		botXPos = x;	// current x
+		botYPos = y;	// current y
+		heading = t;	// current orientation
+
+		// INITAL IDEA:
+		//	- have the priority queue for searching for new angles
+		//	- travel along the line of a given angle in search of
+		//		unexplored space while checking for barrier
+		//	- return new angle from priority queue
+		//	- return new distance (dist from unexplored coord to cur coord)
+		
+		//	TEST FOR NO POSSIBLE MOVE:
+		//	- if there is no unexplored area in this current orientation:
+		//	- force the robot to turn 90 degrees, no change in distance
+		//	- increment a count
+		//	- if the count is passed a threshold, throw finished flag
+
+		if (no_move_count >= COUNT_THRESH) {
+			//throw a finished flag
+			finished = true;
+			return;
+		}
+
+        Pos p = new Pos();
+
+        int[] possibleAngleArray = {0, -30, 30, -45, 45, -60, 60};	//priority array
+
+		// check if we can move forward
+        for (int i : possibleAngleArray){
+            //Calculate point based on possible angle and go there if no barriers
+            double new_angle = heading + possibleAngleArray[i];
+            p.x = (int)(FORWARD_DISTANCE * Math.sin(new_angle)) + botXPos;
+            p.y = (int)(FORWARD_DISTANCE * Math.cos(new_angle)) + botYPos;
+
+            if (checkPath(p)){
+                pathAngle = new_angle;
+                pathDistance = FORWARD_DISTANCE;
+				no_move_count = 0;	//reset no move count
+                return;
+            }
+        }
+
+		// if no move is available, rotate 90 and search
+		// the return statement in the for loop allows us to do this if statement
+		if (pathAngle == heading) {
+			pathAngle = new_angle + Math.toRadians(90);
+			pathDistance = 0;
+			no_move_count++;	// increment no move count
+			return;
+		}
+
+	}
+
+
+
 
 //=================================================================//
 // simplePlan                                                      //
@@ -56,22 +152,26 @@ public class PathPlan{
 //                                                                 //
 // Returns: VOID                                                   //
 //=================================================================//
-	public void simplePlan(int[][] map){
+	public void simplePlan(int[][] map, int x, int y, int t){
         m = map;
-		//TODO: Set X, Y and heading here
+		//bot's current orientation is passed in from main (calculated in Map)
+		botXPos = x;
+		botYPos = y;
+		heading = t;
 
         Pos p = new Pos();
 
-        int[] possibleAngleArray = {0, -45, 45};
+        int[] possibleAngleArray = {0, -30, 30, -45, 45, -60, 60};	//priority array
 
+		// check if we can move forward
         for (int i : possibleAngleArray){
             //Calculate point based on possible angle and go there if no barriers
-            double angleFromPrev = heading - prevAngle + possibleAngleArray[i];
-            p.x = (int)(FORWARD_DISTANCE * Math.sin(angleFromPrev)) + botXPos;
-            p.y = (int)(FORWARD_DISTANCE * Math.cos(angleFromPrev)) + botYPos;
+            double new_angle = heading + possibleAngleArray[i];
+            p.x = (int)(FORWARD_DISTANCE * Math.sin(new_angle)) + botXPos;
+            p.y = (int)(FORWARD_DISTANCE * Math.cos(new_angle)) + botYPos;
 
             if (checkPath(p)){
-                pathAngle = heading + angleFromPrev;
+                pathAngle = new_angle;
                 pathDistance = FORWARD_DISTANCE;
                 return;
             }
@@ -142,6 +242,18 @@ public class PathPlan{
 	public double getPathDistance(){
 		return pathDistance;
 	}
+
+//=================================================================//
+//getFinishedTest                                                  //
+//                                                                 //
+// Returns finished boolean signifying no more moves left          //
+//                                                                 //
+// Returns: boolean                                                //
+//=================================================================//
+	public boolean getFinishedTest() {
+		return finished;
+	}
+
 
 }
 
