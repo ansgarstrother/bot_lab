@@ -81,7 +81,7 @@ public class PandaOdometry implements Runnable {
 			// sample msg, look for update
 			// if a message has updated, set flag
 			// calculate pose when pimu and motor feedback have both been updated
-            System.out.printf ("%s running\n", Thread.currentThread().getName());
+            //System.out.printf ("%s running\n", Thread.currentThread().getName());
 
 
 			// sample messages
