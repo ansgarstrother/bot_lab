@@ -88,6 +88,8 @@ public class PandaMain_V2{
         TargetDetector target = new TargetDetector();
         double globalTheta;
 
+		PathPlan path = new PathPlan();
+
 		while(run){
 
             // Implement Sampling Rate

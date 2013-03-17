@@ -22,9 +22,9 @@ public class PandaDrive
 
 	//Turn Speed Constants
 	static final float TURN_K = 0.007f;
-    static final float TURN_SPEED = 0.0F;
+    static final float TURN_SPEED = .5F;
 	static final float MAX_TURN_SPEED = 0.4f;
-    static final float TURN_RANGE = 0.5F;
+    static final float TURN_RANGE = 1F;
 	LCM lcm;
 
 	MotorSubscriber ms;
@@ -73,7 +73,7 @@ public class PandaDrive
     }
 
 
-	public void turn(float angle) {
+	public void Oldturn(float angle) {
 		// gyro derivatives are positive
 
 
@@ -128,33 +128,34 @@ public class PandaDrive
 		Stop();
 	}
 
-    public void gyroTurn(float angle){
-        float speed = TURN_SPEED;
+    public void turn(float angle){
+        float speed;
+		float initAngle = (float) gyro.getGyroAngleInDegrees();
 
-        boolean outsideRange = true;
-        while (outsideRange){
-            double curAngle = gyro.getGyroAngleInDegrees();
-            if ((curAngle > (angle - TURN_RANGE)) &&
-                (curAngle < (angle + TURN_RANGE))){
-                outsideRange = false;
-            }
-            else{
-                float KERROR = TURN_K*(float)(angle - curAngle);
-                msg.left = turnSpeedCheck(speed + KERROR);
-                msg.right = turnSpeedCheck(speed + KERROR);
-				if (angle > curAngle){
-					msg.left = msg.left * -1;
-				}
-				else {
-					msg.right = msg.right * -1;
-				}
-				System.out.println("Current Angle: " +curAngle + "  Left: " + msg.left + " Right: " + msg.right);
-                msg.utime = TimeUtil.utime();
-                lcm.publish("10_DIFF_DRIVE", msg);
-            }
-        }
+		float curAngle = 0;
+
+        while ((curAngle + TURN_RANGE) < Math.abs(angle)){
+		
+			speed = .7F - .67F * (curAngle / Math.abs(angle));
+			
+			if (angle < 0 ){
+				msg.left = - speed;
+				msg.right = speed;
+			}
+			else {
+			    msg.left =  speed;            
+                msg.right = - speed;
+			}
+              
+			msg.utime = TimeUtil.utime();
+            lcm.publish("10_DIFF_DRIVE", msg);
+
+			curAngle = Math.abs((float) gyro.getGyroAngleInDegrees() - initAngle);
+        
+			System.out.println(curAngle);
+		}
         //Make sure one of the stop messages gets through
-        for (int i = 0; i < 50; i++){
+        for (int i = 0; i < 10; i++){
 			System.out.println("Stop!");
             Stop();
         }
