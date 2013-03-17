@@ -12,7 +12,8 @@ import april.jmat.*;
 public class PandaPositioning {
 
 	// constants
-	private static final double static_height = 0.2032;	// camera height from Z=0
+	private static final double static_height_wall = 0.2032;		// camera height from Z=0
+	private static final double static_height_triangle = 0.1524;	// camera height from triangle
 
 	// args
     private Matrix curGlobalPos;
@@ -54,9 +55,17 @@ public class PandaPositioning {
         return curGlobalTheta;
     }
 
-    public Matrix getGlobalPoint(double[] intrinsics, double[] pixels) {
+    public Matrix getGlobalPoint(double[] intrinsics, double[] pixels, boolean type) {
 		// intrinsics = [f, cx, cy]
 		// pixels = [u, v]
+		// type = true for wall, false for triangle
+		double static_height = 0;
+		if (type) {
+			static_height = static_height_wall;
+		}
+		else {
+			static_height = static_height_triangle;
+		}
 
 
 		double scale = Math.abs(static_height / (pixels[1] - intrinsics[2]));

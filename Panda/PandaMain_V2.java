@@ -1,10 +1,11 @@
 import lcm.lcm.*;
 import java.util.Vector;
 
-import Panda.Odometry.*;
+import Panda.*;
 import Panda.Targeting.*;
 import Panda.VisionMapping.*;
 import Panda.sensors.*;
+import Panda.Odometry.*;
 
 import java.io.*;
 import java.util.*;
@@ -24,8 +25,9 @@ public class PandaMain_V2{
 	private final static double f = 640.1483;
 	private final static double c_x = 676.0408;
 	private final static double c_y = 480.3221;
-    private static double[] calibrationMatrix =
-		{ 	f, c_x, c_y	};
+    private static double[] calibrationMatrix =   { f, c_x, c_y	};
+
+	static BufferedImage im;
 
 //=================================================================//
 // main of the panda bot                                           //
@@ -76,7 +78,7 @@ public class PandaMain_V2{
 
 		//Read in Calibration of Panda Bot
 		//Projection projection = new Projection();
-
+		
 
 		// get matrix transform history
 		// get calibrated coordinate transform
@@ -85,7 +87,6 @@ public class PandaMain_V2{
 
 		// Map Manager
         MapMgr map = new MapMgr();    // init random int
-        TargetDetector target = new TargetDetector();
         double globalTheta;
 
 		// Path Planning
@@ -93,20 +94,22 @@ public class PandaMain_V2{
 
 		// Drive Application
     	PandaDrive drive = new PandaDrive();
+        TargetDetector target = new TargetDetector(drive, calibrationMatrix);
 
+		is.start();
 		while(run){
 
             // Implement Sampling Rate
             //Thread.sleep(sampleRate);?
 
 			//Get a new image
-			is.start();
            	byte buf[] = is.getFrame().data;
            	if (buf == null)
            		continue;
 
-			BufferedImage im = ImageConvert.convertToImage(fmt.format, fmt.width, fmt.height, buf);
-			is.stop();
+			im = ImageConvert.convertToImage(fmt.format, fmt.width, fmt.height, buf);
+		
+				
 
             Matrix globalPos = positioner.getGlobalPos();
             globalTheta = positioner.getGlobalTheta();
@@ -114,6 +117,7 @@ public class PandaMain_V2{
             // global transformation matrix used to calculate points
 			//Detect any triangles and then fire on them
 			target.runDetection(im);
+			ArrayList<double[]> triangle_points = target.getTrianglePoints();
 
 			//Line Detector finds barriers and adds them to the map
 			BarrierMap barrierMap = new BarrierMap(im, calibrationMatrix, positioner);
