@@ -38,7 +38,6 @@ public class PathPlan{
 // Returns: VOID                                                   //
 //=================================================================//
 	public void PathPlan(){
-        prevAngle = 0;
 		pathAngle = 0;
 		pathDistance = 0;
 
@@ -127,7 +126,7 @@ public class PathPlan{
 
             if (checkPath(p, true)){
                 pathAngle = new_angle;
-                pathDistance = FORWARD_DISTANCE;
+                // pathDistance assigned in checkPath
 				no_move_count = 0;	//reset no move count
                 return;
             }
@@ -136,7 +135,7 @@ public class PathPlan{
 		// if no move is available, rotate 90 and search
 		// the return statement in the for loop allows us to do this if statement
 		if (pathAngle == heading) {
-			pathAngle = new_angle + Math.toRadians(90);
+			pathAngle = heading + Math.toRadians(90);
 			pathDistance = 0;
 			no_move_count++;	// increment no move count
 			return;
@@ -221,6 +220,9 @@ public class PathPlan{
 			}
 			// unexplored found
 			if (m[pos.x][pos.y] == UNEXPLORED_REP && unexploredFlag) {
+				// SET PATH DISTANCE
+				double dx = pos.x - p.x; double dy = pos.y - p.y;
+				pathDistance = Math.floor(Math.sqrt(dx*dx + dy*dy));
 				return true;
 			}
 		}
