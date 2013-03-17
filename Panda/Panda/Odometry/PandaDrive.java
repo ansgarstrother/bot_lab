@@ -19,10 +19,17 @@ public class PandaDrive
     static final float TPM = 4900F;
 	static final float STRAIGHT_GYRO_THRESH = 7.0F;
 	static final float ANGLE = 7.8F;
+
+	//Turn Speed Constants
+	static final float TURN_K = 0.007f;
+    static final float TURN_SPEED = 0.0F;
+	static final float MAX_TURN_SPEED = 0.4f;
+    static final float TURN_RANGE = 0.5F;
 	LCM lcm;
 
 	MotorSubscriber ms;
 	PIMUSubscriber ps;
+    Gyro gyro;
 
     diff_drive_t msg;
 
@@ -50,6 +57,7 @@ public class PandaDrive
 			// False means Enabled (lcm weirdness)
 			msg.left_enabled = false;
 			msg.right_enabled = false;
+			gyro = new Gyro();
 		}
 		catch(Throwable t) {
 			System.out.println("Error: Exception thrown");
@@ -68,7 +76,7 @@ public class PandaDrive
 	public void turn(float angle) {
 		// gyro derivatives are positive
 
-		
+
 		double angled_turned = 0;
 
 		int curRight = 0;
@@ -90,7 +98,7 @@ public class PandaDrive
 
 		while(angled_turned < angle) {
 				msg.utime = TimeUtil.utime();
-				
+
 				System.out.println("angle " + angle);
 				// right turn if angle is negative
 				if (neg) {
@@ -109,9 +117,9 @@ public class PandaDrive
 				motorFeedback = ms.getMessage();
         		curLeft = motorFeedback.encoders[0];
     	    	curRight = motorFeedback.encoders[1];
-				
-				angled_turned = (initRight - curRight)/ANGLE; 	
-	
+
+				angled_turned = (initRight - curRight)/ANGLE;
+
 				if(angled_turned < 0)
 					angled_turned *= -1;
 
@@ -119,6 +127,38 @@ public class PandaDrive
 
 		Stop();
 	}
+
+    public void gyroTurn(float angle){
+        float speed = TURN_SPEED;
+
+        boolean outsideRange = true;
+        while (outsideRange){
+            double curAngle = gyro.getGyroAngleInDegrees();
+            if ((curAngle > (angle - TURN_RANGE)) &&
+                (curAngle < (angle + TURN_RANGE))){
+                outsideRange = false;
+            }
+            else{
+                float KERROR = TURN_K*(float)(angle - curAngle);
+                msg.left = turnSpeedCheck(speed + KERROR);
+                msg.right = turnSpeedCheck(speed + KERROR);
+				if (angle > curAngle){
+					msg.left = msg.left * -1;
+				}
+				else {
+					msg.right = msg.right * -1;
+				}
+				System.out.println("Current Angle: " +curAngle + "  Left: " + msg.left + " Right: " + msg.right);
+                msg.utime = TimeUtil.utime();
+                lcm.publish("10_DIFF_DRIVE", msg);
+            }
+        }
+        //Make sure one of the stop messages gets through
+        for (int i = 0; i < 50; i++){
+			System.out.println("Stop!");
+            Stop();
+        }
+    }
 
 
     public void driveForward (float distance) {
@@ -141,7 +181,7 @@ public class PandaDrive
             // get updated encoder data
 
 			motorFeedback = ms.getMessage();
-			
+
           	curLeftEncoder = motorFeedback.encoders[0] - initLeftEncoder;
            	curRightEncoder = motorFeedback.encoders[1] - initRightEncoder;
 
@@ -170,6 +210,15 @@ public class PandaDrive
 		Stop();
     }
 
+
+    private float turnSpeedCheck (float speed){
+        //If speed is greater then max
+        if (speed > MAX_TURN_SPEED)
+            return MAX_TURN_SPEED;
+        if (speed < (MAX_TURN_SPEED*-1))
+            return MAX_TURN_SPEED * -1;
+        return speed;
+    }
 
     private float speedCheck (float speed){
         //If speed is greater then max
