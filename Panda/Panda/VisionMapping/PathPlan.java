@@ -9,6 +9,9 @@ public class PathPlan{
 	//40 cm
 	protected static final int FORWARD_DISTANCE = 40;
 	protected static final int COUNT_THRESH = 4;	// full 360 degree turn
+	protected static final int TRAVERSE_STEP = 2;	// traverse step along line to search for unexplored space/barriers
+	protected static final int UNEXPLORED_REP = 0;	// representation of unexplored is an integer (0)
+	protected static final int BARRIER_REP = 1;		// representation of a barrier is an integer (1)
 
     int[][] m;
 	protected class Pos{
@@ -118,10 +121,11 @@ public class PathPlan{
         for (int i : possibleAngleArray){
             //Calculate point based on possible angle and go there if no barriers
             double new_angle = heading + possibleAngleArray[i];
+			// Traverse line until we run in to a border or unexplored space
             p.x = (int)(FORWARD_DISTANCE * Math.sin(new_angle)) + botXPos;
             p.y = (int)(FORWARD_DISTANCE * Math.cos(new_angle)) + botYPos;
 
-            if (checkPath(p)){
+            if (checkPath(p, true)){
                 pathAngle = new_angle;
                 pathDistance = FORWARD_DISTANCE;
 				no_move_count = 0;	//reset no move count
@@ -170,7 +174,7 @@ public class PathPlan{
             p.x = (int)(FORWARD_DISTANCE * Math.sin(new_angle)) + botXPos;
             p.y = (int)(FORWARD_DISTANCE * Math.cos(new_angle)) + botYPos;
 
-            if (checkPath(p)){
+            if (checkPath(p, false)){
                 pathAngle = new_angle;
                 pathDistance = FORWARD_DISTANCE;
                 return;
@@ -187,7 +191,7 @@ public class PathPlan{
 //                                                                 //
 // Returns: boolean                                                //
 //=================================================================//
-	protected boolean checkPath(Pos p){
+	protected boolean checkPath(Pos p, boolean unexploredFlag){
         Pos temp = new Pos();
 		ArrayList<Pos> pathPoints = new ArrayList<Pos>();
 
@@ -212,13 +216,22 @@ public class PathPlan{
 		//Check path points for barriers
 		for (Pos pos : pathPoints){
 			//Barriers are positive numbers
-			if (m[pos.x][pos.y] > 0){
+			if (m[pos.x][pos.y] == BARRIER_REP){
 				return false;
+			}
+			// unexplored found
+			if (m[pos.x][pos.y] == UNEXPLORED_REP && unexploredFlag) {
+				return true;
 			}
 		}
 
-		//Path is good return true
-		return true;
+		// No barrier hit
+		if (!unexploredFlag) {
+			return true;
+		}
+
+		//No unexplored set found
+		return false;
 	}
 
 //=================================================================//
