@@ -117,6 +117,7 @@ public class PandaMain_V2{
             // global transformation matrix used to calculate points
 			//Detect any triangles and then fire on them
 			target.runDetection(im);
+			ArrayList<double[]> triangle_points = target.getTrianglePoints();
 
 			//Line Detector finds barriers and adds them to the map
 			BarrierMap barrierMap = new BarrierMap(im, calibrationMatrix, positioner);
