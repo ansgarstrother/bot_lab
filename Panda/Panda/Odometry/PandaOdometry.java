@@ -19,7 +19,7 @@ import april.jcam.*;
 import april.util.*;
 import april.jmat.*;
 
-public class PandaOdometry {
+public class PandaOdometry implements Runnable {
 
 	// const
 	private static final double left_ticks_per_meter = 5050;	// left wheel ticks per meter
@@ -48,6 +48,7 @@ public class PandaOdometry {
 	private long previousTimeMillis;
 
 
+
 	// CONSTRUCTOR METHOD
 	public PandaOdometry(MotorSubscriber ms, PIMUSubscriber ps, Gyro g) {
 		// initialize subscribers
@@ -70,6 +71,9 @@ public class PandaOdometry {
 		// initialize time
 		previousTimeMillis = System.currentTimeMillis();
 
+	}
+
+    public void run() {
 
 		// RUN ROBOT
 		// while loop terminates when signal thrown saying robot is done
@@ -77,6 +81,8 @@ public class PandaOdometry {
 			// sample msg, look for update
 			// if a message has updated, set flag
 			// calculate pose when pimu and motor feedback have both been updated
+            //System.out.printf ("%s running\n", Thread.currentThread().getName());
+
 
 			// sample messages
 			cur_mf_msg = ms.getMessage();
@@ -114,11 +120,13 @@ public class PandaOdometry {
 			}
 
 		}
-	}
+
+    }
+
 
 
 	// PROTECTED METHODS
-	private void calculatePose(motor_feedback_t mf, pimu_t pimu, pimu_t prev_pimu, motor_feedback_t prev_mf) {
+	private synchronized void calculatePose(motor_feedback_t mf, pimu_t pimu, pimu_t prev_pimu, motor_feedback_t prev_mf) {
 		// RETRIEVE ALL DATA FROM LCM MESSAGES
 		// PIMU
 		//	- gyro derivative data (integrator[4] & integrator[5] & utime_pimu)
@@ -150,12 +158,12 @@ public class PandaOdometry {
 		System.out.println("delta_x cm: " + (dL + dR) / 0.02);
 	}
 
-	protected void sendPose() {
+	protected synchronized void sendPose() {
 		try {
 			LCM lcm = new LCM("udpm://239.255.76.10:7667?ttl=1");
 
 			//publish
-			if (cur_pos_msg.delta_x != 0 && cur_pos_msg.theta != 0) {
+			if (cur_pos_msg.delta_x != 0) {
 				lcm.publish("10_POSE", cur_pos_msg);
 			}
 

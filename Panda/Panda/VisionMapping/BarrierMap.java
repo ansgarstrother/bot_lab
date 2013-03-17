@@ -43,15 +43,14 @@ public class BarrierMap{
     final static double binaryThresh = 155;
     final static double lwPassThresh = 100;
     private double[] calibrationMatrix;
-    public map_t map_msg;
+    //public map_t map_msg;
 
     private PandaPositioning pp;
 
-	public BarrierMap( BufferedImage image, ArrayList<Matrix> history, double[] cm ) {
+	public BarrierMap( BufferedImage image, double[] cm, PandaPositioning pp ) {
 
 		this.calibrationMatrix = cm;
 
-        pp = new PandaPositioning ();
 		// RECTIFICATION
 		BufferedImage im2 = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
         double cx = image.getWidth() / 2.0;

@@ -100,13 +100,13 @@ public class RoverController implements Runnable {
 					if (prev_msg != new_msg) {
 						
 					// PRINT TO FILE
-					out.write(new_pos[0] + "," + new_pos[1] + "\n");
+					System.out.println(new_pos[0] + "," + new_pos[1] + "\n");
 
 						this.new_pos = roverPositioning.getNewPosition(new_msg);
 						this.prev_pos = roverPositioning.getPrevPosition();
-						System.out.println("x: " + new_pos[0]*100);
-						System.out.println("y: " + new_pos[1]*100);
-						System.out.println("t: " + new_pos[2]);
+						//System.out.println("x: " + new_pos[0]*100);
+						//System.out.println("y: " + new_pos[1]*100);
+						//System.out.println("t: " + new_pos[2]);
                 		update();
 					}
             	}
@@ -147,7 +147,7 @@ public class RoverController implements Runnable {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				@Override
 				public void run() {
-					System.out.println("New Position Update Received");
+					//System.out.println("New Position Update Received");
 					delegate.update(prev_pos, new_pos, new_msg, covar_vec);
 				}
 			});

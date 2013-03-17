@@ -30,20 +30,20 @@ public class Map{
 // Returns: VOID                                                   //
 //=================================================================//
 	private void addBarrier(BarrierMap bm){
-        
+
         // BarrierMap:
         // NOTE: BarrierMap is in meters
         //      CONVERSION OCCURS HERE
-        //      
+        //
         ArrayList<double[][]> realWorldMap = bm.getBarriers();
         for (int i = 0; i < realWorldMap.size(); i++) {
-        
+
             double[][] pre_barrier = realWorldMap.get(i);
             int[] barrier = {   (int)pre_barrier[0][0] * 100,   //mult 100 = m to cm
                                 (int)pre_barrier[0][1] * 100,
                                 (int)pre_barrier[1][0] * 100,
                                 (int)pre_barrier[1][1] * 100};
-            
+
             double deltaX = barrier[2] - barrier[0];
             double deltaY = barrier[3] - barrier[1];
 
@@ -65,10 +65,10 @@ public class Map{
             }
         }
     }
-    
+
 }
 
 
 
 
-		
+
