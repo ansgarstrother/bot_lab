@@ -25,7 +25,7 @@ public class PathPlan{
 	protected double heading;
 	protected double pathAngle;
 	protected double pathDistance;
-	
+
 	protected int no_move_count;	// keeps track of the number of times no move has been found in a row
 									// if we do a complete 360 turn (count = 4), send a finished flag
 	protected boolean finished;
@@ -88,7 +88,7 @@ public class PathPlan{
 		//		unexplored space while checking for barrier
 		//	- return new angle from priority queue
 		//	- return new distance (dist from unexplored coord to cur coord)
-		
+
 		//	TEST FOR NO POSSIBLE MOVE:
 		//	- if there is no unexplored area in this current orientation:
 		//	- force the robot to turn 90 degrees, no change in distance
@@ -110,8 +110,8 @@ public class PathPlan{
             //Calculate point based on possible angle and go there if no barriers
             double new_angle = heading + possibleAngleArray[i];
 			// Traverse line until we run in to a border or unexplored space
-            p.x = (int)(FORWARD_DISTANCE * Math.sin(new_angle)) + botXPos;
-            p.y = (int)(FORWARD_DISTANCE * Math.cos(new_angle)) + botYPos;
+            p.x = (int)(FORWARD_DISTANCE * Math.cos(new_angle)) + botXPos;
+            p.y = (int)(FORWARD_DISTANCE * Math.sin(new_angle)) + botYPos;
 
             if (checkPath(p, true)){
                 pathAngle = new_angle;
@@ -184,10 +184,90 @@ public class PathPlan{
 		ArrayList<Pos> pathPoints = new ArrayList<Pos>();
 
 		//Run Bresenham's
-		double deltaX = p.x - botXPos;
-		double deltaY = p.y - botYPos;
+		double deltaX = Math.abs(p.x - botXPos);
+		double deltaY = Math.abs(p.y - botYPos);
 		double error = 0;
-		double deltaError = Math.abs(deltaY / deltaX);
+		double deltaError = deltaY / deltaX;
+
+        int start, end, base;
+        boolean decreasing = false;
+        boolean horizontal = false;
+
+            if (deltaX >= deltaY) {
+                // barrier is more horizontal than vertical
+                if (botXPos <= p.x) {
+                    start = botXPos;
+                    end = p.x;
+                    base = botYPos;
+                    if (botYPos > p.y) {
+                        decreasing = true;
+                    }
+                } else {
+                    start = p.x;
+                    end = botXPos;
+                    base = p.y;
+                    if ( p.y > botYPos) {
+                        decreasing = true;
+                    }
+                }
+                horizontal = true;
+                deltaError = deltaY / deltaX;
+
+            } else {
+                // barrier is more vertical than horizontal
+                if (botYPos <= p.y) {
+                    start = botYPos;
+                    end = p.y;
+                    base = botXPos;
+                    if ( p.x > botXPos) {
+                        decreasing = true;
+                    }
+                } else {
+                    start = p.y;
+                    end = botYPos;
+                    base = p.x;
+                    if (botXPos > p.x) {
+                        decreasing = true;
+                    }
+                }
+                deltaError = Math.abs(deltaX / deltaY);
+            }
+
+            System.out.println (start + " " + end + " " + base);
+
+            // from x_starting position to y_starting position
+            for(int x = start; x < end; x++){
+                // increase thickness of barrier
+                Point pt;
+                if (horizontal) {
+                   // set x is x-coord, y is y-coord
+                    pt = new Point (x, y);
+                } else {
+                    // other way around
+                    pt = new Point (y, x);
+                }
+                m.put(pt,BARRIER);
+
+                error += deltaError;
+                if(error > .5) {
+                    if (decreasing == true) {
+                        base--;
+                    } else {
+                       base++;
+                    }
+                    error = error - 1;
+                }
+
+            }
+
+
+
+
+
+
+
+
+
 
 		int y = botYPos;
 		for (int x = botXPos; x <= p.x; x++){

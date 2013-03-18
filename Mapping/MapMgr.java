@@ -43,7 +43,7 @@ public class MapMgr {
 
 
     public void updateMap (double[] globalPos, double[][] barriers, double[][] triangles) {
-
+/*
         double[][] globalTrans = { {1, 0, globalPos[0] },
                                 {0, 1, globalPos[1] },
                                 {0, 0, 1} };
@@ -77,7 +77,7 @@ public class MapMgr {
             }
 
         }
-
+*/
         addBarrier(barriers);
 		//addTriangles(triangles);
         //printMap(globalPos);
@@ -106,7 +106,7 @@ public class MapMgr {
 		for (int i = 0; i < triangles.length; i++) {
 			double[] cur_point = triangles[i];
 			int x = (int)cur_point[0]; int y = (int)cur_point[1];
-			
+
 			// plot point into map
 			for (int j = x - TRIANGLE_CONVOLVE; j < x + TRIANGLE_CONVOLVE; j++) {
 				for (int k = y - TRIANGLE_CONVOLVE; k < y + TRIANGLE_CONVOLVE; k++) {

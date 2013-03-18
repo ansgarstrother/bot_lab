@@ -20,7 +20,7 @@ import april.jcam.*;
 import april.util.*;
 import april.jmat.*;
 
-public class PandaMain_V2{
+public class PandaMain_V2_2{
 
     static double sampleRate = 200;    //microseconds
 
