@@ -1,4 +1,4 @@
-package Panda.VisionMapping;
+package Mapping;
 
 import java.util.ArrayList;
 import javax.swing.*;
@@ -11,8 +11,8 @@ public class PathPlan{
 	protected static final int FORWARD_DISTANCE = 40;
 	protected static final int COUNT_THRESH = 4;	// full 360 degree turn
 	protected static final int TRAVERSE_STEP = 2;	// traverse step along line to search for unexplored space/barriers
-	protected static final int UNEXPLORED_REP = 0;	// representation of unexplored is an integer (0)
-	protected static final int BARRIER_REP = 1;		// representation of a barrier is an integer (1)
+	protected static final int UNEXPLORED_REP = 1;	// representation of unexplored is an integer (1)
+	protected static final int BARRIER_REP = 2;		// representation of a barrier is an integer (2)
 
     HashMap<Point, Integer> m;
 	protected class Pos{

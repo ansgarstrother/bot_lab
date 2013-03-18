@@ -1,0 +1,9 @@
+struct map_t {
+
+	int8_t numTriangles;
+	int8_t numBarriers;
+
+	double barriers[numBarriers][4];
+	double triangles[numTriangles][2];
+
+}
