@@ -8,6 +8,7 @@ public class lcm_publish {
     public static void main(String args[]) {
 
             LCM lcm = LCM.getSingleton();
+
             /*
             // instantiate a new lcm position message
             lcmtypes.pos_t pos_msg = new lcmtypes.pos_t();
@@ -40,7 +41,7 @@ public class lcm_publish {
             //publish
             lcm.publish("10_MOTOR_FEEDBACK", msg);
 			*/
-			
+			/*
 			//instantiate a new lcm pimu message
 			lcmtypes.pimu_t msg = new lcmtypes.pimu_t();
 			msg.utime = System.nanoTime();
@@ -57,6 +58,24 @@ public class lcm_publish {
 
 			//publish
 			lcm.publish("10_PIMU", msg);
+			*/
+		
+			// instantiate a new 10_MAP type
+			lcmtypes.map_t msg = new lcmtypes.map_t();
+			msg.timestamp = System.nanoTime();
+			msg.numTriangles = 0;
+			msg.numBarriers = 0;
+
+			msg.barriers = new double[msg.numBarriers][4];
+			msg.triangles = new double[msg.numTriangles][2];
+
+			// publish
+			try {
+				LCM lcm_net = new LCM("udpm://239.255.76.10:7667?ttl=1");
+				lcm_net.publish("10_MAP", msg);
+			} catch (Exception e) {
+				System.err.println("Error sending map message");
+			}
 			
     }
 }

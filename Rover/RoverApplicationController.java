@@ -1,5 +1,7 @@
 package Rover;
 
+import Mapping.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentListener;
@@ -30,10 +32,12 @@ public class RoverApplicationController implements RoverControllerDelegate {
 
 	// args
 	protected Thread roverControllerThread;
+	protected Thread mapControllerThread;
 
 	protected RoverFrame frame;
 	protected ellipseFrame errorFrame;
 	protected RoverController roverController;
+	protected RoverMapController mapController;
 
 	protected RoverModel roverModel;
 	protected RoverPath roverPath;
@@ -105,6 +109,10 @@ public class RoverApplicationController implements RoverControllerDelegate {
 		this.roverController = new RoverController(this);
 		this.roverControllerThread = new Thread(this.roverController);
 		this.roverControllerThread.start();
+
+		this.mapController = new RoverMapController(this);
+		this.mapControllerThread = new Thread(this.mapController);
+		this.mapControllerThread.start();
 	}
 
 	protected void resetCameraView() {

@@ -72,12 +72,6 @@ public class RoverController implements Runnable {
 			this.isExecuting = true;
 
 		}
-
-		// PRINT TO FILE
-		try {
-			FileWriter fstream = new FileWriter("odom_squares.csv");
-			BufferedWriter out = new BufferedWriter(fstream);
-
 		
         // init
         this.delegate.getFrame().getParameterGUI().ss("roverStatus", "Running");
@@ -98,15 +92,11 @@ public class RoverController implements Runnable {
             
             	if (!new_msg.finished) {
 					if (prev_msg != new_msg) {
-						
-					// PRINT TO FILE
-					System.out.println(new_pos[0] + "," + new_pos[1] + "\n");
-
 						this.new_pos = roverPositioning.getNewPosition(new_msg);
 						this.prev_pos = roverPositioning.getPrevPosition();
-						//System.out.println("x: " + new_pos[0]*100);
-						//System.out.println("y: " + new_pos[1]*100);
-						//System.out.println("t: " + new_pos[2]);
+						System.out.println("x: " + new_pos[0]*100);
+						System.out.println("y: " + new_pos[1]*100);
+						System.out.println("t: " + new_pos[2]);
                 		update();
 					}
             	}
@@ -134,9 +124,6 @@ public class RoverController implements Runnable {
         synchronized (this) {
             this.isExecuting = false;
         }
-	} catch (Exception e) {
-		System.err.println("Error: " + e.getMessage());
-		}
 		
 	}
 
