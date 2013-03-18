@@ -5,6 +5,8 @@ import Panda.Odometry.*;
 import java.lang.Object.*;
 import orc.DigitalOutput.*;
 import java.*;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class Destroy {
 
@@ -15,11 +17,15 @@ public class Destroy {
 		this.drive = pd;
 	}
 
-    public void fireZeMissiles(ArrayList<float> angles){
-        drive.setHome();
+    public void fireZeMissiles(ArrayList<Float> angles){
+        Collections.sort(angles);
+        float homeAngle = drive.setHome();
+        float curAngle = homeAngle;
         for (float launchAngle : angles){
-            drive.turn(launchAngle)
-            Laser()
+            float angle = launchAngle - curAngle;
+            drive.turn(angle);
+            Laser();
+            curAngle = launchAngle;
         }
         drive.returnHome();
     }
