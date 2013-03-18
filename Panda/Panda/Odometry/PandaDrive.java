@@ -27,6 +27,8 @@ public class PandaDrive
     static final float TURN_RANGE = 1F;
 	LCM lcm;
 
+	float home;
+
 	MotorSubscriber ms;
 	PIMUSubscriber ps;
     Gyro gyro;
@@ -135,23 +137,23 @@ public class PandaDrive
 		float curAngle = 0;
 
         while ((curAngle + TURN_RANGE) < Math.abs(angle)){
-		
+
 			speed = .7F - .67F * (curAngle / Math.abs(angle));
-			
+
 			if (angle < 0 ){
 				msg.left = - speed;
 				msg.right = speed;
 			}
 			else {
-			    msg.left =  speed;            
+			    msg.left =  speed;
                 msg.right = - speed;
 			}
-              
+
 			msg.utime = TimeUtil.utime();
             lcm.publish("10_DIFF_DRIVE", msg);
 
 			curAngle = Math.abs((float) gyro.getGyroAngleInDegrees() - initAngle);
-        
+
 			System.out.println(curAngle);
 		}
         //Make sure one of the stop messages gets through
@@ -160,6 +162,19 @@ public class PandaDrive
             Stop();
         }
     }
+
+	public float setHome(){
+		home = (float) gyro.getGyroAngleInDegrees();
+        return home;
+	}
+
+	public void returnHome(){
+		float curAngle = (float) gyro.getGyroAngleInDegrees();
+
+		turn(home - curAngle);
+
+	}
+
 
 
     public void driveForward (float distance) {
