@@ -1,5 +1,7 @@
 struct map_t {
 
+	int64_t timestamp;
+
 	int8_t numTriangles;
 	int8_t numBarriers;
 
