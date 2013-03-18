@@ -13,17 +13,18 @@ public class PandaPositioning {
 
 	// constants
 	private static final double static_height_wall = 0.2032;		// camera height from Z=0
-	private static final double static_height_triangle = 0.1524;	// camera height from triangle
+	private static final double static_height_triangle = static_height_wall - 0.1524;	// camera height from triangle
 
 	// args
     private Matrix curGlobalPos;
     private double curGlobalTheta;
 
-    private double[][] origin = { {0, 0, 1} };
-    Matrix originMat = new Matrix (origin);
+    private double[][] origin = { {0},{0},{1} };
+    Matrix originMat;
 
 	public PandaPositioning() {
 		//this.history = new ArrayList<Matrix>();	// A series of transformations since beginning
+        originMat = new Matrix (origin);
         this.curGlobalPos = originMat;
         this.curGlobalTheta = 0;
 	}
@@ -55,32 +56,41 @@ public class PandaPositioning {
         return curGlobalTheta;
     }
 
-    public Matrix getGlobalPoint(double[] intrinsics, double[] pixels, boolean type) {
+    public Matrix getGlobalPoint(double[] intrinsics, double[] pixels, boolean detectingLine) {
 		// intrinsics = [f, cx, cy]
 		// pixels = [u, v]
 		// type = true for wall, false for triangle
 		double static_height = 0;
-		if (type) {
+		if (detectingLine == true) {
 			static_height = static_height_wall;
-		}
-		else {
+		} else {
 			static_height = static_height_triangle;
 		}
 
 
 		double scale = Math.abs(static_height / (pixels[1] - intrinsics[2]));
-		double first_X = scale * (pixels[0] - intrinsics[1]);
+		double first_X = scale * (intrinsics[1] - pixels[0]);
 		double first_Y = scale * (intrinsics[2] - pixels[1]);
 		double first_Z = scale * intrinsics[0];
 
 		double[][] res = new double[3][1];
 
         double scaled_Z = calcZ (first_Z, pixels[1]);
-        double scaled_X = first_Z*(pixels[0] - intrinsics[1]) / intrinsics[0];
+        double scaled_X = first_Z*(intrinsics[1] - pixels[0]) / intrinsics[0];
 
-        res[0][0] = scaled_X;
-        res[1][0] = scaled_Z;
-        res[2][0] = 1;
+        if (detectingLine) {
+            res[0][0] = scaled_Z;
+            res[1][0] = scaled_X;
+            res[2][0] = 1;
+        } else {
+            double triangle_Z = calcZ_triangle (scaled_Z, pixels[1]);
+            res[0][0] = triangle_Z;
+            res[1][0] = scaled_X;
+            res[2][0] = 1;
+
+
+        }
+
 
         // in robot's coordinate frame
 		Matrix ret_mat = new Matrix(res);
@@ -89,6 +99,7 @@ public class PandaPositioning {
 	}
 
     public Matrix translateToGlobal (Matrix coordinate) {
+
 
         double[][] translate = { {1, 0, curGlobalPos.get(0,0)},
                                     {0, 1, curGlobalPos.get(1,0)},
@@ -118,7 +129,14 @@ public class PandaPositioning {
 
     }
 
+    public double calcZ_triangle (double calc_val, double pixel_y) {
 
+        double offset_factor = pixel_y * -.00081 + 1.10491;
+        double actual_z = calc_val / offset_factor;
+        return actual_z;
+
+
+    }
 
 
 }
