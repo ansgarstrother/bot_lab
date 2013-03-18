@@ -34,8 +34,8 @@ public class PandaPositioning {
         double[][] translate = { {1, 0, distance},
                                     {0, 1, 0},
                                     {0, 0, 1} };
-		double[][] rotate = {{Math.cos(theta),	-Math.sin(theta),	0},
-							{Math.sin(theta), 	Math.cos(theta),	0},
+		double[][] rotate = {{Math.cos(curGlobalTheta),	-Math.sin(curGlobalTheta),	0},
+							{Math.sin(curGlobalTheta), 	Math.cos(curGlobalTheta),	0},
 							{0, 					0, 						1}};
         Matrix translateMat = new Matrix (translate);
         Matrix rotateMat = new Matrix (rotate);
@@ -56,7 +56,9 @@ public class PandaPositioning {
         return curGlobalTheta;
     }
 
-    public Matrix getGlobalPoint(double[] intrinsics, double[] pixels, boolean detectingLine) {
+
+
+    public Matrix getLocalPoint(double[] intrinsics, double[] pixels, boolean detectingLine) {
 		// intrinsics = [f, cx, cy]
 		// pixels = [u, v]
 		// type = true for wall, false for triangle
@@ -94,8 +96,18 @@ public class PandaPositioning {
 
         // in robot's coordinate frame
 		Matrix ret_mat = new Matrix(res);
+		return ret_mat;
+        //return translateToGlobal (ret_mat);
+	}
 
-        return translateToGlobal (ret_mat);
+	public Matrix getGlobalPoint (double[] intrinsics, double[] pixels, boolean detectingLine) {
+
+		Matrix localPoint = getLocalPoint (intrinsics, pixels, detectingLine);
+		Matrix globalPoint = translateToGlobal (localPoint);
+
+		return globalPoint;
+
+
 	}
 
     public Matrix translateToGlobal (Matrix coordinate) {
