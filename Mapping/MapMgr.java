@@ -1,4 +1,4 @@
-package Panda.VisionMapping;
+package Mapping;
 
 import java.util.ArrayList;
 import javax.swing.*;
@@ -15,7 +15,9 @@ public class MapMgr {
     protected Integer UNKNOWN;
 	protected Integer BARRIER;
     protected Integer KNOWN;
+	protected Integer TRIANGLE;
     protected int RADIUS = 10; // radius of robot
+	protected int TRIANGLE_CONVOLVE = 4;
 
 //=================================================================//
 // Map                                                             //
@@ -26,9 +28,10 @@ public class MapMgr {
 //=================================================================//
 	public MapMgr() {
 		map = new HashMap<Point, Integer>(1000*1000);
-        UNKNOWN = new Integer (0);
-        BARRIER = new Integer (1);
-        KNOWN = new Integer (2);
+        KNOWN = new Integer (0);
+        UNKNOWN = new Integer (1);
+        BARRIER = new Integer (2);
+		TRIANGLE = new Integer (3);
         for (int i=-500; i < 500; i++) {
             for (int j=-500; j < 500; j++) {
                 Point pt = new Point (i,j);
@@ -38,20 +41,14 @@ public class MapMgr {
 
 	}
 
-    public HashMap<Point, Integer> getMap() {
-        return this.map;
 
+    public void updateMap (double[] globalPos, double[][] barriers, double[][] triangles) {
 
-    }
-
-
-    public void updateMap (/*BarrierMap bm,*/ Matrix globalPos, double globalTheta) {
-
-        double[][] globalTrans = { {1, 0, globalPos.get(0,0) },
-                                {0, 1, globalPos.get(1,0) },
+        double[][] globalTrans = { {1, 0, globalPos[0] },
+                                {0, 1, globalPos[1] },
                                 {0, 0, 1} };
-        double[][] globalRot = { {Math.cos(globalTheta), -Math.sin(globalTheta), 0} ,
-                                    { Math.sin(globalTheta), Math.cos(globalTheta), 0} ,
+        double[][] globalRot = { {Math.cos(globalPos[2]), -Math.sin(globalPos[2]), 0} ,
+                                    { Math.sin(globalPos[2]), Math.cos(globalPos[2]), 0} ,
                                         {0, 0, 1} };
         Matrix globalTransMat = new Matrix (globalTrans);
         Matrix globalRotMat = new Matrix (globalRot);
@@ -81,8 +78,9 @@ public class MapMgr {
 
         }
 
-        addBarrier();
-        printMap(globalPos);
+        addBarrier(barriers);
+		//addTriangles(triangles);
+        //printMap(globalPos);
 
 
     }
@@ -94,6 +92,34 @@ public class MapMgr {
 
     }
 
+
+
+//=================================================================//
+// addTriangle		                                               //
+//                                                                 //
+// 	adds triangle locations convolved into the map				   //
+//                                                                 //
+// Returns: VOID                                                   //
+//=================================================================//
+
+	private void addTriangle(double[][] triangles) {
+		for (int i = 0; i < triangles.length; i++) {
+			double[] cur_point = triangles[i];
+			int x = (int)cur_point[0]; int y = (int)cur_point[1];
+			
+			// plot point into map
+			for (int j = x - TRIANGLE_CONVOLVE; j < x + TRIANGLE_CONVOLVE; j++) {
+				for (int k = y - TRIANGLE_CONVOLVE; k < y + TRIANGLE_CONVOLVE; k++) {
+					Point new_point = new Point(i,j);
+					map.put(new_point, TRIANGLE);
+				}
+			}
+		}
+
+	}
+
+
+
 //=================================================================//
 // addBarrier                                                    //
 //                                                                 //
@@ -101,7 +127,7 @@ public class MapMgr {
 //                                                                 //
 // Returns: VOID                                                   //
 //=================================================================//
-	private void addBarrier(/*BarrierMap bm*/){
+	private void addBarrier(double[][] barriers){
 
         // BarrierMap:
         // NOTE: BarrierMap is in meter
@@ -109,25 +135,13 @@ public class MapMgr {
         //
 
 
+        for (int i = 0; i < barriers.length; i++) {
 
-        ArrayList<double[][]> realWorldMap;// = bm.getBarriers();
-        realWorldMap = new ArrayList<double[][]>();
-        double[][] barrier1 = { {0, 1}, {0.25, 0.5} };
-        double[][] barrier2 = { {.55, 0.2}, {1, 0} };
-        //double[][] barrier2 = { {
-        realWorldMap.add(barrier1);
-        realWorldMap.add(barrier2);
-
-
-        for (int i = 0; i < realWorldMap.size(); i++) {
-
-            //thickenBarriers (pre_barrier);
-
-            double[][] pre_barrier = realWorldMap.get(i);
-            int[] barrier = {   (int) (pre_barrier[0][0] * 100),   //mult 100 = m to cm
-                                (int) (pre_barrier[0][1] * 100),
-                                (int) (pre_barrier[1][0] * 100),
-                                (int) (pre_barrier[1][1] * 100)};
+            double[] pre_barrier = barriers[i];
+            int[] barrier = {   (int) (pre_barrier[0] * 100),   //mult 100 = m to cm
+                                (int) (pre_barrier[1] * 100),
+                                (int) (pre_barrier[2] * 100),
+                                (int) (pre_barrier[3] * 100)};
 
             convolveAndDraw(barrier);
 
@@ -242,6 +256,10 @@ public class MapMgr {
 
 
     }
+
+	public HashMap<Point, Integer> getMap() {
+		return map;
+	}
 
 
 

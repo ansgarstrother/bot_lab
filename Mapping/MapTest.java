@@ -1,4 +1,4 @@
-package Panda.VisionMapping;
+package Mapping;
 
 import java.util.*;
 import java.awt.*;

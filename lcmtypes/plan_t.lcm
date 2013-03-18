@@ -1,0 +1,9 @@
+struct plan_t {
+	
+    int64_t timestamp;
+	
+	boolean finished;
+	float delta_x;
+	double theta;
+
+}

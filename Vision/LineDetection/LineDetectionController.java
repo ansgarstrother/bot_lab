@@ -58,7 +58,7 @@ public class LineDetectionController {
     public LineDetectionController(LineDetectionFrame frame, double[] cv, PandaPositioning pp) {
 			this.calibrationVector = cv; // calibration vector [f, cx, cy]
 			this.pp = pp;
-			this.history = pp.getHistory();
+			//this.history = pp.getHistory();
 			
         	this.frame = frame;
         	frame.setSize(1024, 768);
@@ -316,8 +316,8 @@ public class LineDetectionController {
 		double[] init_point = {segment[0][0], segment[0][1]};
 		double[] fin_point = {segment[1][0], segment[1][1]};
 		// Ray Projection Implementation
-		Matrix init_vec = pp.getGlobalPoint(calibrationVector, init_point);
-		Matrix fin_vec = pp.getGlobalPoint(calibrationVector, fin_point);
+		Matrix init_vec = pp.getGlobalPoint(calibrationVector, init_point, true);
+		Matrix fin_vec = pp.getGlobalPoint(calibrationVector, fin_point, true);
 
 	    	// add real world coordinate
 	    	double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},

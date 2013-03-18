@@ -105,8 +105,8 @@ public class BarrierMap{
                 double[] init_point = {segment[0][0], segment[0][1]};
                 double[] fin_point = {segment[1][0], segment[1][1]};
                 // Ray Projection Implementation
-                Matrix init_vec = pp.getGlobalPoint(calibrationMatrix, init_point);
-                Matrix fin_vec = pp.getGlobalPoint(calibrationMatrix, fin_point);
+                Matrix init_vec = pp.getGlobalPoint(calibrationMatrix, init_point, true);
+                Matrix fin_vec = pp.getGlobalPoint(calibrationMatrix, fin_point, true);
 
                     // add real world coordinate
                 double[][] real_segment = {{init_vec.get(0,0), init_vec.get(1,0), init_vec.get(2,0)},

@@ -71,9 +71,9 @@ public class PandaMain_V2{
 		ImageSourceFormat fmt = is.getCurrentFormat();
 
 		PandaPositioning positioner = new PandaPositioning();
-    	PandaDrive drive = new PandaDrive();
-        TargetDetector target = new TargetDetector(drive, calibrationMatrix, positioner);
-
+    		PandaDrive drive = new PandaDrive();
+        	TargetDetector target = new TargetDetector(drive, calibrationMatrix, positioner);
+		
 		is.start();
 		System.out.printf("AAHHHHHHHHH\n");
 		while(run){
@@ -87,6 +87,7 @@ public class PandaMain_V2{
 		
 			//Detect any triangles and then fire on them
 			target.runDetection(im);
+			ArrayList<double[]> triangle_points = target.getTrianglePoints();
 
 			System.out.printf("loop done\n");
 		}
